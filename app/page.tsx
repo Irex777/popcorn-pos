@@ -32,7 +32,14 @@ const POS = () => {
         }
         const data = await response.json();
         console.log('Fetched products:', data);
-        setProducts(data);
+
+        // Sanitize product names
+        const sanitizedProducts = data.map((product: Product) => ({
+          ...product,
+          name: typeof product.name === 'string' ? product.name.trim() : 'Unnamed Product',
+        }));
+
+        setProducts(sanitizedProducts);
       } catch (err) {
         console.error('Error:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -77,9 +84,12 @@ const POS = () => {
   const completeSale = async () => {
     try {
       const saleData = {
-        items: cart,
+        items: cart.map(item => ({
+          ...item,
+          name: typeof item.name === 'string' ? item.name.trim() : 'Unnamed Product',
+        })),
         total,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const response = await fetch('/api/sales', {
@@ -133,7 +143,9 @@ const POS = () => {
               className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:bg-gray-50 transition-colors"
               onClick={() => addToCart(product)}
             >
-              <div className="text-lg font-semibold mb-2">{product.name}</div>
+              <div className="text-lg font-semibold mb-2">
+                {typeof product.name === 'string' ? product.name.trim() : 'Unnamed Product'}
+              </div>
               <div className="text-2xl text-green-600">${product.price.toFixed(2)}</div>
             </div>
           ))}
