@@ -10,7 +10,7 @@ const sheets = google.sheets({ version: 'v4', auth });
 
 // PUT handler for updating existing products
 export async function PUT(
-  request: Request, 
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -27,7 +27,7 @@ export async function PUT(
     if (!rows) throw new Error('No data found in the spreadsheet.');
 
     // Find the row to update
-    const rowIndex = rows.findIndex((row) => row[0] === id) + 2; // +2 for header row offset
+    const rowIndex = rows.findIndex((row) => row[0] === id) + 2; // +2 for the header row offset
     if (rowIndex === 1) throw new Error('Product not found.');
 
     // Update the product
@@ -50,18 +50,26 @@ export async function PUT(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error('Error updating product:', error);
-    return NextResponse.json(
-      { error: 'Failed to update product', details: error.message },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error updating product:', error);
+      return NextResponse.json(
+        { error: 'Failed to update product', details: error.message },
+        { status: 500 }
+      );
+    } else {
+      console.error('Unknown error updating product:', error);
+      return NextResponse.json(
+        { error: 'Failed to update product' },
+        { status: 500 }
+      );
+    }
   }
 }
 
 // DELETE handler for removing products
 export async function DELETE(
-  request: Request, 
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -77,7 +85,7 @@ export async function DELETE(
     if (!rows) throw new Error('No data found in the spreadsheet.');
 
     // Find the row to delete
-    const rowIndex = rows.findIndex((row) => row[0] === id) + 2; // +2 for header row offset
+    const rowIndex = rows.findIndex((row) => row[0] === id) + 2; // +2 for the header row offset
     if (rowIndex === 1) throw new Error('Product not found.');
 
     // Clear the product data
@@ -87,11 +95,19 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error('Error deleting product:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete product', details: error.message },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error deleting product:', error);
+      return NextResponse.json(
+        { error: 'Failed to delete product', details: error.message },
+        { status: 500 }
+      );
+    } else {
+      console.error('Unknown error deleting product:', error);
+      return NextResponse.json(
+        { error: 'Failed to delete product' },
+        { status: 500 }
+      );
+    }
   }
 }
