@@ -33,7 +33,7 @@ const POS = () => {
         }
         const data = await response.json();
         setProducts(data);
-      } catch (_) {
+      } catch {
         setError('Error loading products');
       } finally {
         setLoading(false);
@@ -175,7 +175,7 @@ const POS = () => {
                     if (response.ok) {
                       setCart([]);
                     }
-                  } catch (_) {
+                  } catch {
                     console.error('Error completing sale');
                   }
                 }}
