@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { MinusCircle, PlusCircle, Receipt } from 'lucide-react';
-import Link from 'next/link';
 
 interface Product {
   id: number;
   name: string;
   price: number;
-  quantity?: number;
+  quantity: number;
+  description?: string;
+  saveAmount?: number;
 }
 
 interface CartItem extends Product {
@@ -27,18 +28,12 @@ const POS = () => {
       try {
         const response = await fetch('/api/products');
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch products');
+          throw new Error('Failed to fetch products');
         }
         const data = await response.json();
-        const sanitizedProducts = data.map((product: Product) => ({
-          ...product,
-          name: typeof product.name === 'string' ? product.name.trim() : 'Unnamed Product',
-        }));
-        setProducts(sanitizedProducts);
+        setProducts(data);
       } catch (err) {
-        console.error('Error:', err);
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError('Error loading products');
       } finally {
         setLoading(false);
       }
@@ -73,148 +68,128 @@ const POS = () => {
     }
   };
 
-  const clearCart = () => {
-    setCart([]);
-  };
-
-  const completeSale = async () => {
-    try {
-      const saleData = {
-        items: cart.map(item => ({
-          ...item,
-          name: typeof item.name === 'string' ? item.name.trim() : 'Unnamed Product',
-        })),
-        total,
-        timestamp: new Date().toISOString(),
-      };
-
-      const response = await fetch('/api/sales', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(saleData),
-      });
-
-      if (!response.ok) throw new Error('Failed to record sale');
-
-      clearCart();
-    } catch (error) {
-      console.error('Error completing sale:', error);
-    }
-  };
-
   useEffect(() => {
     const newTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     setTotal(newTotal);
   }, [cart]);
 
-  if (error) {
+  const renderProductCard = (product: Product) => {
+    const isDeal = product.saveAmount && product.saveAmount > 0;
+    
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="bg-red-50 p-4 rounded-lg">
-          <h2 className="text-red-800 font-medium">Error loading products</h2>
-          <p className="text-red-600">{error}</p>
+      <div
+        key={product.id}
+        className={`${isDeal ? 'bg-yellow-50' : 'bg-white'} rounded-lg shadow-sm p-4 cursor-pointer hover:bg-gray-50`}
+        onClick={() => addToCart(product)}
+      >
+        <div className="flex flex-col h-full">
+          <h3 className="text-lg font-semibold">{product.name}</h3>
+          {product.description && (
+            <p className="text-sm text-gray-600 mt-1">{product.description}</p>
+          )}
+          <div className="mt-auto pt-2 flex justify-between items-baseline">
+            <span className="text-xl font-bold">${product.price.toFixed(2)}</span>
+            {isDeal && (
+              <span className="text-green-600 text-sm">Save ${product.saveAmount.toFixed(2)}</span>
+            )}
+          </div>
+          <div className="text-sm text-gray-500 mt-1">
+            In stock: {product.quantity}
+          </div>
         </div>
       </div>
     );
-  }
+  };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
+  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (error) return <div className="p-8 text-center text-red-600">{error}</div>;
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Products Grid */}
-        <div className="md:w-2/3 grid grid-cols-2 md:grid-cols-3 gap-4">
-          {products.map(product => (
-            <div
-              key={product.id}
-              className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:bg-gray-50 transition-colors h-32 w-full flex flex-col"
-              onClick={() => addToCart(product)}
-            >
-              <div className="text-lg font-semibold">
-                {typeof product.name === 'string' ? product.name.trim() : 'Unnamed Product'}
-              </div>
-              <div className="text-2xl text-green-600 mt-auto">${product.price.toFixed(2)}</div>
-            </div>
-          ))}
+    <div className="max-w-screen-2xl mx-auto px-4 py-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {products.map(renderProductCard)}
         </div>
 
-        {/* Cart */}
-        <div className="md:w-1/3 bg-white rounded-lg shadow-md p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Current Order</h2>
-            <Receipt className="w-6 h-6 text-gray-600" />
+        <div className="bg-white rounded-lg shadow-sm p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Current Order</h2>
+            <Receipt className="w-5 h-5 text-gray-600" />
           </div>
 
-          <div className="flex-grow overflow-auto max-h-[300px] space-y-4">
+          <div className="space-y-3 mb-4">
             {cart.map(item => (
-              <div key={item.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                <div>
+              <div key={item.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                <div className="flex-1">
                   <div className="font-medium">{item.name}</div>
-                  <div className="text-sm text-gray-600">
-                    ${item.price.toFixed(2)} x {item.quantity}
-                  </div>
+                  <div className="text-sm text-gray-600">${item.price.toFixed(2)} × {item.quantity}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
-                    className="p-2 hover:bg-gray-200 rounded-full transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                       removeFromCart(item.id);
                     }}
+                    className="p-1 hover:bg-gray-200 rounded-full"
                   >
-                    <MinusCircle className="w-5 h-5 text-red-500" />
+                    <MinusCircle className="w-5 h-5 text-gray-600" />
                   </button>
-                  <span className="w-8 text-center font-medium">{item.quantity}</span>
+                  <span className="w-8 text-center">{item.quantity}</span>
                   <button
-                    className="p-2 hover:bg-gray-200 rounded-full transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                       addToCart(item);
                     }}
+                    className="p-1 hover:bg-gray-200 rounded-full"
                   >
-                    <PlusCircle className="w-5 h-5 text-green-500" />
+                    <PlusCircle className="w-5 h-5 text-gray-600" />
                   </button>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="border-t border-gray-200 pt-6 mt-6">
-            <div className="flex justify-between text-2xl font-bold mb-6">
-              <span>Total:</span>
-              <span className="text-green-600">${total.toFixed(2)}</span>
+          <div className="border-t pt-4">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-lg font-semibold">Total:</span>
+              <span className="text-xl font-bold">${total.toFixed(2)}</span>
             </div>
-            <div className="flex flex-col gap-3">
+
+            <div className="grid grid-cols-2 gap-3">
               <button
-                className="w-full h-12 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-                onClick={completeSale}
+                onClick={() => setCart([])}
+                className="px-4 py-2 border border-gray-200 rounded-md hover:bg-gray-50"
+              >
+                Clear
+              </button>
+              <button
+                onClick={async () => {
+                  // Handle sale completion
+                  try {
+                    const response = await fetch('/api/sales', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        items: cart,
+                        total,
+                        timestamp: new Date().toISOString()
+                      }),
+                    });
+                    
+                    if (response.ok) {
+                      setCart([]);
+                    }
+                  } catch (error) {
+                    console.error('Error completing sale:', error);
+                  }
+                }}
+                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
                 disabled={cart.length === 0}
               >
                 Complete Sale
               </button>
-              <div className="flex gap-3">
-                <button
-                  className="flex-1 h-12 bg-red-50 text-red-600 border border-red-200 rounded-lg font-medium hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={clearCart}
-                  disabled={cart.length === 0}
-                >
-                  Clear
-                </button>
-                <Link href="/sales-history" className="flex-1">
-                  <button className="w-full h-12 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg font-medium hover:bg-blue-100 transition-colors">
-                    View History
-                  </button>
-                </Link>
-              </div>
             </div>
           </div>
         </div>
