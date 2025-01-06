@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { MinusCircle, PlusCircle, Receipt } from 'lucide-react';
 import Link from 'next/link';
-import SalesHistory from './components/SalesHistory';
+import SalesHistory from '../../components/SalesHistory';
 
 interface Product {
   id: number;
