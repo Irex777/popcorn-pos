@@ -12,7 +12,7 @@ export async function GET() {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: 'Products!A2:D',
+      range: 'Products!A2:D', // Ensure the range is correct
     });
 
     if (!response.data.values) {
@@ -20,17 +20,16 @@ export async function GET() {
     }
 
     const products = response.data.values.map(row => ({
-        id: parseInt(row[0]),
-        name: typeof row[1] === 'string' ? row[1].trim() : '', // Trim or set empty string
-        price: parseFloat(row[2]) || 0, // Ensure valid number or default to 0
-        quantity: parseInt(row[3]) || 0, // Ensure valid number or default to 0
-      }));
-      
+      id: parseInt(row[0]) || 0, // Ensure ID is a valid number or default to 0
+      name: typeof row[1] === 'string' ? row[1].trim() : 'Unnamed Product', // Trim string or use default
+      price: parseFloat(row[2]) || 0, // Ensure price is a valid number or default to 0
+      quantity: parseInt(row[3]) || 0, // Ensure quantity is a valid number or default to 0
+    }));
 
-    console.log('Raw row:', row);
+    console.log('Sanitized products:', products); // Log the sanitized data
     return NextResponse.json(products);
   } catch (error) {
-    console.error('Google Sheets API Error:', error);
+    console.error('Google Sheets API Error:', error.message); // Improved error logging
     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
   }
 }

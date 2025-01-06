@@ -13,6 +13,17 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { items, total, timestamp } = body;
 
+    // Validate and sanitize `items`
+    const sanitizedItems = Array.isArray(items)
+      ? items.map(item => ({
+          ...item,
+          name: typeof item.name === 'string' ? item.name.trim() : 'Unknown',
+        }))
+      : [];
+
+    // Ensure `total` is a number
+    const sanitizedTotal = parseFloat(total) || 0;
+
     // Add sale to Sales sheet
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.SPREADSHEET_ID,
@@ -21,10 +32,10 @@ export async function POST(request: Request) {
       requestBody: {
         values: [[
           timestamp,
-          JSON.stringify(items),
-          total.toFixed(2),
-          'completed'
-        ]]
+          JSON.stringify(sanitizedItems),
+          sanitizedTotal.toFixed(2),
+          'completed',
+        ]],
       },
     });
 
@@ -44,9 +55,24 @@ export async function GET() {
 
     const sales = response.data.values?.map(([timestamp, items, total, status]) => ({
       timestamp,
-      items: JSON.parse(items),
-      total: parseFloat(total),
-      status
+      // Sanitize `items`
+      items: (() => {
+        try {
+          const parsedItems = JSON.parse(items);
+          return Array.isArray(parsedItems)
+            ? parsedItems.map(item => ({
+                ...item,
+                name: typeof item.name === 'string' ? item.name.trim() : 'Unknown',
+              }))
+            : [];
+        } catch {
+          return [];
+        }
+      })(),
+      // Ensure `total` is a number
+      total: parseFloat(total) || 0,
+      // Sanitize `status`
+      status: typeof status === 'string' ? status.trim() : 'Unknown',
     })) || [];
 
     return NextResponse.json(sales);
