@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { MinusCircle, PlusCircle, Receipt } from 'lucide-react';
-import Link from 'next/link';
 
 interface Product {
   id: number;
