@@ -26,10 +26,12 @@ export async function GET() {
       quantity: parseInt(row[3]) || 0, // Ensure quantity is a valid number or default to 0
     }));
 
-    console.log('Sanitized products:', products); // Log the sanitized data
-    return NextResponse.json(products);
-  } catch (error) {
-    console.error('Google Sheets API Error:', error.message); // Improved error logging
-    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
-  }
+    catch (error) {
+        if (error instanceof Error) {
+          console.error('Google Sheets API Error:', error.message); // Safe access to .message
+        } else {
+          console.error('Google Sheets API Error:', error); // Fallback for non-Error types
+        }
+        return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+      }
 }
