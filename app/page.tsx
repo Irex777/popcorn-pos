@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { MinusCircle, PlusCircle, Receipt } from 'lucide-react';
 import Link from 'next/link';
-import SalesHistory from '../../components/SalesHistory';
 
 interface Product {
   id: number;
@@ -32,13 +31,10 @@ const POS = () => {
           throw new Error(errorData.error || 'Failed to fetch products');
         }
         const data = await response.json();
-        console.log('Fetched products:', data);
-
         const sanitizedProducts = data.map((product: Product) => ({
           ...product,
           name: typeof product.name === 'string' ? product.name.trim() : 'Unnamed Product',
         }));
-
         setProducts(sanitizedProducts);
       } catch (err) {
         console.error('Error:', err);
@@ -168,7 +164,7 @@ const POS = () => {
             <Receipt className="w-6 h-6 text-gray-600" />
           </div>
 
-          <div className="flex-grow overflow-auto max-h-[300px] space-y-4"> {/* Scrollable cart */}
+          <div className="flex-grow overflow-auto max-h-[300px] space-y-4">
             {cart.map(item => (
               <div key={item.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                 <div>
