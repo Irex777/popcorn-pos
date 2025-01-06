@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { items, total, timestamp } = body;
 
-    const response = await sheets.spreadsheets.values.append({
+    await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.SPREADSHEET_ID,
       range: 'Sales!A:D',
       valueInputOption: 'RAW',
