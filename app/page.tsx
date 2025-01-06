@@ -3,20 +3,38 @@
 import React, { useState, useEffect } from 'react';
 import { MinusCircle, PlusCircle, Receipt } from 'lucide-react';
 
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  quantity?: number;
+}
+
+interface CartItem extends Product {
+  quantity: number;
+}
+
 const POS = () => {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [total, setTotal] = useState(0);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const products = [
-    { id: 1, name: 'Small Popcorn', price: 5 },
-    { id: 2, name: 'Medium Popcorn', price: 7 },
-    { id: 3, name: 'Large Popcorn', price: 9 },
-    { id: 4, name: 'Small Soda', price: 3 },
-    { id: 5, name: 'Large Soda', price: 4 },
-    { id: 6, name: 'Candy', price: 3 },
-  ];
+  useEffect(() => {
+    // Fetch products from API
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        setProducts(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching products:', error);
+        setLoading(false);
+      });
+  }, []);
 
-  const addToCart = (product) => {
+  const addToCart = (product: Product) => {
     const existingItem = cart.find(item => item.id === product.id);
     if (existingItem) {
       setCart(cart.map(item =>
@@ -29,9 +47,9 @@ const POS = () => {
     }
   };
 
-  const removeFromCart = (productId) => {
+  const removeFromCart = (productId: number) => {
     const existingItem = cart.find(item => item.id === productId);
-    if (existingItem.quantity === 1) {
+    if (existingItem && existingItem.quantity === 1) {
       setCart(cart.filter(item => item.id !== productId));
     } else {
       setCart(cart.map(item =>
@@ -46,15 +64,42 @@ const POS = () => {
     setCart([]);
   };
 
-  const completeSale = () => {
-    console.log('Sale completed:', { items: cart, total });
-    clearCart();
+  const completeSale = async () => {
+    try {
+      const saleData = {
+        items: cart,
+        total,
+        timestamp: new Date().toISOString()
+      };
+
+      const response = await fetch('/api/sales', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(saleData),
+      });
+
+      if (!response.ok) throw new Error('Failed to record sale');
+
+      clearCart();
+    } catch (error) {
+      console.error('Error completing sale:', error);
+    }
   };
 
   useEffect(() => {
     const newTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     setTotal(newTotal);
   }, [cart]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col md:flex-row gap-6 p-6 min-h-screen bg-gray-50">
