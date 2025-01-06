@@ -136,13 +136,13 @@ const POS = () => {
           {products.map(product => (
             <div
               key={product.id}
-              className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:bg-gray-50 transition-colors h-32 w-full flex flex-col justify-between"
+              className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:bg-gray-50 transition-colors h-32 w-full flex flex-col"
               onClick={() => addToCart(product)}
             >
-              <div className="text-lg font-semibold mb-2">
+              <div className="text-lg font-semibold">
                 {typeof product.name === 'string' ? product.name.trim() : 'Unnamed Product'}
               </div>
-              <div className="text-2xl text-green-600">${product.price.toFixed(2)}</div>
+              <div className="text-2xl text-green-600 mt-auto">${product.price.toFixed(2)}</div>
             </div>
           ))}
         </div>
