@@ -16,13 +16,10 @@ interface GoogleApiError extends Error {
 
 export async function GET() {
   try {
-    console.log('Fetching from sheet:', process.env.SPREADSHEET_ID);
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: 'Sheet1!A2:D',
+      range: 'Products!A2:D', // Changed to 'Products' instead of 'Sheet1'
     });
-
-    console.log('Sheet response:', response.data.values);
 
     const products = response.data.values?.map(([id, name, price, quantity]) => ({
       id: parseInt(id),
@@ -31,17 +28,10 @@ export async function GET() {
       quantity: parseInt(quantity)
     })) || [];
 
-    console.log('Processed products:', products);
     return NextResponse.json(products);
   } catch (error) {
     const apiError = error as GoogleApiError;
-    console.error('Full error:', apiError);
-    console.error('Error details:', {
-      message: apiError.message,
-      code: apiError.code,
-      status: apiError.status,
-      details: apiError.details
-    });
+    console.error('Google Sheets API Error:', apiError);
     return NextResponse.json({ error: apiError.message }, { status: 500 });
   }
 }
