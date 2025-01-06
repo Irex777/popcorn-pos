@@ -1,5 +1,5 @@
 import { google } from 'googleapis';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS || '{}'),
@@ -9,7 +9,10 @@ const auth = new google.auth.GoogleAuth({
 const sheets = google.sheets({ version: 'v4', auth });
 
 // PUT handler for updating existing products
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: Request, 
+  { params }: { params: { id: string } }
+) {
   try {
     const id = params.id; // Extract the ID from the dynamic route
     const body = await request.json(); // Parse the request body
@@ -24,7 +27,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     if (!rows) throw new Error('No data found in the spreadsheet.');
 
     // Find the row to update
-    const rowIndex = rows.findIndex((row) => row[0] === id) + 2; // Add 2 to account for the header row
+    const rowIndex = rows.findIndex((row) => row[0] === id) + 2; // +2 for header row offset
     if (rowIndex === 1) throw new Error('Product not found.');
 
     // Update the product
@@ -47,7 +50,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating product:', error);
     return NextResponse.json(
       { error: 'Failed to update product', details: error.message },
@@ -57,7 +60,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // DELETE handler for removing products
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: Request, 
+  { params }: { params: { id: string } }
+) {
   try {
     const id = params.id; // Extract the ID from the dynamic route
 
@@ -71,7 +77,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     if (!rows) throw new Error('No data found in the spreadsheet.');
 
     // Find the row to delete
-    const rowIndex = rows.findIndex((row) => row[0] === id) + 2; // Add 2 to account for the header row
+    const rowIndex = rows.findIndex((row) => row[0] === id) + 2; // +2 for header row offset
     if (rowIndex === 1) throw new Error('Product not found.');
 
     // Clear the product data
@@ -81,7 +87,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting product:', error);
     return NextResponse.json(
       { error: 'Failed to delete product', details: error.message },
