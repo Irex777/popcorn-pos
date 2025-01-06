@@ -153,50 +153,6 @@ const POS = () => {
               <span className="text-lg font-semibold">Total:</span>
               <span className="text-xl font-bold">${total.toFixed(2)}</span>
             </div>
-
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={async () => {
-                  try {
-                    const response = await fetch('/api/sales', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                        items: cart,
-                        total,
-                        timestamp: new Date().toISOString()
-                      }),
-                    });
-                    
-                    if (response.ok) {
-                      setCart([]);
-                    }
-                  } catch {
-                    console.error('Error completing sale');
-                  }
-                }}
-                className="w-full h-12 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-                disabled={cart.length === 0}
-              >
-                Complete Sale
-              </button>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setCart([])}
-                  className="flex-1 h-12 bg-red-50 text-red-600 border border-red-200 rounded-lg font-medium hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={cart.length === 0}
-                >
-                  Clear
-                </button>
-                <Link href="/sales-history" className="flex-1">
-                  <button className="w-full h-12 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg font-medium hover:bg-blue-100 transition-colors">
-                    View History
-                  </button>
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
       </div>
