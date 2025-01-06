@@ -3,14 +3,21 @@
 import React, { useEffect, useState } from 'react';
 
 interface SaleItem {
+  id?: number;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+interface Sale {
   timestamp: string;
-  items: any[];
+  items: SaleItem[];
   total: number;
   status: string;
 }
 
 export default function SalesHistory() {
-  const [sales, setSales] = useState<SaleItem[]>([]);
+  const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,7 +57,9 @@ export default function SalesHistory() {
                   {new Date(sale.timestamp).toLocaleString()}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-500">
-                  {JSON.stringify(sale.items)}
+                  {sale.items.map(item => 
+                    `${item.name} (${item.quantity})`
+                  ).join(', ')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   ${Number(sale.total).toFixed(2)}
