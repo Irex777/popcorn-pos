@@ -8,6 +8,12 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
+interface GoogleApiError extends Error {
+  code?: number;
+  status?: string;
+  details?: unknown;
+}
+
 export async function GET() {
   try {
     console.log('Fetching from sheet:', process.env.SPREADSHEET_ID);
@@ -27,14 +33,15 @@ export async function GET() {
 
     console.log('Processed products:', products);
     return NextResponse.json(products);
-  } catch (error: any) {
-    console.error('Full error:', error);
+  } catch (error) {
+    const apiError = error as GoogleApiError;
+    console.error('Full error:', apiError);
     console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      status: error.status,
-      details: error.details
+      message: apiError.message,
+      code: apiError.code,
+      status: apiError.status,
+      details: apiError.details
     });
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: apiError.message }, { status: 500 });
   }
 }
