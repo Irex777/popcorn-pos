@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 
 interface SaleItem {
-  id?: number;
+  id: number;
   name: string;
   price: number;
   quantity: number;
@@ -21,16 +21,20 @@ export default function SalesHistory() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/sales')
-      .then(res => res.json())
-      .then(data => {
+    const fetchSales = async () => {
+      try {
+        const response = await fetch('/api/sales');
+        if (!response.ok) throw new Error('Failed to fetch sales');
+        const data = await response.json();
         setSales(data);
-        setLoading(false);
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Error fetching sales:', error);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchSales();
   }, []);
 
   if (loading) {

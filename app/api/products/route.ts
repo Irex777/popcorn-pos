@@ -8,30 +8,28 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
-interface GoogleApiError extends Error {
-  code?: number;
-  status?: string;
-  details?: unknown;
-}
-
 export async function GET() {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: 'Products!A2:D', // Changed to 'Products' instead of 'Sheet1'
+      range: 'Products!A2:D',
     });
 
-    const products = response.data.values?.map(([id, name, price, quantity]) => ({
-      id: parseInt(id),
-      name: name,
-      price: parseFloat(price),
-      quantity: parseInt(quantity)
-    })) || [];
+    if (!response.data.values) {
+      return NextResponse.json([]);
+    }
 
+    const products = response.data.values.map(row => ({
+      id: parseInt(row[0]),
+      name: row[1],
+      price: parseFloat(row[2]),
+      quantity: parseInt(row[3])
+    }));
+
+    console.log('Sending products:', products); // Debug log
     return NextResponse.json(products);
   } catch (error) {
-    const apiError = error as GoogleApiError;
-    console.error('Google Sheets API Error:', apiError);
-    return NextResponse.json({ error: apiError.message }, { status: 500 });
+    console.error('Google Sheets API Error:', error);
+    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
   }
 }
