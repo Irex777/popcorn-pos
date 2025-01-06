@@ -9,12 +9,9 @@ const auth = new google.auth.GoogleAuth({
 const sheets = google.sheets({ version: 'v4', auth });
 
 // Handle updates to existing products
-export async function PUT(
-  request: Request,
-  context: { params: { id: string } }
-) {
+export async function PUT(request: Request, context: { params: { id: string } }) {
   try {
-    const id = context.params.id;
+    const { id } = context.params; // Extract ID from the context params
     const body = await request.json();
 
     // Fetch data from Google Sheets
@@ -26,8 +23,8 @@ export async function PUT(
     const rows = response.data.values;
     if (!rows) throw new Error('No data found');
 
-    // Find the row index for the product to be updated
-    const rowIndex = rows.findIndex(row => row[0] === id) + 2;
+    // Find the row index for the product to update
+    const rowIndex = rows.findIndex((row) => row[0] === id) + 2;
     if (rowIndex === 1) throw new Error('Product not found');
 
     // Update the product in the specified row
@@ -36,14 +33,16 @@ export async function PUT(
       range: `Products!A${rowIndex}:F${rowIndex}`,
       valueInputOption: 'RAW',
       requestBody: {
-        values: [[
-          id,
-          body.name || '',
-          body.price || '',
-          body.quantity || '',
-          body.description || '',
-          body.saveAmount || 0,
-        ]],
+        values: [
+          [
+            id,
+            body.name || '',
+            body.price || '',
+            body.quantity || '',
+            body.description || '',
+            body.saveAmount || 0,
+          ],
+        ],
       },
     });
 
@@ -58,12 +57,9 @@ export async function PUT(
 }
 
 // Handle deleting products
-export async function DELETE(
-  request: Request,
-  context: { params: { id: string } }
-) {
+export async function DELETE(request: Request, context: { params: { id: string } }) {
   try {
-    const id = context.params.id;
+    const { id } = context.params; // Extract ID from the context params
 
     // Fetch data from Google Sheets
     const response = await sheets.spreadsheets.values.get({
@@ -74,8 +70,8 @@ export async function DELETE(
     const rows = response.data.values;
     if (!rows) throw new Error('No data found');
 
-    // Find the row index for the product to be deleted
-    const rowIndex = rows.findIndex(row => row[0] === id) + 2;
+    // Find the row index for the product to delete
+    const rowIndex = rows.findIndex((row) => row[0] === id) + 2;
     if (rowIndex === 1) throw new Error('Product not found');
 
     // Clear the product data in the specified row
