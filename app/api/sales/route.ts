@@ -8,28 +8,23 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
-export async function POST(request: Request) {
+export async function GET() {
   try {
-    const body = await request.json();
-    const { items, total, timestamp } = body;
-
-    await sheets.spreadsheets.values.append({
+    const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: 'Sales!A:D',
-      valueInputOption: 'RAW',
-      requestBody: {
-        values: [[
-          timestamp,
-          total,
-          JSON.stringify(items),
-          'completed'
-        ]]
-      },
+      range: 'Sheet2!A2:D', // Assuming sales are on Sheet2
     });
 
-    return NextResponse.json({ success: true });
+    const sales = response.data.values?.map(([timestamp, items, total, status]) => ({
+      timestamp,
+      items: JSON.parse(items),
+      total,
+      status
+    })) || [];
+
+    return NextResponse.json(sales);
   } catch (error) {
-    console.error('Failed to record sale:', error);
-    return NextResponse.json({ error: 'Failed to record sale' }, { status: 500 });
+    console.error('Failed to fetch sales:', error);
+    return NextResponse.json({ error: 'Failed to fetch sales' }, { status: 500 });
   }
 }
