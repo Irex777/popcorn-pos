@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { MinusCircle, PlusCircle, Receipt } from 'lucide-react';
+import Link from 'next/link';
 
 interface Product {
   id: number;
@@ -32,7 +33,7 @@ const POS = () => {
         }
         const data = await response.json();
         setProducts(data);
-      } catch (err) {
+      } catch (_) {
         setError('Error loading products');
       } finally {
         setLoading(false);
@@ -155,16 +156,9 @@ const POS = () => {
               <span className="text-xl font-bold">${total.toFixed(2)}</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setCart([])}
-                className="px-4 py-2 border border-gray-200 rounded-md hover:bg-gray-50"
-              >
-                Clear
-              </button>
+            <div className="flex flex-col gap-3">
               <button
                 onClick={async () => {
-                  // Handle sale completion
                   try {
                     const response = await fetch('/api/sales', {
                       method: 'POST',
@@ -181,15 +175,29 @@ const POS = () => {
                     if (response.ok) {
                       setCart([]);
                     }
-                  } catch (error) {
-                    console.error('Error completing sale:', error);
+                  } catch (_) {
+                    console.error('Error completing sale');
                   }
                 }}
-                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                className="w-full h-12 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 disabled={cart.length === 0}
               >
                 Complete Sale
               </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setCart([])}
+                  className="flex-1 h-12 bg-red-50 text-red-600 border border-red-200 rounded-lg font-medium hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={cart.length === 0}
+                >
+                  Clear
+                </button>
+                <Link href="/sales-history" className="flex-1">
+                  <button className="w-full h-12 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg font-medium hover:bg-blue-100 transition-colors">
+                    View History
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
