@@ -1,5 +1,5 @@
 import React from 'react';
-import SalesHistory from '../../components/SalesHistory'; // Corrected path
+import SalesHistory from '../../components/SalesHistory';
 
 const SalesHistoryPage = () => {
   return (
