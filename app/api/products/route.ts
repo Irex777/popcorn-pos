@@ -26,12 +26,13 @@ export async function GET() {
       quantity: parseInt(row[3]) || 0, // Ensure quantity is a valid number or default to 0
     }));
 
-    catch (error) {
-        if (error instanceof Error) {
-          console.error('Google Sheets API Error:', error.message); // Safe access to .message
-        } else {
-          console.error('Google Sheets API Error:', error); // Fallback for non-Error types
-        }
-        return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
-      }
+    return NextResponse.json(products);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Google Sheets API Error:', error.message); // Safe access to .message
+    } else {
+      console.error('Google Sheets API Error:', error); // Fallback for non-Error types
+    }
+    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+  }
 }
