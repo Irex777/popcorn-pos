@@ -9,9 +9,9 @@ const auth = new google.auth.GoogleAuth({
 const sheets = google.sheets({ version: 'v4', auth });
 
 // PUT handler for updating existing products
-export async function PUT(request: NextRequest, context: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = context.params; // Extract the ID from the dynamic route
+    const id = params.id; // Extract the ID from the dynamic route
     const body = await request.json(); // Parse the request body
 
     // Fetch the spreadsheet data
@@ -57,9 +57,9 @@ export async function PUT(request: NextRequest, context: { params: { id: string 
 }
 
 // DELETE handler for removing products
-export async function DELETE(request: NextRequest, context: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = context.params; // Extract the ID from the dynamic route
+    const id = params.id; // Extract the ID from the dynamic route
 
     // Fetch the spreadsheet data
     const response = await sheets.spreadsheets.values.get({
