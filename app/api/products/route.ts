@@ -20,13 +20,14 @@ export async function GET() {
     }
 
     const products = response.data.values.map(row => ({
-      id: parseInt(row[0]),
-      name: row[1],
-      price: parseFloat(row[2]),
-      quantity: parseInt(row[3])
-    }));
+        id: parseInt(row[0]),
+        name: typeof row[1] === 'string' ? row[1].trim() : '', // Trim or set empty string
+        price: parseFloat(row[2]) || 0, // Ensure valid number or default to 0
+        quantity: parseInt(row[3]) || 0, // Ensure valid number or default to 0
+      }));
+      
 
-    console.log('Sending products:', products); // Debug log
+    console.log('Raw row:', row);
     return NextResponse.json(products);
   } catch (error) {
     console.error('Google Sheets API Error:', error);
