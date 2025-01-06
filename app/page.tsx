@@ -130,23 +130,13 @@ const POS = () => {
 
   return (
     <div className="p-6">
-      {/* Header and Sales History Button */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Point of Sale</h1>
-        <Link href="/sales-history">
-          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-            View Sales History
-          </button>
-        </Link>
-      </div>
-
       <div className="flex flex-col md:flex-row gap-6">
         {/* Products Grid */}
         <div className="md:w-2/3 grid grid-cols-2 md:grid-cols-3 gap-4">
           {products.map(product => (
             <div
               key={product.id}
-              className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+              className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:bg-gray-50 transition-colors h-32 w-full flex flex-col justify-between"
               onClick={() => addToCart(product)}
             >
               <div className="text-lg font-semibold mb-2">
@@ -203,21 +193,28 @@ const POS = () => {
               <span>Total:</span>
               <span className="text-green-600">${total.toFixed(2)}</span>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-3">
               <button
-                className="px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={clearCart}
-                disabled={cart.length === 0}
-              >
-                Clear
-              </button>
-              <button
-                className="px-6 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-12 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 onClick={completeSale}
                 disabled={cart.length === 0}
               >
                 Complete Sale
               </button>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 h-12 bg-red-50 text-red-600 border border-red-200 rounded-lg font-medium hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={clearCart}
+                  disabled={cart.length === 0}
+                >
+                  Clear
+                </button>
+                <Link href="/sales-history" className="flex-1">
+                  <button className="w-full h-12 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg font-medium hover:bg-blue-100 transition-colors">
+                    View History
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
