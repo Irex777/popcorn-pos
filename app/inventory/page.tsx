@@ -51,7 +51,6 @@ const InventoryPage = () => {
 
       if (!response.ok) throw new Error('Failed to update product');
 
-      // Refresh products list
       await fetchProducts();
       setEditingId(null);
       setEditForm(null);
@@ -60,13 +59,17 @@ const InventoryPage = () => {
     }
   };
 
+  const handleCancel = () => {
+    setEditingId(null);
+    setEditForm(null);
+  };
+
   return (
     <div className="max-w-screen-xl mx-auto px-4 py-8">
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-4 border-b">
           <h2 className="text-xl font-semibold">Inventory Management</h2>
         </div>
-
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -122,4 +125,48 @@ const InventoryPage = () => {
                           onChange={e => setEditForm(prev => prev ? {...prev, saveAmount: parseFloat(e.target.value)} : null)}
                         />
                       </td>
-                      <td className="px-
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={handleSave}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            <Save className="w-5 h-5 text-green-600" />
+                          </button>
+                          <button
+                            onClick={handleCancel}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            <X className="w-5 h-5 text-red-600" />
+                          </button>
+                        </div>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="px-4 py-3">{product.name}</td>
+                      <td className="px-4 py-3">${product.price.toFixed(2)}</td>
+                      <td className="px-4 py-3">{product.quantity}</td>
+                      <td className="px-4 py-3">{product.description || '-'}</td>
+                      <td className="px-4 py-3">{product.saveAmount ? `$${product.saveAmount.toFixed(2)}` : '-'}</td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="p-1 hover:bg-gray-100 rounded"
+                        >
+                          <Edit2 className="w-5 h-5 text-blue-600" />
+                        </button>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default InventoryPage;
