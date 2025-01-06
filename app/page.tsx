@@ -20,19 +20,28 @@ const POS = () => {
   const [total, setTotal] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch products from API
-    fetch('/api/products')
-      .then(res => res.json())
-      .then(data => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products');
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to fetch products');
+        }
+        const data = await response.json();
+        console.log('Fetched products:', data);
         setProducts(data);
+      } catch (err) {
+        console.error('Error:', err);
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
         setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching products:', error);
-        setLoading(false);
-      });
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   const addToCart = (product: Product) => {
@@ -93,6 +102,17 @@ const POS = () => {
     const newTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     setTotal(newTotal);
   }, [cart]);
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="bg-red-50 p-4 rounded-lg">
+          <h2 className="text-red-800 font-medium">Error loading products</h2>
+          <p className="text-red-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
