@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Edit2, Save, X } from 'lucide-react';
+import { PencilIcon, CheckIcon, XIcon, PlusIcon, TrashIcon } from 'lucide-react';
 
 interface Product {
   id: number;
@@ -16,10 +16,8 @@ const InventoryPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Product | null>(null);
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchProducts = async () => {
     try {
@@ -27,14 +25,33 @@ const InventoryPage = () => {
       if (!response.ok) throw new Error('Failed to fetch products');
       const data = await response.json();
       setProducts(data);
-    } catch (error) {
-      console.error('Error fetching products:', error);
+    } catch {
+      setError('Error loading products');
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const handleEdit = (product: Product) => {
     setEditingId(product.id);
     setEditForm(product);
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete product');
+      await fetchProducts();
+    } catch {
+      setError('Error deleting product');
+    }
   };
 
   const handleSave = async () => {
@@ -50,25 +67,56 @@ const InventoryPage = () => {
       });
 
       if (!response.ok) throw new Error('Failed to update product');
-
       await fetchProducts();
       setEditingId(null);
       setEditForm(null);
-    } catch (error) {
-      console.error('Error updating product:', error);
+    } catch {
+      setError('Error updating product');
     }
   };
 
-  const handleCancel = () => {
-    setEditingId(null);
-    setEditForm(null);
+  const handleAddNew = async () => {
+    const newProduct: Omit<Product, 'id'> = {
+      name: 'New Product',
+      price: 0,
+      quantity: 0,
+      description: '',
+      saveAmount: 0
+    };
+
+    try {
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newProduct),
+      });
+
+      if (!response.ok) throw new Error('Failed to add product');
+      const data = await response.json();
+      await fetchProducts();
+      handleEdit({...newProduct, id: data.id} as Product);
+    } catch {
+      setError('Error adding product');
+    }
   };
 
+  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (error) return <div className="p-8 text-center text-red-600">{error}</div>;
+
   return (
-    <div className="max-w-screen-xl mx-auto px-4 py-8">
+    <div className="max-w-screen-2xl mx-auto px-4 py-6">
       <div className="bg-white rounded-lg shadow-sm">
-        <div className="p-4 border-b">
+        <div className="p-4 border-b flex justify-between items-center">
           <h2 className="text-xl font-semibold">Inventory Management</h2>
+          <button
+            onClick={handleAddNew}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg flex items-center gap-2 hover:bg-green-700"
+          >
+            <PlusIcon className="w-4 h-4" />
+            Add New Item
+          </button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -97,6 +145,7 @@ const InventoryPage = () => {
                       <td className="px-4 py-3">
                         <input
                           type="number"
+                          step="0.01"
                           className="w-full px-2 py-1 border rounded"
                           value={editForm?.price || 0}
                           onChange={e => setEditForm(prev => prev ? {...prev, price: parseFloat(e.target.value)} : null)}
@@ -120,6 +169,7 @@ const InventoryPage = () => {
                       <td className="px-4 py-3">
                         <input
                           type="number"
+                          step="0.01"
                           className="w-full px-2 py-1 border rounded"
                           value={editForm?.saveAmount || 0}
                           onChange={e => setEditForm(prev => prev ? {...prev, saveAmount: parseFloat(e.target.value)} : null)}
@@ -129,15 +179,18 @@ const InventoryPage = () => {
                         <div className="flex gap-2">
                           <button
                             onClick={handleSave}
-                            className="p-1 hover:bg-gray-100 rounded"
+                            className="p-2 hover:bg-green-50 rounded text-green-600"
                           >
-                            <Save className="w-5 h-5 text-green-600" />
+                            <CheckIcon className="w-5 h-5" />
                           </button>
                           <button
-                            onClick={handleCancel}
-                            className="p-1 hover:bg-gray-100 rounded"
+                            onClick={() => {
+                              setEditingId(null);
+                              setEditForm(null);
+                            }}
+                            className="p-2 hover:bg-red-50 rounded text-red-600"
                           >
-                            <X className="w-5 h-5 text-red-600" />
+                            <XIcon className="w-5 h-5" />
                           </button>
                         </div>
                       </td>
@@ -150,12 +203,20 @@ const InventoryPage = () => {
                       <td className="px-4 py-3">{product.description || '-'}</td>
                       <td className="px-4 py-3">{product.saveAmount ? `$${product.saveAmount.toFixed(2)}` : '-'}</td>
                       <td className="px-4 py-3">
-                        <button
-                          onClick={() => handleEdit(product)}
-                          className="p-1 hover:bg-gray-100 rounded"
-                        >
-                          <Edit2 className="w-5 h-5 text-blue-600" />
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(product)}
+                            className="p-2 hover:bg-blue-50 rounded text-blue-600"
+                          >
+                            <PencilIcon className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(product.id)}
+                            className="p-2 hover:bg-red-50 rounded text-red-600"
+                          >
+                            <TrashIcon className="w-5 h-5" />
+                          </button>
+                        </div>
                       </td>
                     </>
                   )}

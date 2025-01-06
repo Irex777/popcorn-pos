@@ -8,17 +8,57 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    
+    // Get current data to determine next ID
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.SPREADSHEET_ID,
+      range: 'Products!A2:F',
+    });
+
+    const rows = response.data.values || [];
+    const nextId = rows.length > 0 ? Math.max(...rows.map(row => parseInt(row[0]))) + 1 : 1;
+
+    // Append new row
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.SPREADSHEET_ID,
+      range: 'Products!A2:F',
+      valueInputOption: 'RAW',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: {
+        values: [[
+          nextId,
+          body.name,
+          body.price,
+          body.quantity,
+          body.description || '',
+          body.saveAmount || 0
+        ]],
+      },
+    });
+
+    return NextResponse.json({ success: true, id: nextId });
+  } catch (error) {
+    console.error('Failed to create product:', error);
+    return NextResponse.json(
+      { error: 'Failed to create product' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function GET() {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: 'Products!A2:D',
+      range: 'Products!A2:F',
     });
 
     if (!response.data.values) {
       return NextResponse.json([]);
     }
-
     const products = response.data.values.map(row => ({
       id: parseInt(row[0]) || 0,
       name: typeof row[1] === 'string' ? row[1].trim() : 'Unnamed Product',
