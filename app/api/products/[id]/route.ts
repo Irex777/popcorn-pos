@@ -1,6 +1,4 @@
 import { google } from 'googleapis';
-import { NextRequest } from 'next/server';
-import { type NextApiRequest } from 'next';
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS || '{}'),
@@ -9,18 +7,10 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
-type Props = {
-  params: {
-    id: string;
-  };
-};
-
-export async function PUT(
-  request: Request,
-  props: Props
-): Promise<Response> {
+export async function PUT(request: Request) {
   try {
-    const id = props.params.id;
+    // Get ID from the URL
+    const id = request.url.split('/').pop();
     const body = await request.json();
 
     const response = await sheets.spreadsheets.values.get({
@@ -56,16 +46,15 @@ export async function PUT(
 
     return Response.json({ success: true });
   } catch (error) {
+    console.error('Error in PUT:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-export async function DELETE(
-  request: Request,
-  props: Props
-): Promise<Response> {
+export async function DELETE(request: Request) {
   try {
-    const id = props.params.id;
+    // Get ID from the URL
+    const id = request.url.split('/').pop();
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
@@ -89,6 +78,7 @@ export async function DELETE(
 
     return Response.json({ success: true });
   } catch (error) {
+    console.error('Error in DELETE:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
