@@ -1,5 +1,5 @@
 import { google } from 'googleapis';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS || '{}'),
@@ -8,12 +8,24 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
-export async function POST(request: Request) {
+interface SaleItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+interface SaleBody {
+  items: SaleItem[];
+  total: number;
+  timestamp: string;
+}
+
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const body = await request.json();
+    const body: SaleBody = await req.json();
     const { items, total, timestamp } = body;
 
-    // Validate and sanitize `items`
     const sanitizedItems = Array.isArray(items)
       ? items.map(item => ({
           ...item,
@@ -21,10 +33,8 @@ export async function POST(request: Request) {
         }))
       : [];
 
-    // Ensure `total` is a number
-    const sanitizedTotal = parseFloat(total) || 0;
+    const sanitizedTotal = parseFloat(total.toString()) || 0;
 
-    // Add sale to Sales sheet
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.SPREADSHEET_ID,
       range: 'Sales!A:D',
@@ -42,11 +52,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Failed to record sale:', error);
-    return NextResponse.json({ error: 'Failed to record sale' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to record sale' },
+      { status: 500 }
+    );
   }
 }
 
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
@@ -55,7 +68,6 @@ export async function GET() {
 
     const sales = response.data.values?.map(([timestamp, items, total, status]) => ({
       timestamp,
-      // Sanitize `items`
       items: (() => {
         try {
           const parsedItems = JSON.parse(items);
@@ -69,15 +81,16 @@ export async function GET() {
           return [];
         }
       })(),
-      // Ensure `total` is a number
       total: parseFloat(total) || 0,
-      // Sanitize `status`
       status: typeof status === 'string' ? status.trim() : 'Unknown',
     })) || [];
 
     return NextResponse.json(sales);
   } catch (error) {
     console.error('Failed to fetch sales:', error);
-    return NextResponse.json({ error: 'Failed to fetch sales' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch sales' },
+      { status: 500 }
+    );
   }
 }
