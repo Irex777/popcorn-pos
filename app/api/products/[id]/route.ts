@@ -22,10 +22,20 @@ export async function PUT(request: Request, context: RouteContext) {
     });
 
     const rows = response.data.values;
-    if (!rows) throw new Error('No data found in the spreadsheet.');
+    if (!rows) {
+      return new Response(JSON.stringify({ error: 'No data found in the spreadsheet' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     const rowIndex = rows.findIndex((row) => row[0] === id) + 2;
-    if (rowIndex === 1) throw new Error('Product not found.');
+    if (rowIndex === 1) {
+      return new Response(JSON.stringify({ error: 'Product not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: process.env.SPREADSHEET_ID,
@@ -46,7 +56,7 @@ export async function PUT(request: Request, context: RouteContext) {
     return new Response(JSON.stringify({ success: true }), {
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (error) {
+  } catch {
     return new Response(JSON.stringify({ error: 'Failed to update product' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
@@ -64,10 +74,20 @@ export async function DELETE(request: Request, context: RouteContext) {
     });
 
     const rows = response.data.values;
-    if (!rows) throw new Error('No data found in the spreadsheet.');
+    if (!rows) {
+      return new Response(JSON.stringify({ error: 'No data found in the spreadsheet' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     const rowIndex = rows.findIndex((row) => row[0] === id) + 2;
-    if (rowIndex === 1) throw new Error('Product not found.');
+    if (rowIndex === 1) {
+      return new Response(JSON.stringify({ error: 'Product not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     await sheets.spreadsheets.values.clear({
       spreadsheetId: process.env.SPREADSHEET_ID,
@@ -77,7 +97,7 @@ export async function DELETE(request: Request, context: RouteContext) {
     return new Response(JSON.stringify({ success: true }), {
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (error) {
+  } catch {
     return new Response(JSON.stringify({ error: 'Failed to delete product' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
