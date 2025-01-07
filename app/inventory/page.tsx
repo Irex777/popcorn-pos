@@ -9,7 +9,6 @@ interface Product {
   price: number;
   quantity: number;
   description?: string;
-  saveAmount?: number;
 }
 
 const InventoryPage = () => {
@@ -80,8 +79,7 @@ const InventoryPage = () => {
       name: 'New Product',
       price: 0,
       quantity: 0,
-      description: '',
-      saveAmount: 0
+      description: ''
     };
 
     try {
@@ -126,7 +124,6 @@ const InventoryPage = () => {
                 <th className="px-4 py-3 text-left">Price</th>
                 <th className="px-4 py-3 text-left">Quantity</th>
                 <th className="px-4 py-3 text-left">Description</th>
-                <th className="px-4 py-3 text-left">Save Amount</th>
                 <th className="px-4 py-3 text-left">Actions</th>
               </tr>
             </thead>
@@ -164,15 +161,6 @@ const InventoryPage = () => {
                           className="w-full px-2 py-1 border rounded"
                           value={editForm?.description || ''}
                           onChange={e => setEditForm(prev => prev ? {...prev, description: e.target.value} : null)}
-                        />
-                      </td>
-                      <td className="px-4 py-3">
-                        <input
-                          type="number"
-                          step="0.01"
-                          className="w-full px-2 py-1 border rounded"
-                          value={editForm?.saveAmount || 0}
-                          onChange={e => setEditForm(prev => prev ? {...prev, saveAmount: parseFloat(e.target.value)} : null)}
                         />
                       </td>
                       <td className="px-4 py-3">

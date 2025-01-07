@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Minus, Plus, Receipt, Trash2, ShoppingCart } from 'lucide-react';
+import { Minus, Plus, Receipt } from 'lucide-react';
 
 interface Product {
   id: number;
@@ -9,7 +9,6 @@ interface Product {
   price: number;
   quantity: number;
   description?: string;
-  saveAmount?: number;
 }
 
 interface CartItem extends Product {
@@ -94,7 +93,6 @@ const POS = () => {
         throw new Error('Failed to submit sale');
       }
 
-      // Clear cart after successful submission
       setCart([]);
     } catch (error) {
       console.error('Error submitting sale:', error);
@@ -116,33 +114,26 @@ const POS = () => {
     <div className="max-w-screen-2xl mx-auto px-4 py-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {products.map(product => {
-            const isDeal = typeof product.saveAmount === 'number' && product.saveAmount > 0;
-            
-            return (
-              <div
-                key={product.id}
-                className={`${isDeal ? 'bg-yellow-50' : 'bg-white'} rounded-lg shadow-sm p-4 cursor-pointer hover:bg-gray-50`}
-                onClick={() => addToCart(product)}
-              >
-                <div className="flex flex-col h-full">
-                  <h3 className="text-lg font-semibold">{product.name}</h3>
-                  {product.description && (
-                    <p className="text-sm text-gray-600 mt-1">{product.description}</p>
-                  )}
-                  <div className="mt-auto pt-2 flex justify-between items-baseline">
-                    <span className="text-xl font-bold">${product.price.toFixed(2)}</span>
-                    {isDeal && (
-                      <span className="text-green-600 text-sm">Save ${product.saveAmount!.toFixed(2)}</span>
-                    )}
-                  </div>
-                  <div className="text-sm text-gray-500 mt-1">
-                    In stock: {product.quantity}
-                  </div>
+          {products.map(product => (
+            <div
+              key={product.id}
+              className="bg-white rounded-lg shadow-sm p-4 cursor-pointer hover:bg-gray-50"
+              onClick={() => addToCart(product)}
+            >
+              <div className="flex flex-col h-full">
+                <h3 className="text-lg font-semibold">{product.name}</h3>
+                {product.description && (
+                  <p className="text-sm text-gray-600 mt-1">{product.description}</p>
+                )}
+                <div className="mt-auto pt-2 flex justify-between items-baseline">
+                  <span className="text-xl font-bold">${product.price.toFixed(2)}</span>
+                </div>
+                <div className="text-sm text-gray-500 mt-1">
+                  In stock: {product.quantity}
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-4">
