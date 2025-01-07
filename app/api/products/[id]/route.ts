@@ -1,5 +1,4 @@
 import { google } from 'googleapis';
-import { NextRequest } from 'next/server';
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS || '{}'),
@@ -8,10 +7,11 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
-export async function PUT(
-  request: Request | NextRequest,
-  context: { params: { id: string } }
-) {
+type RouteContext = {
+  params: { id: string }
+};
+
+export async function PUT(request: Request, context: RouteContext) {
   try {
     const { id } = context.params;
     const body = await request.json();
@@ -43,20 +43,18 @@ export async function PUT(
       },
     });
 
-    return Response.json({ success: true });
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
-    console.error('Error updating product:', error);
-    return Response.json(
-      { error: 'Failed to update product' },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to update product' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 
-export async function DELETE(
-  request: Request | NextRequest,
-  context: { params: { id: string } }
-) {
+export async function DELETE(request: Request, context: RouteContext) {
   try {
     const { id } = context.params;
 
@@ -76,12 +74,13 @@ export async function DELETE(
       range: `Products!A${rowIndex}:F${rowIndex}`,
     });
 
-    return Response.json({ success: true });
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
-    console.error('Error deleting product:', error);
-    return Response.json(
-      { error: 'Failed to delete product' },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to delete product' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
