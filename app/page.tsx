@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { MinusCircle, PlusCircle, Receipt } from 'lucide-react';
+import { Minus, Plus, Receipt, Trash2, ShoppingCart } from 'lucide-react';
 
 interface Product {
   id: number;
@@ -22,6 +22,7 @@ const POS = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -65,6 +66,41 @@ const POS = () => {
           ? { ...item, quantity: item.quantity - 1 }
           : item
       ));
+    }
+  };
+
+  const clearCart = () => {
+    setCart([]);
+  };
+
+  const handleSubmitSale = async () => {
+    if (cart.length === 0) return;
+
+    setSubmitting(true);
+    try {
+      const response = await fetch('/api/sales', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          items: cart,
+          total: total,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit sale');
+      }
+
+      // Clear cart after successful submission
+      setCart([]);
+    } catch (error) {
+      console.error('Error submitting sale:', error);
+      setError('Failed to submit sale');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -130,7 +166,7 @@ const POS = () => {
                     }}
                     className="p-1 hover:bg-gray-200 rounded-full"
                   >
-                    <MinusCircle className="w-5 h-5 text-gray-600" />
+                    <Minus className="w-5 h-5 text-gray-600" />
                   </button>
                   <span className="w-8 text-center">{item.quantity}</span>
                   <button
@@ -140,7 +176,7 @@ const POS = () => {
                     }}
                     className="p-1 hover:bg-gray-200 rounded-full"
                   >
-                    <PlusCircle className="w-5 h-5 text-gray-600" />
+                    <Plus className="w-5 h-5 text-gray-600" />
                   </button>
                 </div>
               </div>
@@ -151,6 +187,27 @@ const POS = () => {
             <div className="flex justify-between items-center mb-4">
               <span className="text-lg font-semibold">Total:</span>
               <span className="text-xl font-bold">${total.toFixed(2)}</span>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={clearCart}
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex-1"
+              >
+                <Trash2 className="w-4 h-4" />
+                Clear
+              </button>
+              <button
+                onClick={handleSubmitSale}
+                disabled={cart.length === 0 || submitting}
+                className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors flex-1 
+                  ${cart.length === 0 || submitting 
+                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed' 
+                    : 'bg-green-600 text-white hover:bg-green-700'}`}
+              >
+                <ShoppingCart className="w-4 h-4" />
+                {submitting ? 'Processing...' : 'Submit Sale'}
+              </button>
             </div>
           </div>
         </div>
