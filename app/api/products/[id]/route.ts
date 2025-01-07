@@ -1,5 +1,5 @@
 import { google } from 'googleapis';
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest } from 'next/server';
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS || '{}'),
@@ -8,21 +8,16 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
-interface ProductBody {
-  name: string;
-  price: number;
-  quantity: number;
-  description?: string;
-  saveAmount?: number;
-}
+type Params = {
+  params: {
+    id: string;
+  };
+};
 
-export async function PUT(
-  req: NextRequest,
-  context: { params: { id: string } }
-): Promise<NextResponse> {
+export async function PUT(request: NextRequest, { params }: Params) {
   try {
-    const id = context.params.id;
-    const body: ProductBody = await req.json();
+    const body = await request.json();
+    const id = params.id;
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
@@ -51,22 +46,19 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json({ success: true });
+    return Response.json({ success: true });
   } catch (error) {
     console.error('Error updating product:', error);
-    return NextResponse.json(
+    return Response.json(
       { error: 'Failed to update product' },
       { status: 500 }
     );
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  context: { params: { id: string } }
-): Promise<NextResponse> {
+export async function DELETE(request: NextRequest, { params }: Params) {
   try {
-    const id = context.params.id;
+    const id = params.id;
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
@@ -84,10 +76,10 @@ export async function DELETE(
       range: `Products!A${rowIndex}:F${rowIndex}`,
     });
 
-    return NextResponse.json({ success: true });
+    return Response.json({ success: true });
   } catch (error) {
     console.error('Error deleting product:', error);
-    return NextResponse.json(
+    return Response.json(
       { error: 'Failed to delete product' },
       { status: 500 }
     );
