@@ -14,7 +14,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: 'Products!A2:F',
+      range: 'Products!A2:E',
     });
 
     const rows = response.data.values || [];
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: 'Products!A2:F',
+      range: 'Products!A2:E',
       valueInputOption: 'RAW',
       insertDataOption: 'INSERT_ROWS',
       requestBody: {
@@ -32,7 +32,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           body.price,
           body.quantity,
           body.description || '',
-          body.saveAmount || 0
         ]],
       },
     });
@@ -51,7 +50,7 @@ export async function GET(): Promise<NextResponse> {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: 'Products!A2:F',
+      range: 'Products!A2:E',
     });
 
     if (!response.data.values) {
@@ -64,7 +63,6 @@ export async function GET(): Promise<NextResponse> {
       price: parseFloat(row[2]) || 0,
       quantity: parseInt(row[3]) || 0,
       description: row[4] || '',
-      saveAmount: parseFloat(row[5]) || 0
     }));
 
     return NextResponse.json(products);

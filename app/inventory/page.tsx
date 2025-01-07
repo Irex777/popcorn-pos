@@ -79,7 +79,7 @@ const InventoryPage = () => {
       name: 'New Product',
       price: 0,
       quantity: 0,
-      description: ''
+      description: '',
     };
 
     try {
@@ -189,7 +189,6 @@ const InventoryPage = () => {
                       <td className="px-4 py-3">${product.price.toFixed(2)}</td>
                       <td className="px-4 py-3">{product.quantity}</td>
                       <td className="px-4 py-3">{product.description || '-'}</td>
-                      <td className="px-4 py-3">{product.saveAmount ? `$${product.saveAmount.toFixed(2)}` : '-'}</td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
                           <button
