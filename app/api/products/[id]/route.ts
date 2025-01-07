@@ -7,14 +7,15 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
-type RouteContext = {
-  params: { id: string }
+type Context = {
+  params: {
+    id: string;
+  };
 };
 
-export async function PUT(request: Request, context: RouteContext) {
+export async function PUT(req: Request, { params: { id } }: Context) {
   try {
-    const { id } = context.params;
-    const body = await request.json();
+    const body = await req.json();
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
@@ -23,7 +24,7 @@ export async function PUT(request: Request, context: RouteContext) {
 
     const rows = response.data.values;
     if (!rows) {
-      return new Response(JSON.stringify({ error: 'No data found in the spreadsheet' }), {
+      return new Response(JSON.stringify({ error: 'No data found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -57,17 +58,15 @@ export async function PUT(request: Request, context: RouteContext) {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch {
-    return new Response(JSON.stringify({ error: 'Failed to update product' }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 }
 
-export async function DELETE(request: Request, context: RouteContext) {
+export async function DELETE(req: Request, { params: { id } }: Context) {
   try {
-    const { id } = context.params;
-
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
       range: 'Products!A2:F',
@@ -75,7 +74,7 @@ export async function DELETE(request: Request, context: RouteContext) {
 
     const rows = response.data.values;
     if (!rows) {
-      return new Response(JSON.stringify({ error: 'No data found in the spreadsheet' }), {
+      return new Response(JSON.stringify({ error: 'No data found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -98,7 +97,7 @@ export async function DELETE(request: Request, context: RouteContext) {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch {
-    return new Response(JSON.stringify({ error: 'Failed to delete product' }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
