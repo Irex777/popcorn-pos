@@ -183,30 +183,25 @@ const POS = () => {
             ))}
           </div>
 
-          <div className="border-t pt-4">
-            <div className="flex justify-between items-center mb-4">
+          <div className="border-t border-gray-200">
+            <div className="py-4 flex justify-between items-center">
               <span className="text-lg font-semibold">Total:</span>
               <span className="text-xl font-bold">${total.toFixed(2)}</span>
             </div>
 
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={clearCart}
-                className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex-1"
+                className="w-full py-2.5 px-4 bg-white border border-gray-300 rounded text-center text-gray-700 hover:bg-gray-50"
               >
-                <Trash2 className="w-4 h-4" />
                 Clear
               </button>
               <button
                 onClick={handleSubmitSale}
                 disabled={cart.length === 0 || submitting}
-                className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors flex-1 
-                  ${cart.length === 0 || submitting 
-                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed' 
-                    : 'bg-green-600 text-white hover:bg-green-700'}`}
+                className="w-full py-2.5 px-4 bg-gray-500 rounded text-center text-white flex items-center justify-center gap-2"
               >
-                <ShoppingCart className="w-4 h-4" />
-                {submitting ? 'Processing...' : 'Submit Sale'}
+                {submitting ? 'Processing...' : 'Pay'}
               </button>
             </div>
           </div>
