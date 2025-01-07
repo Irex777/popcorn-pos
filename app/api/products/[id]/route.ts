@@ -1,5 +1,6 @@
 import { google } from 'googleapis';
 
+// Initialize Google Sheets client
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS || '{}'),
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
@@ -7,17 +8,14 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
-type ApiContext = {
-  params: Record<string, string | string[]>;
-};
-
+// PUT handler - Update a product
 export async function PUT(
-  req: Request,
-  { params }: ApiContext
-): Promise<Response> {
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const id = params.id;
-    const body = await req.json();
+    const body = await request.json();
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
@@ -26,18 +24,12 @@ export async function PUT(
 
     const rows = response.data.values;
     if (!rows) {
-      return new Response(JSON.stringify({ error: 'No data found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return Response.json({ error: 'No data found' }, { status: 404 });
     }
 
     const rowIndex = rows.findIndex((row) => row[0] === id) + 2;
     if (rowIndex === 1) {
-      return new Response(JSON.stringify({ error: 'Product not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return Response.json({ error: 'Product not found' }, { status: 404 });
     }
 
     await sheets.spreadsheets.values.update({
@@ -56,24 +48,20 @@ export async function PUT(
       },
     });
 
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch {
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return Response.json({ success: true });
+  } catch (error) {
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
+// DELETE handler - Remove a product
 export async function DELETE(
-  req: Request,
-  { params }: ApiContext
-): Promise<Response> {
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const id = params.id;
-
+    
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
       range: 'Products!A2:F',
@@ -81,18 +69,12 @@ export async function DELETE(
 
     const rows = response.data.values;
     if (!rows) {
-      return new Response(JSON.stringify({ error: 'No data found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return Response.json({ error: 'No data found' }, { status: 404 });
     }
 
     const rowIndex = rows.findIndex((row) => row[0] === id) + 2;
     if (rowIndex === 1) {
-      return new Response(JSON.stringify({ error: 'Product not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return Response.json({ error: 'Product not found' }, { status: 404 });
     }
 
     await sheets.spreadsheets.values.clear({
@@ -100,13 +82,8 @@ export async function DELETE(
       range: `Products!A${rowIndex}:F${rowIndex}`,
     });
 
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch {
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return Response.json({ success: true });
+  } catch (error) {
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
