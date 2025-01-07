@@ -1,5 +1,5 @@
 import { google } from 'googleapis';
-import type { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server';
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS || '{}'),
@@ -8,13 +8,12 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
-export interface PageProps {
-  params: { id: string };
-}
-
-export async function PUT(req: NextRequest, props: PageProps) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = props.params.id;
+    const id = params.id;
     const body = await req.json();
 
     const response = await sheets.spreadsheets.values.get({
@@ -54,9 +53,12 @@ export async function PUT(req: NextRequest, props: PageProps) {
   }
 }
 
-export async function DELETE(req: NextRequest, props: PageProps) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = props.params.id;
+    const id = params.id;
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
