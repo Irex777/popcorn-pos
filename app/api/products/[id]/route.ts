@@ -1,6 +1,5 @@
 import { google } from 'googleapis';
 
-// Initialize Google Sheets client
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS || '{}'),
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
@@ -8,13 +7,9 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
-// PUT handler - Update a product
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request, { params }) {
   try {
-    const id = params.id;
+    const { id } = params;
     const body = await request.json();
 
     const response = await sheets.spreadsheets.values.get({
@@ -54,13 +49,9 @@ export async function PUT(
   }
 }
 
-// DELETE handler - Remove a product
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request, { params }) {
   try {
-    const id = params.id;
+    const { id } = params;
     
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
