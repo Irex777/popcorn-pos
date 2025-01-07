@@ -1,5 +1,6 @@
+// app/api/products/[id]/route.ts
 import { google } from 'googleapis';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS || '{}'),
@@ -10,12 +11,12 @@ const sheets = google.sheets({ version: 'v4', auth });
 
 // PUT handler for updating existing products
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
-) {
+): Promise<NextResponse> {
   try {
-    const id = params.id; // Extract the ID from the dynamic route
-    const body = await request.json(); // Parse the request body
+    const id = params.id;
+    const body = await request.json();
 
     // Fetch the spreadsheet data
     const response = await sheets.spreadsheets.values.get({
@@ -27,7 +28,7 @@ export async function PUT(
     if (!rows) throw new Error('No data found in the spreadsheet.');
 
     // Find the row to update
-    const rowIndex = rows.findIndex((row) => row[0] === id) + 2; // +2 for the header row offset
+    const rowIndex = rows.findIndex((row) => row[0] === id) + 2;
     if (rowIndex === 1) throw new Error('Product not found.');
 
     // Update the product
@@ -69,11 +70,11 @@ export async function PUT(
 
 // DELETE handler for removing products
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
-) {
+): Promise<NextResponse> {
   try {
-    const id = params.id; // Extract the ID from the dynamic route
+    const id = params.id;
 
     // Fetch the spreadsheet data
     const response = await sheets.spreadsheets.values.get({
@@ -85,7 +86,7 @@ export async function DELETE(
     if (!rows) throw new Error('No data found in the spreadsheet.');
 
     // Find the row to delete
-    const rowIndex = rows.findIndex((row) => row[0] === id) + 2; // +2 for the header row offset
+    const rowIndex = rows.findIndex((row) => row[0] === id) + 2;
     if (rowIndex === 1) throw new Error('Product not found.');
 
     // Clear the product data
