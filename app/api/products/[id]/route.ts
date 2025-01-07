@@ -7,14 +7,16 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: 'v4', auth });
 
-type Context = {
-  params: {
-    id: string;
-  };
+type ApiContext = {
+  params: Record<string, string | string[]>;
 };
 
-export async function PUT(req: Request, { params: { id } }: Context) {
+export async function PUT(
+  req: Request,
+  { params }: ApiContext
+): Promise<Response> {
   try {
+    const id = params.id;
     const body = await req.json();
 
     const response = await sheets.spreadsheets.values.get({
@@ -65,8 +67,13 @@ export async function PUT(req: Request, { params: { id } }: Context) {
   }
 }
 
-export async function DELETE(req: Request, { params: { id } }: Context) {
+export async function DELETE(
+  req: Request,
+  { params }: ApiContext
+): Promise<Response> {
   try {
+    const id = params.id;
+
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.SPREADSHEET_ID,
       range: 'Products!A2:F',
