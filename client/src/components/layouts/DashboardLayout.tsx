@@ -4,6 +4,7 @@ import { useTheme } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Settings, History, Package } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -12,6 +13,7 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { theme, toggleTheme } = useTheme();
   const [location] = useLocation();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen bg-background">
@@ -30,21 +32,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <a className={`px-3 py-2 rounded-md text-sm font-medium ${
                   location === "/" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
                 }`}>
-                  POS
+                  {t('common.pos')}
                 </a>
               </Link>
               <Link href="/history">
                 <a className={`px-3 py-2 rounded-md text-sm font-medium ${
                   location === "/history" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
                 }`}>
-                  History
+                  {t('common.history')}
                 </a>
               </Link>
               <Link href="/inventory">
                 <a className={`px-3 py-2 rounded-md text-sm font-medium ${
                   location === "/inventory" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
                 }`}>
-                  Inventory
+                  {t('common.inventory')}
                 </a>
               </Link>
             </nav>
@@ -55,9 +57,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             >
               {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
-            <Button variant="ghost" size="icon">
-              <Settings className="h-5 w-5" />
-            </Button>
+            <Link href="/settings">
+              <a>
+                <Button variant="ghost" size="icon">
+                  <Settings className="h-5 w-5" />
+                </Button>
+              </a>
+            </Link>
           </div>
         </div>
       </header>

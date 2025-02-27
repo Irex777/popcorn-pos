@@ -6,8 +6,10 @@ import NotFound from "@/pages/not-found";
 import POS from "@/pages/pos";
 import History from "@/pages/history";
 import Inventory from "@/pages/inventory";
+import Settings from "@/pages/settings";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Provider as JotaiProvider } from 'jotai';
+import './lib/i18n'; // Import i18n configuration
 
 function Router() {
   return (
@@ -16,6 +18,7 @@ function Router() {
         <Route path="/" component={POS} />
         <Route path="/history" component={History} />
         <Route path="/inventory" component={Inventory} />
+        <Route path="/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>
     </DashboardLayout>
