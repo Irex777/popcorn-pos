@@ -1,0 +1,44 @@
+import { ReactNode } from "react";
+import { motion } from "framer-motion";
+import { useTheme } from "@/lib/theme";
+import { Button } from "@/components/ui/button";
+import { Moon, Sun, Settings } from "lucide-react";
+
+interface DashboardLayoutProps {
+  children: ReactNode;
+}
+
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-2xl font-bold"
+          >
+            Boutique POS
+          </motion.h1>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+            >
+              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Settings className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </header>
+      <main className="container mx-auto px-4 py-6">
+        {children}
+      </main>
+    </div>
+  );
+}

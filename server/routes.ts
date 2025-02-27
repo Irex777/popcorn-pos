@@ -1,0 +1,42 @@
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { storage } from "./storage";
+import { insertOrderSchema, insertOrderItemSchema } from "@shared/schema";
+import { z } from "zod";
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Get all products
+  app.get("/api/products", async (_req, res) => {
+    const products = await storage.getProducts();
+    res.json(products);
+  });
+
+  // Create new order
+  app.post("/api/orders", async (req, res) => {
+    try {
+      const orderData = insertOrderSchema.parse(req.body.order);
+      const itemsData = z.array(insertOrderItemSchema).parse(req.body.items);
+      
+      const order = await storage.createOrder(orderData, itemsData);
+      res.json(order);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid order data" });
+    }
+  });
+
+  // Get order details
+  app.get("/api/orders/:id", async (req, res) => {
+    const orderId = parseInt(req.params.id);
+    const order = await storage.getOrder(orderId);
+    
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    
+    const items = await storage.getOrderItems(orderId);
+    res.json({ order, items });
+  });
+
+  const httpServer = createServer(app);
+  return httpServer;
+}
