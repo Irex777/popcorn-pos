@@ -13,8 +13,8 @@ export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  categoryId: integer("category_id").notNull(),
-  imageUrl: text("image_url").notNull(),
+  categoryId: integer("category_id").references(() => categories.id).notNull(),
+  imageUrl: text("image_url"),
   stock: integer("stock").notNull().default(0),
 });
 
@@ -27,8 +27,8 @@ export const orders = pgTable("orders", {
 
 export const orderItems = pgTable("order_items", {
   id: serial("id").primaryKey(),
-  orderId: integer("order_id").notNull(),
-  productId: integer("product_id").notNull(),
+  orderId: integer("order_id").references(() => orders.id).notNull(),
+  productId: integer("product_id").references(() => products.id).notNull(),
   quantity: integer("quantity").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
 });
@@ -42,7 +42,7 @@ export const insertProductSchema = createInsertSchema(products)
     name: z.string().min(1, "Name is required"),
     price: z.string().or(z.number()).transform(val => Number(val).toFixed(2)),
     categoryId: z.number().int().positive("Category is required"),
-    imageUrl: z.string().url("Please enter a valid URL").or(z.string().length(0)),
+    imageUrl: z.string().url("Please enter a valid URL").or(z.string().length(0)).optional(),
     stock: z.number().int().min(0, "Stock cannot be negative"),
   });
 

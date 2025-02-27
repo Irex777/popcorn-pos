@@ -86,14 +86,25 @@ export class DatabaseStorage implements IStorage {
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
     try {
-      // Ensure numeric values are properly formatted
+      // Ensure the category exists
+      const [category] = await db.select()
+        .from(categories)
+        .where(eq(categories.id, Number(insertProduct.categoryId)));
+
+      if (!category) {
+        throw new Error('Invalid category selected');
+      }
+
+      // Format the product data
       const formattedProduct = {
         name: insertProduct.name,
         price: typeof insertProduct.price === 'string' ? insertProduct.price : insertProduct.price.toFixed(2),
         categoryId: Number(insertProduct.categoryId),
-        imageUrl: insertProduct.imageUrl || '',
+        imageUrl: insertProduct.imageUrl || null,
         stock: Number(insertProduct.stock)
       };
+
+      console.log('Creating product with data:', formattedProduct);
 
       const [product] = await db.insert(products)
         .values(formattedProduct)
@@ -103,7 +114,10 @@ export class DatabaseStorage implements IStorage {
         throw new Error('Failed to create product');
       }
 
-      return product;
+      return {
+        ...product,
+        category: category.name
+      };
     } catch (error) {
       console.error('Error creating product:', error);
       throw error;
