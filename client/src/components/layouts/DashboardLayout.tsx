@@ -2,7 +2,8 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Settings } from "lucide-react";
+import { Moon, Sun, Settings, History, Package } from "lucide-react";
+import { Link, useLocation } from "wouter";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -10,6 +11,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { theme, toggleTheme } = useTheme();
+  const [location] = useLocation();
 
   return (
     <div className="min-h-screen bg-background">
@@ -23,6 +25,29 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             Boutique POS
           </motion.h1>
           <div className="flex items-center gap-2">
+            <nav className="flex items-center gap-2 mr-4">
+              <Link href="/">
+                <a className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  location === "/" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
+                }`}>
+                  POS
+                </a>
+              </Link>
+              <Link href="/history">
+                <a className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  location === "/history" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
+                }`}>
+                  History
+                </a>
+              </Link>
+              <Link href="/inventory">
+                <a className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  location === "/inventory" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
+                }`}>
+                  Inventory
+                </a>
+              </Link>
+            </nav>
             <Button
               variant="ghost"
               size="icon"

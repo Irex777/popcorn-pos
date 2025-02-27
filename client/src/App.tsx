@@ -4,6 +4,8 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import POS from "@/pages/pos";
+import History from "@/pages/history";
+import Inventory from "@/pages/inventory";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 
 function Router() {
@@ -11,6 +13,8 @@ function Router() {
     <DashboardLayout>
       <Switch>
         <Route path="/" component={POS} />
+        <Route path="/history" component={History} />
+        <Route path="/inventory" component={Inventory} />
         <Route component={NotFound} />
       </Switch>
     </DashboardLayout>

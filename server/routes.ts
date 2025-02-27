@@ -11,6 +11,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(products);
   });
 
+  // Get all orders
+  app.get("/api/orders", async (_req, res) => {
+    const orders = await storage.getOrders();
+    const ordersWithItems = await Promise.all(
+      orders.map(async (order) => {
+        const items = await storage.getOrderItems(order.id);
+        return { ...order, items };
+      })
+    );
+    res.json(ordersWithItems);
+  });
+
   // Create new order
   app.post("/api/orders", async (req, res) => {
     try {
