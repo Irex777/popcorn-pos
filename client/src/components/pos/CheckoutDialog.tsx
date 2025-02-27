@@ -19,19 +19,21 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
 
   const checkoutMutation = useMutation({
     mutationFn: async () => {
+      // Format the order data according to the schema
       const orderData = {
         order: {
-          total: total.toString(),
-          status: "completed"
+          total: total.toFixed(2), // Ensure total is formatted as string with 2 decimal places
+          status: "pending" // Changed from "completed" to match initial state
         },
         items: cart.map(item => ({
           productId: item.product.id,
           quantity: item.quantity,
-          price: item.product.price
+          price: Number(item.product.price).toFixed(2) // Ensure price is formatted as string with 2 decimal places
         }))
       };
 
-      await apiRequest('POST', '/api/orders', orderData);
+      const response = await apiRequest('POST', '/api/orders', orderData);
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -41,10 +43,11 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
       setCart([]);
       onOpenChange(false);
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Checkout error:', error);
       toast({
         title: "Error",
-        description: "Failed to process order",
+        description: "Failed to process order. Please try again.",
         variant: "destructive"
       });
     }
