@@ -79,7 +79,7 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
         className="w-full mt-4" 
         disabled={!stripe || !elements || isProcessing}
       >
-        {isProcessing ? "Processing..." : `Pay ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total)}`}
+        {isProcessing ? "Processing..." : `Pay ${formatCurrency(total)}`}
       </Button>
     </form>
   );
@@ -151,6 +151,13 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
     }
   });
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', { 
+      style: 'currency', 
+      currency: 'USD' 
+    }).format(amount);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -169,14 +176,14 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
                   {item.product.name} x {item.quantity}
                 </span>
                 <span>
-                  ${(Number(item.product.price) * item.quantity).toFixed(2)}
+                  {formatCurrency(Number(item.product.price) * item.quantity)}
                 </span>
               </div>
             ))}
             <div className="pt-4 border-t">
               <div className="flex justify-between font-medium">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>{formatCurrency(total)}</span>
               </div>
             </div>
           </motion.div>
@@ -187,12 +194,15 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
             </div>
           ) : clientSecret ? (
             <div className="mt-6">
-              <Elements stripe={stripePromise} options={{ 
-                clientSecret,
-                appearance: {
-                  theme: 'stripe',
-                }
-              }}>
+              <Elements 
+                stripe={stripePromise} 
+                options={{ 
+                  clientSecret,
+                  appearance: {
+                    theme: 'stripe',
+                  }
+                }}
+              >
                 <CheckoutForm 
                   total={total} 
                   onSuccess={checkoutMutation.mutate}

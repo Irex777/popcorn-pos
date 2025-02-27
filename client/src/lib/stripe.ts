@@ -14,5 +14,9 @@ export async function createPaymentIntent(amount: number) {
     body: JSON.stringify({ amount }),
   });
 
+  if (!response.ok) {
+    throw new Error('Failed to create payment intent');
+  }
+
   return response.json();
 }
