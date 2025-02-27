@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertOrderSchema, insertOrderItemSchema, updateProductStockSchema, insertProductSchema, insertCategorySchema } from "@shared/schema";
 import { z } from "zod";
 import { setupWebSocket, startAnalyticsUpdates } from "./websocket";
+import { createPaymentIntent } from './stripe';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Categories
@@ -147,6 +148,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const items = await storage.getOrderItems(orderId);
     res.json({ order, items });
   });
+
+  // Payment endpoint
+  app.post("/api/create-payment-intent", async (req, res) => {
+    try {
+      const { amount } = req.body;
+
+      if (!amount || amount <= 0) {
+        return res.status(400).json({ error: 'Invalid amount' });
+      }
+
+      const paymentIntent = await createPaymentIntent(amount);
+      res.json(paymentIntent);
+    } catch (error) {
+      console.error('Error creating payment intent:', error);
+      res.status(500).json({ error: 'Failed to create payment intent' });
+    }
+  });
+
 
   // Analytics endpoints
   app.get("/api/analytics/real-time", async (_req, res) => {

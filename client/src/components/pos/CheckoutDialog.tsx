@@ -6,6 +6,10 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { stripePromise, createPaymentIntent } from "@/lib/stripe";
+import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { LoadingAnimation } from "@/components/ui/loading-animation";
 
 interface CheckoutDialogProps {
   open: boolean;
@@ -13,18 +17,96 @@ interface CheckoutDialogProps {
   total: number;
 }
 
+function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => void }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/payment-complete`,
+        },
+        redirect: 'if_required',
+      });
+
+      if (error) {
+        toast({
+          title: "Payment failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        onSuccess();
+        toast({
+          title: "Payment successful",
+          description: "Your order has been processed"
+        });
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast({
+        title: "Payment failed",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <PaymentElement />
+      <Button 
+        type="submit" 
+        className="w-full" 
+        disabled={!stripe || isProcessing}
+      >
+        {isProcessing ? "Processing..." : `Pay ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total)}`}
+      </Button>
+    </form>
+  );
+}
+
 export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDialogProps) {
   const [cart, setCart] = useAtom(cartAtom);
   const { toast } = useToast();
+  const [clientSecret, setClientSecret] = useState<string>();
+
+  useEffect(() => {
+    if (open && total > 0) {
+      createPaymentIntent(total)
+        .then(data => setClientSecret(data.clientSecret))
+        .catch(error => {
+          console.error('Error creating payment intent:', error);
+          toast({
+            title: "Error",
+            description: "Failed to initialize payment",
+            variant: "destructive"
+          });
+          onOpenChange(false);
+        });
+    }
+  }, [open, total, toast, onOpenChange]);
 
   const checkoutMutation = useMutation({
     mutationFn: async () => {
-      const formattedTotal = Number(total).toFixed(2);
-
       const orderData = {
         order: {
-          total: formattedTotal,
-          status: "pending"
+          total: total.toFixed(2),
+          status: "completed"
         },
         items: cart.map(item => ({
           productId: item.product.id,
@@ -33,7 +115,6 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
         }))
       };
 
-      console.log('Sending order data:', orderData); // Add logging
       const response = await apiRequest('POST', '/api/orders', orderData);
       return response.json();
     },
@@ -84,14 +165,22 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
               </div>
             </div>
           </motion.div>
+
+          {clientSecret ? (
+            <div className="mt-6">
+              <Elements stripe={stripePromise} options={{ clientSecret }}>
+                <CheckoutForm 
+                  total={total} 
+                  onSuccess={checkoutMutation.mutate}
+                />
+              </Elements>
+            </div>
+          ) : (
+            <div className="mt-6">
+              <LoadingAnimation />
+            </div>
+          )}
         </div>
-        <Button 
-          className="w-full"
-          onClick={() => checkoutMutation.mutate()}
-          disabled={checkoutMutation.isPending}
-        >
-          {checkoutMutation.isPending ? "Processing..." : "Complete Order"}
-        </Button>
       </DialogContent>
     </Dialog>
   );
