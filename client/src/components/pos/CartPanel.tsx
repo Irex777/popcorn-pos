@@ -56,9 +56,8 @@ export default function CartPanel() {
   );
 
   return (
-    <div className="py-4 md:py-6">
-      {/* Cart items section with optimized height */}
-      <div className="max-h-[40vh] md:max-h-[calc(100vh-200px)] overflow-y-auto mb-4 -mx-2 px-2">
+    <div className="py-3 md:py-6">
+      <div className="max-h-[30vh] md:max-h-[calc(100vh-200px)] overflow-y-auto mb-3 md:mb-4">
         <AnimatePresence>
           {cart.map(item => (
             <motion.div
@@ -94,12 +93,12 @@ export default function CartPanel() {
                   >
                     <button
                       onClick={() => updateQuantity(item.product.id, -1)}
-                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-2 transition-colors"
+                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-3 transition-colors"
                     >
-                      <Minus className="h-4 w-4" />
+                      <Minus className="h-5 w-5" />
                     </button>
                     <motion.span 
-                      className="font-medium min-w-[24px] text-center"
+                      className="font-medium text-lg min-w-[24px] text-center"
                       key={item.quantity}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
@@ -109,15 +108,15 @@ export default function CartPanel() {
                     </motion.span>
                     <button
                       onClick={() => updateQuantity(item.product.id, 1)}
-                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-2 transition-colors"
+                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-3 transition-colors"
                     >
-                      <Plus className="h-4 w-4" />
+                      <Plus className="h-5 w-5" />
                     </button>
                   </motion.div>
-                  <span className="font-medium text-sm sm:text-base">{item.product.name}</span>
+                  <span className="font-medium text-base">{item.product.name}</span>
                 </div>
                 <motion.span 
-                  className="text-sm font-medium"
+                  className="text-base font-medium"
                   {...bounceAnimation}
                   key={item.quantity * Number(item.product.price)}
                 >
@@ -129,12 +128,11 @@ export default function CartPanel() {
         </AnimatePresence>
       </div>
 
-      {/* Total and checkout section */}
-      <div className="space-y-4">
+      <div className="space-y-3 md:space-y-4">
         <div className="flex items-center justify-between">
-          <span className="font-medium">{t('common.total')}</span>
+          <span className="font-medium text-lg">{t('common.total')}</span>
           <motion.span 
-            className="font-medium text-lg"
+            className="font-medium text-xl"
             key={total}
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -144,12 +142,12 @@ export default function CartPanel() {
           </motion.span>
         </div>
         <Button 
-          className="w-full" 
+          className="w-full py-6" 
           size="lg"
           disabled={cart.length === 0}
           onClick={() => setIsCheckoutOpen(true)}
         >
-          {t('common.pay')} {formatCurrency(total, currency)}
+          <span className="text-lg">{t('common.pay')} {formatCurrency(total, currency)}</span>
         </Button>
       </div>
 

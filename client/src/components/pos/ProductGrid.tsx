@@ -88,16 +88,16 @@ export default function ProductGrid() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 md:space-y-4">
       <motion.div 
-        className="flex gap-2 overflow-x-auto pb-2 categories-filter"
+        className="flex gap-2 overflow-x-auto pb-2 categories-filter -mx-2 px-2"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
         <motion.button
           whileTap={buttonTapAnimation}
           onClick={() => setActiveCategory(null)}
-          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+          className={`px-4 py-2.5 rounded-full text-base font-medium whitespace-nowrap ${
             activeCategory === null
               ? 'bg-primary text-primary-foreground'
               : 'bg-secondary/80 hover:bg-secondary text-foreground/80 hover:text-foreground'
@@ -110,7 +110,7 @@ export default function ProductGrid() {
             key={category.id}
             whileTap={buttonTapAnimation}
             onClick={() => setActiveCategory(category.id)}
-            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+            className={`px-4 py-2.5 rounded-full text-base font-medium whitespace-nowrap ${
               activeCategory === category.id
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-secondary/80 hover:bg-secondary text-foreground/80 hover:text-foreground'
@@ -125,7 +125,7 @@ export default function ProductGrid() {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 product-grid"
+        className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 md:gap-4 product-grid"
       >
         {filteredProducts?.map((product) => (
           <motion.button
@@ -134,11 +134,11 @@ export default function ProductGrid() {
             onClick={() => addToCart(product)}
             whileTap={buttonTapAnimation}
             layoutId={`product-${product.id}`}
-            className="bg-card hover:bg-accent active:bg-accent/90 rounded-lg p-3 sm:p-4 text-left transition-colors w-full border shadow-sm"
+            className="bg-card hover:bg-accent active:bg-accent/90 rounded-lg p-4 text-left transition-colors w-full border shadow-sm min-h-[100px]"
           >
-            <div className="flex flex-col h-full justify-between min-h-[80px]">
-              <span className="font-medium text-sm sm:text-base">{product.name}</span>
-              <span className="text-sm font-medium mt-2 text-primary">
+            <div className="flex flex-col h-full justify-between">
+              <span className="font-medium text-base">{product.name}</span>
+              <span className="text-base font-medium mt-2 text-primary">
                 {formatCurrency(Number(product.price), currency)}
               </span>
             </div>
