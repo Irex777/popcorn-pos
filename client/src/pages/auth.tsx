@@ -40,24 +40,24 @@ export default function AuthPage() {
           body: JSON.stringify(data),
         }
       );
-      
+
       if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error);
+        const error = await response.json();
+        throw new Error(error.error || 'Authentication failed');
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
       navigate("/");
       toast({
-        title: isLogin ? "Login successful" : "Registration successful",
-        description: isLogin ? "Welcome back!" : "Your account has been created.",
+        title: isLogin ? t('auth.loginSuccess') : t('auth.registerSuccess'),
+        description: isLogin ? t('auth.welcomeBack') : t('auth.accountCreated'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: isLogin ? "Login failed" : "Registration failed",
+        title: isLogin ? t('auth.loginFailed') : t('auth.registerFailed'),
         description: error.message,
         variant: "destructive",
       });
@@ -69,57 +69,70 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>{isLogin ? t('auth.login') : t('auth.register')}</CardTitle>
-          <CardDescription>
-            {isLogin ? t('auth.loginDescription') : t('auth.registerDescription')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Input
-                placeholder={t('auth.username')}
-                {...form.register("username")}
-              />
-              {form.formState.errors.username && (
-                <p className="text-sm text-destructive">
-                  {form.formState.errors.username.message}
-                </p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Input
-                type="password"
-                placeholder={t('auth.password')}
-                {...form.register("password")}
-              />
-              {form.formState.errors.password && (
-                <p className="text-sm text-destructive">
-                  {form.formState.errors.password.message}
-                </p>
-              )}
-            </div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={mutation.isPending}
-            >
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold tracking-tight">
+            Boutique POS
+          </h1>
+          <p className="text-sm text-muted-foreground mt-2">
+            {isLogin ? t('auth.welcomeMessage') : t('auth.createAccount')}
+          </p>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">
               {isLogin ? t('auth.login') : t('auth.register')}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full"
-              onClick={() => setIsLogin(!isLogin)}
-            >
-              {isLogin ? t('auth.needAccount') : t('auth.haveAccount')}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+            </CardTitle>
+            <CardDescription>
+              {isLogin ? t('auth.loginDescription') : t('auth.registerDescription')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-2">
+                <Input
+                  placeholder={t('auth.username')}
+                  {...form.register("username")}
+                />
+                {form.formState.errors.username && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.username.message}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Input
+                  type="password"
+                  placeholder={t('auth.password')}
+                  {...form.register("password")}
+                />
+                {form.formState.errors.password && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.password.message}
+                  </p>
+                )}
+              </div>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={mutation.isPending}
+              >
+                {isLogin ? t('auth.login') : t('auth.register')}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setIsLogin(!isLogin)}
+              >
+                {isLogin ? t('auth.needAccount') : t('auth.haveAccount')}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

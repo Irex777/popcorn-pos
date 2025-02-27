@@ -1,6 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { storage } from "./storage";
+import { hashPassword } from "./auth";
 
 const app = express();
 app.use(express.json());
@@ -36,6 +38,23 @@ app.use((req, res, next) => {
   next();
 });
 
+// Create default admin account if no users exist
+async function createDefaultAdmin() {
+  try {
+    const users = await storage.getAllUsers();
+    if (users.length === 0) {
+      const defaultAdmin = {
+        username: "admin",
+        password: await hashPassword("admin123"),
+      };
+      await storage.createUser(defaultAdmin);
+      log("Default admin account created");
+    }
+  } catch (error) {
+    console.error("Error creating default admin:", error);
+  }
+}
+
 (async () => {
   const server = await registerRoutes(app);
 
@@ -47,17 +66,15 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // Create default admin account before starting server
+  await createDefaultAdmin();
+
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client
   const port = 5000;
   server.listen({
     port,
