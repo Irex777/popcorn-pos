@@ -48,7 +48,7 @@ export function setupAuth(app: Express) {
       try {
         const user = await storage.getUserByUsername(username);
         if (!user || !(await comparePasswords(password, user.password))) {
-          return done(null, false);
+          return done(null, false, { message: "Invalid username or password" });
         }
         return done(null, user);
       } catch (error) {
@@ -101,7 +101,7 @@ export function setupAuth(app: Express) {
         return res.status(500).json({ error: "Login failed" });
       }
       if (!user) {
-        return res.status(401).json({ error: "Invalid credentials" });
+        return res.status(401).json({ error: info.message || "Invalid credentials" });
       }
       req.login(user, (err) => {
         if (err) {
@@ -128,7 +128,6 @@ export function setupAuth(app: Express) {
     res.json({ id: req.user.id, username: req.user.username });
   });
 
-  // New endpoint for changing password
   app.post("/api/change-password", async (req, res) => {
     if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });

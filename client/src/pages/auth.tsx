@@ -41,12 +41,12 @@ export default function AuthPage() {
         }
       );
 
+      const result = await response.json();
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Authentication failed');
+        throw new Error(result.error || 'Authentication failed');
       }
 
-      return response.json();
+      return result;
     },
     onSuccess: () => {
       navigate("/");
