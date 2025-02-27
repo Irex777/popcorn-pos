@@ -8,7 +8,6 @@ import { formatCurrency } from "@/lib/settings";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LoadingAnimation, LoadingGrid } from "@/components/ui/loading-animation";
-import ProductPreviewDialog from "./ProductPreviewDialog";
 
 const container = {
   hidden: { opacity: 0 },
@@ -39,7 +38,6 @@ export default function ProductGrid() {
   const [cart, setCart] = useAtom(cartAtom);
   const [currency] = useAtom(currencyAtom);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ['/api/products']
@@ -53,12 +51,7 @@ export default function ProductGrid() {
     ? products?.filter(p => p.categoryId === activeCategory)
     : products;
 
-  const addToCart = (product: Product, event?: React.MouseEvent) => {
-    if (event?.shiftKey) {
-      setSelectedProduct(product);
-      return;
-    }
-
+  const addToCart = (product: Product) => {
     setCart(current => {
       const existingItem = current.find(item => item.product.id === product.id);
       if (existingItem) {
@@ -138,10 +131,10 @@ export default function ProductGrid() {
           <motion.button
             key={product.id}
             variants={item}
-            onClick={(e) => addToCart(product, e)}
+            onClick={() => addToCart(product)}
             whileTap={buttonTapAnimation}
             layoutId={`product-${product.id}`}
-            className="bg-card hover:bg-accent active:bg-accent/90 rounded-lg p-3 text-left transition-colors w-full border shadow-sm min-h-[80px] relative group"
+            className="bg-card hover:bg-accent active:bg-accent/90 rounded-lg p-3 text-left transition-colors w-full border shadow-sm min-h-[80px]"
           >
             <div className="flex flex-col h-full justify-between">
               <span className="font-medium text-sm md:text-base line-clamp-2">{product.name}</span>
@@ -149,18 +142,9 @@ export default function ProductGrid() {
                 {formatCurrency(Number(product.price), currency)}
               </span>
             </div>
-            <div className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-sm pointer-events-none">
-              Shift + Click for 360° View
-            </div>
           </motion.button>
         ))}
       </motion.div>
-
-      <ProductPreviewDialog
-        product={selectedProduct}
-        open={!!selectedProduct}
-        onOpenChange={(open) => !open && setSelectedProduct(null)}
-      />
     </div>
   );
 }
