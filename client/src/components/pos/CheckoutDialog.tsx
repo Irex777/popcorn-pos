@@ -27,6 +27,11 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
     e.preventDefault();
 
     if (!stripe || !elements) {
+      toast({
+        title: "Error",
+        description: "Payment system is not ready",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -71,8 +76,8 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
       <PaymentElement />
       <Button 
         type="submit" 
-        className="w-full" 
-        disabled={!stripe || isProcessing}
+        className="w-full mt-4" 
+        disabled={!stripe || !elements || isProcessing}
       >
         {isProcessing ? "Processing..." : `Pay ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total)}`}
       </Button>
@@ -84,11 +89,16 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
   const [cart, setCart] = useAtom(cartAtom);
   const { toast } = useToast();
   const [clientSecret, setClientSecret] = useState<string>();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (open && total > 0) {
+      setIsLoading(true);
       createPaymentIntent(total)
-        .then(data => setClientSecret(data.clientSecret))
+        .then(data => {
+          console.log('Payment intent created:', data);
+          setClientSecret(data.clientSecret);
+        })
         .catch(error => {
           console.error('Error creating payment intent:', error);
           toast({
@@ -97,7 +107,12 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
             variant: "destructive"
           });
           onOpenChange(false);
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
+    } else {
+      setClientSecret(undefined);
     }
   }, [open, total, toast, onOpenChange]);
 
@@ -166,9 +181,18 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
             </div>
           </motion.div>
 
-          {clientSecret ? (
+          {isLoading ? (
             <div className="mt-6">
-              <Elements stripe={stripePromise} options={{ clientSecret }}>
+              <LoadingAnimation />
+            </div>
+          ) : clientSecret ? (
+            <div className="mt-6">
+              <Elements stripe={stripePromise} options={{ 
+                clientSecret,
+                appearance: {
+                  theme: 'stripe',
+                }
+              }}>
                 <CheckoutForm 
                   total={total} 
                   onSuccess={checkoutMutation.mutate}
@@ -176,8 +200,8 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
               </Elements>
             </div>
           ) : (
-            <div className="mt-6">
-              <LoadingAnimation />
+            <div className="mt-6 text-center text-sm text-muted-foreground">
+              Failed to initialize payment form. Please try again.
             </div>
           )}
         </div>
