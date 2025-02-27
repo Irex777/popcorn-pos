@@ -83,21 +83,12 @@ export class DatabaseStorage implements IStorage {
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
     try {
-      // Ensure the category exists.  This check is now redundant since we've removed the category column.
-      // const [category] = await db.select()
-      //   .from(categories)
-      //   .where(eq(categories.id, Number(insertProduct.categoryId)));
-
-      // if (!category) {
-      //   throw new Error('Invalid category selected');
-      // }
-
       // Format the product data
       const formattedProduct = {
         name: insertProduct.name,
         price: typeof insertProduct.price === 'string' ? insertProduct.price : insertProduct.price.toFixed(2),
-        categoryId: Number(insertProduct.categoryId) || null, // Handle potential null categoryId
-        imageUrl: insertProduct.imageUrl || null,
+        categoryId: Number(insertProduct.categoryId),
+        imageUrl: insertProduct.imageUrl || '', // Always ensure a string, never null
         stock: Number(insertProduct.stock)
       };
 
@@ -111,10 +102,7 @@ export class DatabaseStorage implements IStorage {
         throw new Error('Failed to create product');
       }
 
-      return {
-        ...product,
-        // category: category.name // Removed category field
-      };
+      return product;
     } catch (error) {
       console.error('Error creating product:', error);
       throw error;

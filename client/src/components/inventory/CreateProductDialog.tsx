@@ -36,12 +36,13 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
 
   const createProductMutation = useMutation({
     mutationFn: async (data: InsertProduct) => {
+      // Ensure all required fields are present and properly formatted
       const formattedData = {
-        ...data,
+        name: data.name.trim(),
         price: Number(data.price).toFixed(2),
         categoryId: Number(data.categoryId),
-        stock: Number(data.stock),
-        imageUrl: data.imageUrl || '' // Ensure imageUrl is never null
+        imageUrl: data.imageUrl?.trim() || '',
+        stock: Number(data.stock)
       };
 
       console.log('Sending product data:', formattedData);
