@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useAtom } from "jotai";
 import { cartAtom } from "@/lib/store";
@@ -94,31 +94,48 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
   const { toast } = useToast();
   const [clientSecret, setClientSecret] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
+  const [stripeError, setStripeError] = useState<string>();
 
   useEffect(() => {
-    if (open && total > 0) {
-      setIsLoading(true);
-      createPaymentIntent(total, currency)
-        .then(data => {
-          console.log('Payment intent created:', data);
-          setClientSecret(data.clientSecret);
-        })
-        .catch(error => {
+    let mounted = true;
+
+    async function initializePayment() {
+      if (open && total > 0) {
+        setIsLoading(true);
+        setStripeError(undefined);
+        try {
+          const data = await createPaymentIntent(total, currency);
+          if (mounted) {
+            console.log('Payment intent created:', data);
+            setClientSecret(data.clientSecret);
+          }
+        } catch (error) {
           console.error('Error creating payment intent:', error);
-          toast({
-            title: "Error",
-            description: "Failed to initialize payment",
-            variant: "destructive"
-          });
-          onOpenChange(false);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    } else {
-      setClientSecret(undefined);
+          if (mounted) {
+            setStripeError('Failed to initialize payment. Please try again.');
+            toast({
+              title: "Error",
+              description: "Failed to initialize payment",
+              variant: "destructive"
+            });
+          }
+        } finally {
+          if (mounted) {
+            setIsLoading(false);
+          }
+        }
+      } else {
+        setClientSecret(undefined);
+        setStripeError(undefined);
+      }
     }
-  }, [open, total, currency, toast, onOpenChange]);
+
+    initializePayment();
+
+    return () => {
+      mounted = false;
+    };
+  }, [open, total, currency, toast]);
 
   const checkoutMutation = useMutation({
     mutationFn: async () => {
@@ -160,6 +177,9 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Checkout</DialogTitle>
+          <DialogDescription>
+            Complete your purchase securely with Stripe
+          </DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <motion.div
@@ -208,7 +228,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
             </div>
           ) : (
             <div className="mt-6 text-center text-sm text-muted-foreground">
-              Failed to initialize payment form. Please try again.
+              {stripeError || 'Failed to initialize payment form. Please try again.'}
             </div>
           )}
         </div>

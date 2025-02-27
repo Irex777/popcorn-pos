@@ -15,7 +15,8 @@ export async function createPaymentIntent(amount: number, currency: string) {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create payment intent');
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to create payment intent');
   }
 
   return response.json();
