@@ -7,7 +7,6 @@ import { currencyAtom } from "@/lib/settings";
 import { formatCurrency } from "@/lib/settings";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Coffee, CakeSlice } from "lucide-react";
 
 const container = {
   hidden: { opacity: 0 },
@@ -30,17 +29,6 @@ const buttonTapAnimation = {
     type: "spring",
     stiffness: 400,
     damping: 15
-  }
-};
-
-const getCategoryIcon = (category: string) => {
-  switch (category.toLowerCase()) {
-    case 'drinks':
-      return <Coffee className="h-8 w-8 mb-2 text-primary" />;
-    case 'bakery':
-      return <CakeSlice className="h-8 w-8 mb-2 text-primary" />;
-    default:
-      return null;
   }
 };
 
@@ -76,15 +64,15 @@ export default function ProductGrid() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="flex gap-3 overflow-x-auto pb-3">
+      <div className="space-y-4">
+        <div className="flex gap-2 overflow-x-auto pb-2">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="animate-pulse bg-muted rounded-full h-12 w-24 flex-shrink-0" />
+            <div key={i} className="animate-pulse bg-muted rounded-full h-8 w-20 flex-shrink-0" />
           ))}
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="animate-pulse bg-muted rounded-xl h-40" />
+        <div className="grid grid-cols-2 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="animate-pulse bg-muted rounded-lg h-24" />
           ))}
         </div>
       </div>
@@ -92,18 +80,18 @@ export default function ProductGrid() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <motion.div 
-        className="flex gap-3 overflow-x-auto pb-3"
+        className="flex gap-2 overflow-x-auto pb-2"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
         <motion.button
           whileTap={buttonTapAnimation}
           onClick={() => setActiveCategory(null)}
-          className={`px-6 py-3 rounded-full text-base font-medium whitespace-nowrap transition-all ${
+          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
             activeCategory === null
-              ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+              ? 'bg-primary text-primary-foreground'
               : 'bg-primary/10 hover:bg-primary/20'
           }`}
         >
@@ -114,9 +102,9 @@ export default function ProductGrid() {
             key={category}
             whileTap={buttonTapAnimation}
             onClick={() => setActiveCategory(category)}
-            className={`px-6 py-3 rounded-full text-base font-medium whitespace-nowrap transition-all ${
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
               activeCategory === category
-                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                ? 'bg-primary text-primary-foreground'
                 : 'bg-primary/10 hover:bg-primary/20'
             }`}
           >
@@ -129,7 +117,7 @@ export default function ProductGrid() {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-2 md:grid-cols-3 gap-6"
+        className="grid grid-cols-2 gap-4"
       >
         {filteredProducts?.map((product) => (
           <motion.button
@@ -138,27 +126,13 @@ export default function ProductGrid() {
             onClick={() => addToCart(product)}
             whileTap={buttonTapAnimation}
             layoutId={`product-${product.id}`}
-            className="bg-card hover:bg-card/90 active:bg-card/80 rounded-xl p-6 text-left transition-all hover:shadow-lg hover:-translate-y-1 w-full relative overflow-hidden group"
+            className="bg-card hover:bg-card/90 active:bg-card/80 rounded-lg p-4 text-left transition-colors w-full"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent group-hover:from-primary/10" />
-            <div className="relative flex flex-col h-full justify-between">
-              <div>
-                {getCategoryIcon(product.category)}
-                <h3 className="font-semibold text-lg mb-1">{product.name}</h3>
-                <p className="text-sm text-muted-foreground capitalize">
-                  {product.category}
-                </p>
-              </div>
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-lg font-bold text-primary">
-                  {formatCurrency(Number(product.price), currency)}
-                </span>
-                {product.stock < 10 && (
-                  <span className="text-sm text-destructive">
-                    {product.stock} {t('common.units')}
-                  </span>
-                )}
-              </div>
+            <div className="flex flex-col h-full justify-between">
+              <span className="font-medium">{product.name}</span>
+              <span className="text-sm font-medium mt-2">
+                {formatCurrency(Number(product.price), currency)}
+              </span>
             </div>
           </motion.button>
         ))}
