@@ -7,6 +7,7 @@ import POS from "@/pages/pos";
 import History from "@/pages/history";
 import Inventory from "@/pages/inventory";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
+import { Provider as JotaiProvider } from 'jotai';
 
 function Router() {
   return (
@@ -23,10 +24,12 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
-    </QueryClientProvider>
+    <JotaiProvider>
+      <QueryClientProvider client={queryClient}>
+        <Router />
+        <Toaster />
+      </QueryClientProvider>
+    </JotaiProvider>
   );
 }
 

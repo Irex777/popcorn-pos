@@ -1,14 +1,29 @@
 import { atom, useAtom } from 'jotai';
 
-const themeAtom = atom<'light' | 'dark'>('light');
+type Theme = 'light' | 'dark' | 'system';
+const themeAtom = atom<Theme>('system');
 
 export function useTheme() {
   const [theme, setTheme] = useAtom(themeAtom);
 
+  const setThemeAndUpdateDOM = (newTheme: Theme) => {
+    setTheme(newTheme);
+
+    // Remove both classes first
+    document.documentElement.classList.remove('light', 'dark');
+
+    // Determine the actual theme
+    let effectiveTheme: 'light' | 'dark' = newTheme === 'system' 
+      ? window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      : newTheme;
+
+    // Add the appropriate class
+    document.documentElement.classList.add(effectiveTheme);
+  };
+
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    document.documentElement.classList.toggle('dark');
+    setThemeAndUpdateDOM(newTheme);
   };
 
   return { theme, toggleTheme };
