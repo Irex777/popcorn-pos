@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { type Order, type Product } from "@shared/schema";
 import { format, startOfMonth, startOfDay, isWithinInterval, startOfYear } from "date-fns";
-import { 
+import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell
 } from 'recharts';
@@ -11,14 +11,15 @@ import { useTranslation } from "react-i18next";
 import { useAtom } from "jotai";
 import { currencyAtom } from "@/lib/settings";
 import { formatCurrency } from "@/lib/settings";
-import { 
+import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle 
+  CardTitle
 } from "@/components/ui/card";
 import { useState } from "react";
+import { ExportButtons } from "@/components/ui/export-buttons";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
@@ -30,7 +31,7 @@ export default function Analytics() {
   const { t } = useTranslation();
   const [currency] = useAtom(currencyAtom);
   const [timeframe, setTimeframe] = useState<'day' | 'week' | 'month'>('day');
-  
+
   const { data: orders, isLoading: ordersLoading } = useQuery<OrderWithItems[]>({
     queryKey: ['/api/orders']
   });
@@ -100,10 +101,26 @@ export default function Analytics() {
     };
   }).sort((a, b) => b.sales - a.sales).slice(0, 5);
 
+  const prepareExportData = () => {
+    if (!orders) return [];
+    return orders.map(order => ({
+      'Order ID': order.id,
+      'Date': format(new Date(order.createdAt!), 'yyyy-MM-dd HH:mm:ss'),
+      'Status': order.status,
+      'Total': formatCurrency(Number(order.total), currency),
+      'Items': order.items.map(item => `${item.quantity}x ${item.product?.name}`).join(', ')
+    }));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold">{t('analytics.title', 'Sales Analytics')}</h2>
+        <ExportButtons
+          data={prepareExportData()}
+          filename={`analytics-${format(new Date(), 'yyyy-MM-dd')}`}
+          title="Sales Analytics Report"
+        />
         <div className="flex gap-2">
           <Button
             variant={timeframe === 'day' ? 'default' : 'outline'}
@@ -169,14 +186,14 @@ export default function Analytics() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value: number) => formatCurrency(value, currency)}
                   />
                   <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="total" 
-                    stroke="#8884d8" 
+                  <Line
+                    type="monotone"
+                    dataKey="total"
+                    stroke="#8884d8"
                     name={t('analytics.revenue', 'Revenue')}
                   />
                 </LineChart>
@@ -201,7 +218,7 @@ export default function Analytics() {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, value }) => 
+                    label={({ name, value }) =>
                       `${name}: ${formatCurrency(value, currency)}`
                     }
                   >
@@ -209,7 +226,7 @@ export default function Analytics() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value: number) => formatCurrency(value, currency)}
                   />
                   <Legend />
@@ -232,9 +249,9 @@ export default function Analytics() {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar 
-                    dataKey="sales" 
-                    fill="#8884d8" 
+                  <Bar
+                    dataKey="sales"
+                    fill="#8884d8"
                     name={t('analytics.unitsSold', 'Units Sold')}
                   />
                 </BarChart>

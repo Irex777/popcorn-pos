@@ -20,7 +20,14 @@ const resources = {
         "stock": "Stock",
         "units": "units",
         "all": "All",
-        "categories": "Categories"
+        "categories": "Categories",
+        "export": {
+          "title": "Export",
+          "csv": "Export as CSV",
+          "excel": "Export as Excel",
+          "pdf": "Export as PDF",
+          "generated": "Generated on"
+        }
       },
       "history": {
         "daily": "Daily",
@@ -68,7 +75,14 @@ const resources = {
         "stock": "Stock",
         "units": "unidades",
         "all": "Todo",
-        "categories": "Categorías"
+        "categories": "Categorías",
+        "export": {
+          "title": "Exportar",
+          "csv": "Exportar como CSV",
+          "excel": "Exportar como Excel",
+          "pdf": "Exportar como PDF",
+          "generated": "Generado el"
+        }
       },
       "history": {
         "daily": "Diario",
@@ -116,7 +130,14 @@ const resources = {
         "stock": "Bestand",
         "units": "Stück",
         "all": "Alle",
-        "categories": "Kategorien"
+        "categories": "Kategorien",
+        "export": {
+          "title": "Exportieren",
+          "csv": "Als CSV exportieren",
+          "excel": "Als Excel exportieren",
+          "pdf": "Als PDF exportieren",
+          "generated": "Generiert am"
+        }
       },
       "history": {
         "daily": "Täglich",
@@ -164,7 +185,14 @@ const resources = {
         "stock": "Zásoba",
         "units": "kusů",
         "all": "Vše",
-        "categories": "Kategorie"
+        "categories": "Kategorie",
+        "export": {
+          "title": "Export",
+          "csv": "Exportovat jako CSV",
+          "excel": "Exportovat jako Excel",
+          "pdf": "Exportovat jako PDF",
+          "generated": "Vygenerováno"
+        }
       },
       "history": {
         "daily": "Denní",
