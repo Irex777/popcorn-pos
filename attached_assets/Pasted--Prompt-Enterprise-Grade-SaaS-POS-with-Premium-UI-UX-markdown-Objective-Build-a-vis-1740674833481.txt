@@ -1,0 +1,93 @@
+**Prompt: Enterprise-Grade SaaS POS with Premium UI/UX**  
+```markdown  
+**Objective**  
+Build a visually stunning SaaS POS system targeting boutique retailers and cafes, combining enterprise functionality with consumer-grade UX. Prioritize emotional design and user empowerment through customization.
+
+**UI/UX Requirements**  
+1. **Core Frameworks**  
+   - Frontend: React + Vite + TypeScript  
+   - Animation: Framer Motion + React Spring  
+   - Styling: Tailwind CSS + Shadcn UI (Radix-based) + Class Variance Authority  
+   - State: Jotai (atomic) + React Query  
+   - Design System: Storybook + Figma Tokens  
+
+2. **Fluid Interaction Patterns**  
+   - Zero-UI principles for frequent actions (e.g., swipe-to-refund)  
+   - Physics-based animations (springs vs. cubic-bezier)  
+   - Haptic feedback integration (react-use-gesture)  
+   - Adaptive loading states (skeleton wave frequency matches user patience)  
+
+3. **User Preference Systems**  
+   - **Theme Engine**:  
+     - Color psychology-preset palettes ("Trust Blue", "Eco Green")  
+     - WCAG 3.0 contrast checker with auto-adjustments (using Polished.js)  
+     - Dynamic density control (spacing/button size)  
+
+   - **Case Study Integrations**:  
+     - Toast POS: Context-aware shortcut surfaces (show controls only when needed)  
+     - Square: Progressive disclosure for advanced features  
+     - Shopify: Multi-sensory confirmation (subtle chime + color pulse on sale)  
+
+4. **Accessibility**  
+   - Full VoiceOver support (react-aria)  
+   - Dyslexia-friendly font toggle (OpenDyslexic)  
+   - Motion reduction toggle (prefers-reduced-motion)  
+
+**Key Features Addendum**  
+1. **Personalization**  
+   - AI-generated theme suggestions based on business type (florist → pastels)  
+   - Custom workflow builder (drag-n-drop interface blocks)  
+
+2. **Onboarding UX**  
+   - Interactive product tour (react-joyride)  
+   - Progressive profiling (ask preferences over 3 sessions)  
+
+3. **Data-Driven Design**  
+   - Embedded A/B testing (Optimizely)  
+   - Heatmap integration (Hotjar)  
+   - Error analytics (Sentry visual UI)  
+
+**Implementation Guidelines**  
+1. **Color System**  
+   ```tsx  
+   // semantic-colors.ts  
+   export const palettes = {  
+     bakery: {  
+       primary: { light: '#FED7D7', dark: '#822727' }, // Error states  
+       secondary: { light: '#C6F6D5', dark: '#22543D' }, // Success  
+       accent: { light: '#FEEBC8', dark: '#9C4221' } // Warnings  
+     },  
+     cafe: {  
+       primary: { light: '#E9D8FD', dark: '#553C9A' },  
+       secondary: { light: '#BEE3F8', dark: '#2C5282' }  
+     }  
+   };  
+   ```  
+
+2. **Performance**  
+   - Partial hydration (Astro Islands pattern)  
+   - Code-split POS modules by user role  
+   - Optimistic UI updates for cart actions  
+
+3. **Motion Design**  
+   ```tsx  
+   // framer-presence.ts  
+   export const pageTransition = {  
+     initial: { opacity: 0, y: 20 },  
+     animate: { opacity: 1, y: 0, transition: { type: 'spring', bounce: 0.2 } },  
+     exit: { opacity: 0, y: -20 }  
+   };  
+   ```  
+
+**Deliverables**  
+1. UI audit report comparing to Material 3/Apple Retail standards  
+2. Component variant maps for 5 business verticals  
+3. Microcopy strategy with tone-of-voice guidelines  
+4. Performance budget (100ms interaction latency max)  
+5. Dark/light mode sync with OS preference  
+
+**References**  
+1. Starbucks POS: Tactile feedback patterns  
+2. Nike App: Anticipatory design case study  
+3. Duolingo: Gamified onboarding approach  
+```  
