@@ -67,7 +67,7 @@ export default function ProductGrid() {
 
   if (productsLoading || categoriesLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex gap-2 overflow-x-auto pb-2">
           <motion.div
             className="flex gap-2"
@@ -77,7 +77,7 @@ export default function ProductGrid() {
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="animate-pulse bg-muted rounded-full h-9 w-20 flex-shrink-0"
+                className="animate-pulse bg-muted rounded-full h-8 w-16 flex-shrink-0"
               />
             ))}
           </motion.div>
@@ -88,7 +88,7 @@ export default function ProductGrid() {
   }
 
   return (
-    <div className="space-y-3 md:space-y-4">
+    <div className="space-y-3">
       <motion.div 
         className="flex gap-2 overflow-x-auto pb-2 categories-filter -mx-4 px-4 safe-area-x"
         initial={{ opacity: 0, y: -20 }}
@@ -97,7 +97,7 @@ export default function ProductGrid() {
         <motion.button
           whileTap={buttonTapAnimation}
           onClick={() => setActiveCategory(null)}
-          className={`px-6 py-3 rounded-full text-lg font-medium whitespace-nowrap ${
+          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
             activeCategory === null
               ? 'bg-primary text-primary-foreground'
               : 'bg-secondary/80 hover:bg-secondary text-foreground/80 hover:text-foreground'
@@ -110,7 +110,7 @@ export default function ProductGrid() {
             key={category.id}
             whileTap={buttonTapAnimation}
             onClick={() => setActiveCategory(category.id)}
-            className={`px-6 py-3 rounded-full text-lg font-medium whitespace-nowrap ${
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
               activeCategory === category.id
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-secondary/80 hover:bg-secondary text-foreground/80 hover:text-foreground'
@@ -125,7 +125,7 @@ export default function ProductGrid() {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 product-grid"
+        className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 md:gap-4 product-grid"
       >
         {filteredProducts?.map((product) => (
           <motion.button
@@ -134,11 +134,11 @@ export default function ProductGrid() {
             onClick={() => addToCart(product)}
             whileTap={buttonTapAnimation}
             layoutId={`product-${product.id}`}
-            className="bg-card hover:bg-accent active:bg-accent/90 rounded-lg p-5 text-left transition-colors w-full border shadow-sm min-h-[120px]"
+            className="bg-card hover:bg-accent active:bg-accent/90 rounded-lg p-3 text-left transition-colors w-full border shadow-sm min-h-[80px]"
           >
             <div className="flex flex-col h-full justify-between">
-              <span className="font-medium text-lg">{product.name}</span>
-              <span className="text-lg font-medium mt-2 text-primary">
+              <span className="font-medium text-sm md:text-base line-clamp-2">{product.name}</span>
+              <span className="text-sm md:text-base font-medium mt-2 text-primary">
                 {formatCurrency(Number(product.price), currency)}
               </span>
             </div>
