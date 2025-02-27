@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import EditProductDialog from "@/components/inventory/EditProductDialog";
 import { Edit } from "lucide-react";
+import { Plus } from "lucide-react";
+import CreateProductDialog from "@/components/inventory/CreateProductDialog";
 
 const container = {
   hidden: { opacity: 0 },
@@ -34,6 +36,7 @@ const buttonTapAnimation = {
 export default function Inventory() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const { data: products, isLoading } = useQuery<Product[]>({
     queryKey: ['/api/products']
@@ -63,7 +66,13 @@ export default function Inventory() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold">Inventory</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold">Inventory</h2>
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Product
+        </Button>
+      </div>
 
       <motion.div 
         className="flex gap-2 overflow-x-auto pb-2"
@@ -155,6 +164,10 @@ export default function Inventory() {
           onOpenChange={(open) => !open && setEditingProduct(null)}
         />
       )}
+      <CreateProductDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+      />
     </div>
   );
 }

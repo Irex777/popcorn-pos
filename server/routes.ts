@@ -39,6 +39,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update product
+  app.patch("/api/products/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const productData = insertProductSchema.parse(req.body);
+      const [product] = await db
+        .update(products)
+        .set(productData)
+        .where(eq(products.id, id))
+        .returning();
+
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      res.json(product);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid product data" });
+    }
+  });
+
   // Get all orders
   app.get("/api/orders", async (_req, res) => {
     const orders = await storage.getOrders();

@@ -3,38 +3,37 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type Product, insertProductSchema } from "@shared/schema";
+import { insertProductSchema } from "@shared/schema";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-interface EditProductDialogProps {
-  product: Product;
+interface CreateProductDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export default function EditProductDialog({ product, open, onOpenChange }: EditProductDialogProps) {
+export default function CreateProductDialog({ open, onOpenChange }: CreateProductDialogProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const form = useForm({
     resolver: zodResolver(insertProductSchema),
     defaultValues: {
-      name: product.name,
-      price: product.price.toString(),
-      category: product.category,
-      imageUrl: product.imageUrl,
-      stock: product.stock
+      name: "",
+      price: "",
+      category: "",
+      imageUrl: "",
+      stock: 0
     }
   });
 
-  const updateProductMutation = useMutation({
+  const createProductMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await apiRequest(
-        'PATCH',
-        `/api/products/${product.id}`,
+        'POST',
+        '/api/products',
         data
       );
       return response.json();
@@ -42,15 +41,16 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/products'] });
       toast({
-        title: "Product updated",
-        description: "Product has been updated successfully."
+        title: "Product created",
+        description: "New product has been added successfully."
       });
       onOpenChange(false);
+      form.reset();
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to update product.",
+        description: "Failed to create product.",
         variant: "destructive"
       });
     }
@@ -60,10 +60,10 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit {product.name}</DialogTitle>
+          <DialogTitle>Create New Product</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(data => updateProductMutation.mutate(data))} className="space-y-4">
+          <form onSubmit={form.handleSubmit(data => createProductMutation.mutate(data))} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -126,7 +126,7 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
               name="stock"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Stock</FormLabel>
+                  <FormLabel>Initial Stock</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
@@ -141,9 +141,9 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
             <Button 
               type="submit" 
               className="w-full"
-              disabled={updateProductMutation.isPending}
+              disabled={createProductMutation.isPending}
             >
-              {updateProductMutation.isPending ? "Updating..." : "Update Product"}
+              {createProductMutation.isPending ? "Creating..." : "Create Product"}
             </Button>
           </form>
         </Form>
