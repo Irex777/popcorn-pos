@@ -39,7 +39,8 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
       const formattedData = {
         ...data,
         price: Number(data.price).toFixed(2),
-        categoryId: Number(data.categoryId)
+        categoryId: Number(data.categoryId),
+        stock: Number(data.stock)
       };
 
       const response = await apiRequest(
@@ -47,6 +48,12 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
         '/api/products',
         formattedData
       );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create product');
+      }
+
       return response.json();
     },
     onSuccess: () => {
@@ -62,7 +69,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
       console.error('Create product error:', error);
       toast({
         title: "Error",
-        description: "Failed to create product. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to create product. Please try again.",
         variant: "destructive"
       });
     }

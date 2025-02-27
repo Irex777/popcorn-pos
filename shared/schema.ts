@@ -33,9 +33,17 @@ export const orderItems = pgTable("order_items", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
 });
 
-// Create insert schemas
+// Create insert schemas with proper validation
 export const insertCategorySchema = createInsertSchema(categories).omit({ id: true });
-export const insertProductSchema = createInsertSchema(products).omit({ id: true });
+
+export const insertProductSchema = createInsertSchema(products)
+  .omit({ id: true })
+  .extend({
+    price: z.string().or(z.number()).transform(val => Number(val).toFixed(2)),
+    categoryId: z.number().or(z.string()).transform(val => Number(val)),
+    stock: z.number().or(z.string()).transform(val => Number(val)),
+  });
+
 export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, createdAt: true });
 export const insertOrderItemSchema = createInsertSchema(orderItems).omit({ id: true, orderId: true });
 
