@@ -40,7 +40,7 @@ export const insertOrderItemSchema = createInsertSchema(orderItems).omit({ id: t
 
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
-export type Product = typeof products.$inferSelect;
+export type Product = typeof products.$inferSelect & { category?: string };
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Order = typeof orders.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
