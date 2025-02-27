@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { languages, languageAtom, currencies, currencyAtom } from '@/lib/settings';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Plus, Loader2 } from 'lucide-react';
+import i18n from '@/lib/i18n';
 import {
   Select,
   SelectContent,
