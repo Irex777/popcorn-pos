@@ -19,7 +19,8 @@ const resources = {
         "pay": "Pay",
         "stock": "Stock",
         "units": "units",
-        "all": "All"
+        "all": "All",
+        "categories": "Categories"
       },
       "history": {
         "daily": "Daily",
@@ -52,7 +53,8 @@ const resources = {
         "pay": "Pagar",
         "stock": "Stock",
         "units": "unidades",
-        "all": "Todo"
+        "all": "Todo",
+        "categories": "Categorías"
       },
       "history": {
         "daily": "Diario",
@@ -85,7 +87,8 @@ const resources = {
         "pay": "Bezahlen",
         "stock": "Bestand",
         "units": "Stück",
-        "all": "Alle"
+        "all": "Alle",
+        "categories": "Kategorien"
       },
       "history": {
         "daily": "Täglich",
@@ -118,7 +121,8 @@ const resources = {
         "pay": "Zaplatit",
         "stock": "Zásoba",
         "units": "kusů",
-        "all": "Vše"
+        "all": "Vše",
+        "categories": "Kategorie"
       },
       "history": {
         "daily": "Denní",
