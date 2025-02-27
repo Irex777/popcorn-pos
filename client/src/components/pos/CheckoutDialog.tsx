@@ -2,6 +2,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { useAtom } from "jotai";
 import { cartAtom } from "@/lib/store";
+import { currencyAtom } from "@/lib/settings";
+import { formatCurrency } from "@/lib/settings";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +24,7 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
+  const [currency] = useAtom(currencyAtom);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +82,7 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
         className="w-full mt-4" 
         disabled={!stripe || !elements || isProcessing}
       >
-        {isProcessing ? "Processing..." : `Pay ${formatCurrency(total)}`}
+        {isProcessing ? "Processing..." : `Pay ${formatCurrency(total, currency)}`}
       </Button>
     </form>
   );
@@ -87,6 +90,7 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
 
 export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDialogProps) {
   const [cart, setCart] = useAtom(cartAtom);
+  const [currency] = useAtom(currencyAtom);
   const { toast } = useToast();
   const [clientSecret, setClientSecret] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
@@ -151,13 +155,6 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
     }
   });
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { 
-      style: 'currency', 
-      currency: 'USD' 
-    }).format(amount);
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -176,14 +173,14 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
                   {item.product.name} x {item.quantity}
                 </span>
                 <span>
-                  {formatCurrency(Number(item.product.price) * item.quantity)}
+                  {formatCurrency(Number(item.product.price) * item.quantity, currency)}
                 </span>
               </div>
             ))}
             <div className="pt-4 border-t">
               <div className="flex justify-between font-medium">
                 <span>Total</span>
-                <span>{formatCurrency(total)}</span>
+                <span>{formatCurrency(total, currency)}</span>
               </div>
             </div>
           </motion.div>
