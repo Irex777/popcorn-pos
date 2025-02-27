@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { type Product } from "@shared/schema";
+import { type Product, type Category } from "@shared/schema";
 import { useAtom } from "jotai";
 import { cartAtom } from "@/lib/store";
 import { currencyAtom } from "@/lib/settings";
@@ -36,16 +36,18 @@ export default function ProductGrid() {
   const { t } = useTranslation();
   const [cart, setCart] = useAtom(cartAtom);
   const [currency] = useAtom(currencyAtom);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<number | null>(null);
 
-  const { data: products, isLoading } = useQuery<Product[]>({
+  const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ['/api/products']
   });
 
-  const categories = [...new Set(products?.map(p => p.category) || [])];
+  const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ['/api/categories']
+  });
 
   const filteredProducts = activeCategory
-    ? products?.filter(p => p.category === activeCategory)
+    ? products?.filter(p => p.categoryId === activeCategory)
     : products;
 
   const addToCart = (product: Product) => {
@@ -62,7 +64,7 @@ export default function ProductGrid() {
     });
   };
 
-  if (isLoading) {
+  if (productsLoading || categoriesLoading) {
     return (
       <div className="space-y-4">
         <div className="flex gap-2 overflow-x-auto pb-2">
@@ -97,18 +99,18 @@ export default function ProductGrid() {
         >
           {t('common.all')}
         </motion.button>
-        {categories.map(category => (
+        {categories?.map(category => (
           <motion.button
-            key={category}
+            key={category.id}
             whileTap={buttonTapAnimation}
-            onClick={() => setActiveCategory(category)}
+            onClick={() => setActiveCategory(category.id)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-              activeCategory === category
+              activeCategory === category.id
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-secondary/80 hover:bg-secondary text-foreground/80 hover:text-foreground'
             }`}
           >
-            {category}
+            {category.name}
           </motion.button>
         ))}
       </motion.div>
