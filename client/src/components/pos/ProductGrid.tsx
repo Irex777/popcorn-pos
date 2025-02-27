@@ -92,7 +92,7 @@ export default function ProductGrid() {
           className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
             activeCategory === null
               ? 'bg-primary text-primary-foreground'
-              : 'bg-primary/10 hover:bg-primary/20'
+              : 'bg-secondary/80 hover:bg-secondary text-foreground/80 hover:text-foreground'
           }`}
         >
           {t('common.all')}
@@ -105,7 +105,7 @@ export default function ProductGrid() {
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
               activeCategory === category
                 ? 'bg-primary text-primary-foreground'
-                : 'bg-primary/10 hover:bg-primary/20'
+                : 'bg-secondary/80 hover:bg-secondary text-foreground/80 hover:text-foreground'
             }`}
           >
             {category}
@@ -126,11 +126,11 @@ export default function ProductGrid() {
             onClick={() => addToCart(product)}
             whileTap={buttonTapAnimation}
             layoutId={`product-${product.id}`}
-            className="bg-card hover:bg-card/90 active:bg-card/80 rounded-lg p-4 text-left transition-colors w-full"
+            className="bg-card hover:bg-accent active:bg-accent/90 rounded-lg p-4 text-left transition-colors w-full border shadow-sm"
           >
             <div className="flex flex-col h-full justify-between">
               <span className="font-medium">{product.name}</span>
-              <span className="text-sm font-medium mt-2">
+              <span className="text-sm font-medium mt-2 text-primary">
                 {formatCurrency(Number(product.price), currency)}
               </span>
             </div>
