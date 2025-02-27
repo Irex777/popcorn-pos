@@ -2,9 +2,11 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Settings, History, Package, Grid2X2, BarChart2 } from "lucide-react";
+import { Moon, Sun, Settings, Menu } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -14,55 +16,71 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { theme, toggleTheme } = useTheme();
   const [location] = useLocation();
   const { t } = useTranslation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const menuItems = [
+    { href: "/", label: t('common.pos') },
+    { href: "/history", label: t('common.history') },
+    { href: "/inventory", label: t('common.inventory') },
+    { href: "/categories", label: t('common.categories') },
+    { href: "/analytics", label: t('analytics.title') },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-2 h-16 flex items-center justify-between safe-area-x">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-2xl font-bold"
+            className="text-xl md:text-2xl font-bold"
           >
             Boutique POS
           </motion.h1>
-          <div className="flex items-center gap-2">
+
+          {/* Mobile Menu */}
+          <div className="flex md:hidden">
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[80vw] px-2 py-6">
+                <nav className="flex flex-col gap-2">
+                  {menuItems.map(item => (
+                    <Link key={item.href} href={item.href}>
+                      <a
+                        className={`px-4 py-3 rounded-md text-base font-medium ${
+                          location === item.href
+                            ? "bg-primary text-primary-foreground"
+                            : "text-foreground/60 hover:text-foreground"
+                        }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {item.label}
+                      </a>
+                    </Link>
+                  ))}
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center gap-2">
             <nav className="flex items-center gap-2 mr-4">
-              <Link href="/">
-                <a className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  location === "/" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
-                }`}>
-                  {t('common.pos')}
-                </a>
-              </Link>
-              <Link href="/history">
-                <a className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  location === "/history" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
-                }`}>
-                  {t('common.history')}
-                </a>
-              </Link>
-              <Link href="/inventory">
-                <a className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  location === "/inventory" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
-                }`}>
-                  {t('common.inventory')}
-                </a>
-              </Link>
-              <Link href="/categories">
-                <a className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  location === "/categories" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
-                }`}>
-                  {t('common.categories')}
-                </a>
-              </Link>
-              <Link href="/analytics">
-                <a className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  location === "/analytics" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
-                }`}>
-                  {t('analytics.title')}
-                </a>
-              </Link>
+              {menuItems.map(item => (
+                <Link key={item.href} href={item.href}>
+                  <a className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    location === item.href
+                      ? "bg-primary text-primary-foreground"
+                      : "text-foreground/60 hover:text-foreground"
+                  }`}>
+                    {item.label}
+                  </a>
+                </Link>
+              ))}
             </nav>
             <Button
               variant="ghost"
@@ -81,7 +99,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </div>
       </header>
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-2 py-4 md:px-4 md:py-6 safe-area-x">
         {children}
       </main>
     </div>
