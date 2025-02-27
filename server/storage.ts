@@ -1,104 +1,58 @@
 import { type Product, type Order, type OrderItem, type InsertProduct, type InsertOrder, type InsertOrderItem } from "@shared/schema";
+import { db } from "./db";
+import { products, orders, orderItems } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Products
   getProducts(): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
-  
+
   // Orders
   createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order>;
   getOrder(id: number): Promise<Order | undefined>;
   getOrderItems(orderId: number): Promise<OrderItem[]>;
 }
 
-export class MemStorage implements IStorage {
-  private products: Map<number, Product>;
-  private orders: Map<number, Order>;
-  private orderItems: Map<number, OrderItem[]>;
-  private currentProductId: number;
-  private currentOrderId: number;
-  private currentOrderItemId: number;
-
-  constructor() {
-    this.products = new Map();
-    this.orders = new Map();
-    this.orderItems = new Map();
-    this.currentProductId = 1;
-    this.currentOrderId = 1;
-    this.currentOrderItemId = 1;
-
-    // Add sample products
-    this.initializeProducts();
-  }
-
-  private initializeProducts() {
-    const sampleProducts: InsertProduct[] = [
-      {
-        name: "Espresso",
-        price: "3.50",
-        category: "Drinks",
-        imageUrl: "https://api.iconify.design/lucide:coffee.svg"
-      },
-      {
-        name: "Cappuccino",
-        price: "4.50",
-        category: "Drinks",
-        imageUrl: "https://api.iconify.design/lucide:coffee.svg"
-      },
-      {
-        name: "Croissant",
-        price: "3.00",
-        category: "Bakery",
-        imageUrl: "https://api.iconify.design/lucide:cookie.svg"
-      }
-    ];
-
-    sampleProducts.forEach(product => this.createProduct(product));
-  }
-
+export class DatabaseStorage implements IStorage {
   async getProducts(): Promise<Product[]> {
-    return Array.from(this.products.values());
+    return await db.select().from(products);
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
-    return this.products.get(id);
+    const [product] = await db.select().from(products).where(eq(products.id, id));
+    return product;
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    const id = this.currentProductId++;
-    const product = { id, ...insertProduct };
-    this.products.set(id, product);
+    const [product] = await db.insert(products).values(insertProduct).returning();
     return product;
   }
 
   async createOrder(insertOrder: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
-    const id = this.currentOrderId++;
-    const order = { 
-      id, 
-      ...insertOrder,
-      createdAt: new Date() 
-    };
-    
-    this.orders.set(id, order);
-    
-    const orderItems = items.map(item => ({
-      id: this.currentOrderItemId++,
-      ...item,
-      orderId: id
-    }));
-    
-    this.orderItems.set(id, orderItems);
+    const [order] = await db.insert(orders).values(insertOrder).returning();
+
+    if (items.length > 0) {
+      await db.insert(orderItems).values(
+        items.map(item => ({
+          ...item,
+          orderId: order.id
+        }))
+      );
+    }
+
     return order;
   }
 
   async getOrder(id: number): Promise<Order | undefined> {
-    return this.orders.get(id);
+    const [order] = await db.select().from(orders).where(eq(orders.id, id));
+    return order;
   }
 
   async getOrderItems(orderId: number): Promise<OrderItem[]> {
-    return this.orderItems.get(orderId) || [];
+    return await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
