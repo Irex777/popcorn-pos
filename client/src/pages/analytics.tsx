@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { useState } from "react";
 import { ExportButtons } from "@/components/ui/export-buttons";
+import { LoadingAnimation, LoadingCard } from "@/components/ui/loading-animation";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
@@ -35,16 +36,33 @@ export default function Analytics() {
     queryKey: ['/api/orders']
   });
 
-  const { data: products } = useQuery<Product[]>({
+  const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ['/api/products']
   });
 
-  if (ordersLoading) {
+  if (ordersLoading || productsLoading) {
     return (
-      <div className="space-y-4">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="animate-pulse bg-card rounded-lg p-4 h-[300px]" />
-        ))}
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-bold analytics-heading">{t('analytics.title')}</h2>
+          <div className="animate-pulse flex gap-4">
+            <div className="bg-muted rounded-md h-9 w-32" />
+            <div className="bg-muted rounded-md h-9 w-32" />
+            <div className="bg-muted rounded-md h-9 w-32" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
+            <LoadingCard key={i} />
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <LoadingCard key={i} />
+          ))}
+        </div>
       </div>
     );
   }

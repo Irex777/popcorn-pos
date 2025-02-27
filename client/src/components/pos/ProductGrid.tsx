@@ -7,6 +7,7 @@ import { currencyAtom } from "@/lib/settings";
 import { formatCurrency } from "@/lib/settings";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { LoadingAnimation, LoadingGrid } from "@/components/ui/loading-animation";
 
 const container = {
   hidden: { opacity: 0 },
@@ -68,15 +69,20 @@ export default function ProductGrid() {
     return (
       <div className="space-y-4">
         <div className="flex gap-2 overflow-x-auto pb-2">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="animate-pulse bg-muted rounded-full h-8 w-20 flex-shrink-0" />
-          ))}
+          <motion.div
+            className="flex gap-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="animate-pulse bg-muted rounded-full h-9 w-20 flex-shrink-0"
+              />
+            ))}
+          </motion.div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="animate-pulse bg-muted rounded-lg h-24" />
-          ))}
-        </div>
+        <LoadingGrid />
       </div>
     );
   }
