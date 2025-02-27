@@ -36,7 +36,8 @@ export function setupAuth(app: Express) {
     cookie: {
       secure: process.env.NODE_ENV === "production",
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
+    },
+    store: storage.sessionStore
   };
 
   app.use(session(sessionSettings));
@@ -70,16 +71,23 @@ export function setupAuth(app: Express) {
     }
   });
 
+  // Wrap async route handlers to ensure proper error handling
+  const asyncHandler = (fn: (req: any, res: any, next: any) => Promise<any>) => {
+    return (req: any, res: any, next: any) => {
+      Promise.resolve(fn(req, res, next)).catch(next);
+    };
+  };
+
   app.post("/api/login", (req, res, next) => {
     passport.authenticate("local", (err: any, user: any, info: any) => {
       if (err) {
         return res.status(500).json({ error: "Login failed" });
       }
       if (!user) {
-        return res.status(401).json({ error: info.message || "Invalid credentials" });
+        return res.status(401).json({ error: info?.message || "Invalid credentials" });
       }
-      req.login(user, (err) => {
-        if (err) {
+      req.login(user, (loginErr) => {
+        if (loginErr) {
           return res.status(500).json({ error: "Login failed" });
         }
         return res.json({ id: user.id, username: user.username });
@@ -87,30 +95,25 @@ export function setupAuth(app: Express) {
     })(req, res, next);
   });
 
-  app.post("/api/register", async (req, res) => {
-    try {
-      const existingUser = await storage.getUserByUsername(req.body.username);
-      if (existingUser) {
-        return res.status(400).json({ error: "Username already exists" });
-      }
-
-      const hashedPassword = await hashPassword(req.body.password);
-      const user = await storage.createUser({
-        username: req.body.username,
-        password: hashedPassword,
-      });
-
-      req.login(user, (err) => {
-        if (err) {
-          return res.status(500).json({ error: "Login failed after registration" });
-        }
-        return res.status(201).json({ id: user.id, username: user.username });
-      });
-    } catch (error) {
-      console.error("Registration error:", error);
-      res.status(500).json({ error: "Registration failed" });
+  app.post("/api/register", asyncHandler(async (req, res) => {
+    const existingUser = await storage.getUserByUsername(req.body.username);
+    if (existingUser) {
+      return res.status(400).json({ error: "Username already exists" });
     }
-  });
+
+    const hashedPassword = await hashPassword(req.body.password);
+    const user = await storage.createUser({
+      username: req.body.username,
+      password: hashedPassword,
+    });
+
+    req.login(user, (err) => {
+      if (err) {
+        return res.status(500).json({ error: "Login failed after registration" });
+      }
+      return res.status(201).json({ id: user.id, username: user.username });
+    });
+  }));
 
   app.post("/api/logout", (req, res) => {
     req.logout((err) => {
@@ -128,33 +131,26 @@ export function setupAuth(app: Express) {
     res.json({ id: req.user.id, username: req.user.username });
   });
 
-  app.post("/api/change-password", async (req, res) => {
+  app.post("/api/change-password", asyncHandler(async (req, res) => {
     if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
 
-    try {
-      const user = await storage.getUser(req.user.id);
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      const { currentPassword, newPassword } = req.body;
-
-      // Verify current password
-      const isValidPassword = await comparePasswords(currentPassword, user.password);
-      if (!isValidPassword) {
-        return res.status(400).json({ error: "Current password is incorrect" });
-      }
-
-      // Hash and update new password
-      const hashedPassword = await hashPassword(newPassword);
-      await storage.updateUserPassword(user.id, hashedPassword);
-
-      res.json({ message: "Password updated successfully" });
-    } catch (error) {
-      console.error("Password change error:", error);
-      res.status(500).json({ error: "Failed to change password" });
+    const user = await storage.getUser(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
-  });
+
+    const { currentPassword, newPassword } = req.body;
+
+    const isValidPassword = await comparePasswords(currentPassword, user.password);
+    if (!isValidPassword) {
+      return res.status(400).json({ error: "Current password is incorrect" });
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+    await storage.updateUserPassword(user.id, hashedPassword);
+
+    res.json({ message: "Password updated successfully" });
+  }));
 }

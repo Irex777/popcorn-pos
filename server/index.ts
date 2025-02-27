@@ -3,10 +3,18 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { storage } from "./storage";
 import { hashPassword } from "./auth";
+import { setupAuth } from "./auth";
 
 const app = express();
+
+// Disable express default error handling HTML pages
+app.set('env', process.env.NODE_ENV || 'development');
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Setup authentication before registering routes
+setupAuth(app);
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -41,6 +49,7 @@ app.use((req, res, next) => {
 // Create default admin account if no users exist
 async function createDefaultAdmin() {
   try {
+    log("Starting default admin creation check...");
     const users = await storage.getAllUsers();
     if (users.length === 0) {
       const defaultAdmin = {
@@ -49,6 +58,8 @@ async function createDefaultAdmin() {
       };
       await storage.createUser(defaultAdmin);
       log("Default admin account created");
+    } else {
+      log("Users already exist, skipping default admin creation");
     }
   } catch (error) {
     console.error("Error creating default admin:", error);
@@ -58,20 +69,27 @@ async function createDefaultAdmin() {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Global error handler - ensure JSON responses
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    console.error('Error:', err);
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
+    res.status(status).json({ error: message });
+  });
 
-    res.status(status).json({ message });
-    throw err;
+  // API 404 handler - only for /api routes
+  app.use('/api/*', (_req: Request, res: Response) => {
+    res.status(404).json({ error: "API endpoint not found" });
   });
 
   // Create default admin account before starting server
   await createDefaultAdmin();
 
   if (app.get("env") === "development") {
+    log("Starting in development mode with Vite middleware");
     await setupVite(app, server);
   } else {
+    log("Starting in production mode with static file serving");
     serveStatic(app);
   }
 
