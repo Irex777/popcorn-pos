@@ -36,7 +36,7 @@ const resources = {
         }
       },
       "analytics": {
-        "title": "Sales Analytics",
+        "title": "Analytics",
         "daily": "Daily",
         "weekly": "Weekly",
         "monthly": "Monthly",
@@ -84,7 +84,7 @@ const resources = {
         }
       },
       "analytics": {
-        "title": "Análisis de Ventas",
+        "title": "Análisis",
         "daily": "Diario",
         "weekly": "Semanal",
         "monthly": "Mensual",
@@ -132,7 +132,7 @@ const resources = {
         }
       },
       "analytics": {
-        "title": "Verkaufsanalyse",
+        "title": "Analyse",
         "daily": "Täglich",
         "weekly": "Wöchentlich",
         "monthly": "Monatlich",
@@ -180,7 +180,7 @@ const resources = {
         }
       },
       "analytics": {
-        "title": "Analýza Prodeje",
+        "title": "Analýza",
         "daily": "Denní",
         "weekly": "Týdenní",
         "monthly": "Měsíční",
