@@ -14,6 +14,17 @@ import { currencyAtom } from "@/lib/settings";
 import { LoadingAnimation } from "@/components/ui/loading-animation";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
+const defaultPredictions = {
+  nextHour: { predictedValue: 0, confidenceInterval: { lower: 0, upper: 0 } },
+  nextDay: { predictedValue: 0, confidenceInterval: { lower: 0, upper: 0 } },
+  nextWeek: { predictedValue: 0, confidenceInterval: { lower: 0, upper: 0 } }
+};
+
+const defaultTrendIndicators = {
+  salesTrend: 'stable' as const,
+  confidence: 0
+};
+
 export function PredictiveInsights() {
   const { t } = useTranslation();
   const [currency] = useAtom(currencyAtom);
@@ -23,7 +34,7 @@ export function PredictiveInsights() {
     return <LoadingAnimation />;
   }
 
-  const { predictions, trendIndicators } = analyticsData;
+  const { predictions = defaultPredictions, trendIndicators = defaultTrendIndicators } = analyticsData;
 
   const getTrendIcon = () => {
     switch (trendIndicators.salesTrend) {
