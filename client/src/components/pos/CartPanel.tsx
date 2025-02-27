@@ -82,6 +82,10 @@ export default function CartPanel() {
                   }
                 }}
                 className="relative bg-background flex items-center justify-between py-2 touch-pan-y"
+                initial={{ x: 0 }}
+                animate={{ x: 0 }}
+                whileDrag={{ cursor: "grabbing" }}
+                style={{ cursor: "grab" }}
               >
                 <div className="flex items-center gap-3">
                   <motion.div 
@@ -90,16 +94,22 @@ export default function CartPanel() {
                   >
                     <button
                       onClick={() => updateQuantity(item.product.id, -1)}
-                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-1"
+                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-1 transition-colors"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
-                    <span className="font-medium min-w-[20px] text-center">
+                    <motion.span 
+                      className="font-medium min-w-[20px] text-center"
+                      key={item.quantity}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
                       {item.quantity}
-                    </span>
+                    </motion.span>
                     <button
                       onClick={() => updateQuantity(item.product.id, 1)}
-                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-1"
+                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-1 transition-colors"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
@@ -109,6 +119,7 @@ export default function CartPanel() {
                 <motion.span 
                   className="text-sm font-medium"
                   {...bounceAnimation}
+                  key={item.quantity * Number(item.product.price)}
                 >
                   {formatCurrency(Number(item.product.price) * item.quantity, currency)}
                 </motion.span>
@@ -121,7 +132,10 @@ export default function CartPanel() {
         <span className="font-medium">{t('common.total')}</span>
         <motion.span 
           className="font-medium"
-          {...bounceAnimation}
+          key={total}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 300 }}
         >
           {formatCurrency(total, currency)}
         </motion.span>
