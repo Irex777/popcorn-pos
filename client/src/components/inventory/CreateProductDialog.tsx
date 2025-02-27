@@ -43,6 +43,8 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
         stock: Number(data.stock)
       };
 
+      console.log('Sending product data:', formattedData); // Add logging
+
       const response = await apiRequest(
         'POST',
         '/api/products',
@@ -151,7 +153,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
                 <FormItem>
                   <FormLabel>Image URL</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} placeholder="https://example.com/image.jpg" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

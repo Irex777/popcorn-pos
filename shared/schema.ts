@@ -39,9 +39,11 @@ export const insertCategorySchema = createInsertSchema(categories).omit({ id: tr
 export const insertProductSchema = createInsertSchema(products)
   .omit({ id: true })
   .extend({
+    name: z.string().min(1, "Name is required"),
     price: z.string().or(z.number()).transform(val => Number(val).toFixed(2)),
-    categoryId: z.number().or(z.string()).transform(val => Number(val)),
-    stock: z.number().or(z.string()).transform(val => Number(val)),
+    categoryId: z.number().int().positive("Category is required"),
+    imageUrl: z.string().url("Please enter a valid URL").or(z.string().length(0)),
+    stock: z.number().int().min(0, "Stock cannot be negative"),
   });
 
 export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, createdAt: true });
@@ -57,7 +59,6 @@ export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
 
-// Schema for updating product stock
 export const updateProductStockSchema = z.object({
   stock: z.number().min(0, "Stock cannot be negative"),
 });

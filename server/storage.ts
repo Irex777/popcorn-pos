@@ -61,7 +61,7 @@ export class DatabaseStorage implements IStorage {
 
   // Products
   async getProducts(): Promise<Product[]> {
-    const productsWithCategories = await db.select({
+    const results = await db.select({
       id: products.id,
       name: products.name,
       price: products.price,
@@ -73,7 +73,10 @@ export class DatabaseStorage implements IStorage {
     .from(products)
     .leftJoin(categories, eq(products.categoryId, categories.id));
 
-    return productsWithCategories;
+    return results.map(product => ({
+      ...product,
+      category: product.category || 'Uncategorized'
+    }));
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
@@ -82,8 +85,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    const [product] = await db.insert(products).values(insertProduct).returning();
-    return product;
+    try {
+      // Ensure numeric values are properly formatted
+      const formattedProduct = {
+        name: insertProduct.name,
+        price: typeof insertProduct.price === 'string' ? insertProduct.price : insertProduct.price.toFixed(2),
+        categoryId: Number(insertProduct.categoryId),
+        imageUrl: insertProduct.imageUrl || '',
+        stock: Number(insertProduct.stock)
+      };
+
+      const [product] = await db.insert(products)
+        .values(formattedProduct)
+        .returning();
+
+      if (!product) {
+        throw new Error('Failed to create product');
+      }
+
+      return product;
+    } catch (error) {
+      console.error('Error creating product:', error);
+      throw error;
+    }
   }
 
   async updateProduct(id: number, updateProduct: InsertProduct): Promise<Product | undefined> {
