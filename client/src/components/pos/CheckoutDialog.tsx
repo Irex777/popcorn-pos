@@ -104,6 +104,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
         setIsLoading(true);
         setStripeError(undefined);
         try {
+          console.log('Initializing payment with currency:', currency);
           const data = await createPaymentIntent(total, currency);
           if (mounted) {
             console.log('Payment intent created:', data);
@@ -174,7 +175,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Checkout</DialogTitle>
           <DialogDescription>
@@ -183,8 +184,8 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
         </DialogHeader>
         <div className="py-4">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             className="space-y-4"
           >
             {cart.map(item => (
