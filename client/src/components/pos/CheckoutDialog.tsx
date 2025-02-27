@@ -19,19 +19,21 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
 
   const checkoutMutation = useMutation({
     mutationFn: async () => {
-      // Format the order data according to the schema
+      const formattedTotal = Number(total).toFixed(2);
+
       const orderData = {
         order: {
-          total: total.toFixed(2), // Ensure total is formatted as string with 2 decimal places
-          status: "pending" // Changed from "completed" to match initial state
+          total: formattedTotal,
+          status: "pending"
         },
         items: cart.map(item => ({
           productId: item.product.id,
           quantity: item.quantity,
-          price: Number(item.product.price).toFixed(2) // Ensure price is formatted as string with 2 decimal places
+          price: Number(item.product.price).toFixed(2)
         }))
       };
 
+      console.log('Sending order data:', orderData); // Add logging
       const response = await apiRequest('POST', '/api/orders', orderData);
       return response.json();
     },

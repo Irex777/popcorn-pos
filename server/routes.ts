@@ -14,13 +14,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create new order
   app.post("/api/orders", async (req, res) => {
     try {
-      const orderData = insertOrderSchema.parse(req.body.order);
-      const itemsData = z.array(insertOrderItemSchema).parse(req.body.items);
-      
+      console.log('Received order data:', req.body); // Add logging
+
+      const orderData = insertOrderSchema.parse({
+        total: req.body.order.total,
+        status: req.body.order.status
+      });
+
+      const itemsData = z.array(insertOrderItemSchema).parse(
+        req.body.items.map((item: any) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price
+        }))
+      );
+
       const order = await storage.createOrder(orderData, itemsData);
       res.json(order);
     } catch (error) {
-      res.status(400).json({ error: "Invalid order data" });
+      console.error('Order validation error:', error); // Add logging
+      res.status(400).json({ error: "Invalid order data", details: error });
     }
   });
 
@@ -28,11 +41,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/orders/:id", async (req, res) => {
     const orderId = parseInt(req.params.id);
     const order = await storage.getOrder(orderId);
-    
+
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
-    
+
     const items = await storage.getOrderItems(orderId);
     res.json({ order, items });
   });
