@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Settings, History, Package } from "lucide-react";
+import { Moon, Sun, Settings, History, Package, Grid2X2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 
@@ -47,6 +47,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   location === "/inventory" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
                 }`}>
                   {t('common.inventory')}
+                </a>
+              </Link>
+              <Link href="/categories">
+                <a className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  location === "/categories" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
+                }`}>
+                  {t('common.categories')}
                 </a>
               </Link>
             </nav>

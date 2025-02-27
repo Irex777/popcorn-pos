@@ -1,9 +1,16 @@
-import { type Product, type Order, type OrderItem, type InsertProduct, type InsertOrder, type InsertOrderItem, type UpdateProductStock } from "@shared/schema";
+import { type Product, type Order, type OrderItem, type InsertProduct, type InsertOrder, type InsertOrderItem, type UpdateProductStock, type Category, type InsertCategory } from "@shared/schema";
 import { db } from "./db";
-import { products, orders, orderItems } from "@shared/schema";
+import { products, orders, orderItems, categories } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 
 export interface IStorage {
+  // Categories
+  getCategories(): Promise<Category[]>;
+  getCategory(id: number): Promise<Category | undefined>;
+  createCategory(category: InsertCategory): Promise<Category>;
+  updateCategory(id: number, category: InsertCategory): Promise<Category | undefined>;
+  deleteCategory(id: number): Promise<Category | undefined>;
+
   // Products
   getProducts(): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
@@ -20,8 +27,48 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  // Categories
+  async getCategories(): Promise<Category[]> {
+    return await db.select().from(categories);
+  }
+
+  async getCategory(id: number): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category;
+  }
+
+  async createCategory(insertCategory: InsertCategory): Promise<Category> {
+    const [category] = await db.insert(categories).values(insertCategory).returning();
+    return category;
+  }
+
+  async updateCategory(id: number, updateCategory: InsertCategory): Promise<Category | undefined> {
+    const [category] = await db
+      .update(categories)
+      .set(updateCategory)
+      .where(eq(categories.id, id))
+      .returning();
+    return category;
+  }
+
+  async deleteCategory(id: number): Promise<Category | undefined> {
+    const [category] = await db
+      .delete(categories)
+      .where(eq(categories.id, id))
+      .returning();
+    return category;
+  }
+
+  // Products
   async getProducts(): Promise<Product[]> {
-    return await db.select().from(products);
+    const productsWithCategories = await db.select()
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id));
+
+    return productsWithCategories.map(({ products, categories }) => ({
+      ...products,
+      category: categories?.name || 'Uncategorized'
+    }));
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
@@ -63,6 +110,7 @@ export class DatabaseStorage implements IStorage {
     return product;
   }
 
+  // Orders implementation
   async createOrder(insertOrder: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
     const [order] = await db.insert(orders).values(insertOrder).returning();
 

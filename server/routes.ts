@@ -1,17 +1,63 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertOrderSchema, insertOrderItemSchema, updateProductStockSchema, insertProductSchema } from "@shared/schema";
+import { insertOrderSchema, insertOrderItemSchema, updateProductStockSchema, insertProductSchema, insertCategorySchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Get all products
+  // Categories
+  app.get("/api/categories", async (_req, res) => {
+    const categories = await storage.getCategories();
+    res.json(categories);
+  });
+
+  app.post("/api/categories", async (req, res) => {
+    try {
+      const categoryData = insertCategorySchema.parse(req.body);
+      const category = await storage.createCategory(categoryData);
+      res.json(category);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid category data" });
+    }
+  });
+
+  app.patch("/api/categories/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const categoryData = insertCategorySchema.parse(req.body);
+      const category = await storage.updateCategory(id, categoryData);
+
+      if (!category) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+
+      res.json(category);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid category data" });
+    }
+  });
+
+  app.delete("/api/categories/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const category = await storage.deleteCategory(id);
+
+      if (!category) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+
+      res.json(category);
+    } catch (error) {
+      res.status(400).json({ error: "Failed to delete category" });
+    }
+  });
+
+  // Products
   app.get("/api/products", async (_req, res) => {
     const products = await storage.getProducts();
     res.json(products);
   });
 
-  // Create new product
   app.post("/api/products", async (req, res) => {
     try {
       const productData = insertProductSchema.parse(req.body);
@@ -22,7 +68,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update product stock
   app.patch("/api/products/:id/stock", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -39,7 +84,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update product
   app.patch("/api/products/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -56,7 +100,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all orders
+  // Orders
   app.get("/api/orders", async (_req, res) => {
     const orders = await storage.getOrders();
     const ordersWithItems = await Promise.all(
@@ -68,7 +112,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(ordersWithItems);
   });
 
-  // Create new order
   app.post("/api/orders", async (req, res) => {
     try {
       const orderData = insertOrderSchema.parse({
@@ -92,7 +135,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get order details
   app.get("/api/orders/:id", async (req, res) => {
     const orderId = parseInt(req.params.id);
     const order = await storage.getOrder(orderId);

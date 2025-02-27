@@ -2,11 +2,18 @@ import { pgTable, text, serial, integer, decimal, timestamp } from "drizzle-orm/
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export const categories = pgTable("categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  color: text("color").notNull().default("#94A3B8"), // Default slate color
+});
+
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  category: text("category").notNull(),
+  categoryId: integer("category_id").notNull(),
   imageUrl: text("image_url").notNull(),
   stock: integer("stock").notNull().default(0),
 });
@@ -26,11 +33,13 @@ export const orderItems = pgTable("order_items", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
 });
 
+export const insertCategorySchema = createInsertSchema(categories).omit({ id: true });
 export const insertProductSchema = createInsertSchema(products).omit({ id: true });
 export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, createdAt: true });
-export const insertOrderItemSchema = createInsertSchema(orderItems)
-  .omit({ id: true, orderId: true });
+export const insertOrderItemSchema = createInsertSchema(orderItems).omit({ id: true, orderId: true });
 
+export type Category = typeof categories.$inferSelect;
+export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Order = typeof orders.$inferSelect;
