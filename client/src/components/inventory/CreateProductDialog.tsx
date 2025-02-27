@@ -40,10 +40,11 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
         ...data,
         price: Number(data.price).toFixed(2),
         categoryId: Number(data.categoryId),
-        stock: Number(data.stock)
+        stock: Number(data.stock),
+        imageUrl: data.imageUrl || '' // Ensure imageUrl is never null
       };
 
-      console.log('Sending product data:', formattedData); // Add logging
+      console.log('Sending product data:', formattedData);
 
       const response = await apiRequest(
         'POST',
@@ -151,7 +152,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
               name="imageUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image URL</FormLabel>
+                  <FormLabel>Image URL (Optional)</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="https://example.com/image.jpg" />
                   </FormControl>
