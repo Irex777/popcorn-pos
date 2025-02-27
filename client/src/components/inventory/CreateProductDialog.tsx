@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertProductSchema } from "@shared/schema";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -18,12 +19,16 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const { data: categories } = useQuery({
+    queryKey: ['/api/categories']
+  });
+
   const form = useForm({
     resolver: zodResolver(insertProductSchema),
     defaultValues: {
       name: "",
       price: "",
-      category: "",
+      categoryId: undefined,
       imageUrl: "",
       stock: 0
     }
@@ -31,10 +36,17 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
 
   const createProductMutation = useMutation({
     mutationFn: async (data: any) => {
+      const formattedData = {
+        ...data,
+        price: Number(data.price).toFixed(2),
+        categoryId: Number(data.categoryId)
+      };
+
+      console.log('Sending product data:', formattedData);
       const response = await apiRequest(
         'POST',
         '/api/products',
-        data
+        formattedData
       );
       return response.json();
     },
@@ -47,10 +59,11 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
       onOpenChange(false);
       form.reset();
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Create product error:', error);
       toast({
         title: "Error",
-        description: "Failed to create product.",
+        description: "Failed to create product. Please try again.",
         variant: "destructive"
       });
     }
@@ -97,13 +110,30 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
             />
             <FormField
               control={form.control}
-              name="category"
+              name="categoryId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    defaultValue={field.value?.toString()}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories?.map((category) => (
+                        <SelectItem 
+                          key={category.id} 
+                          value={category.id.toString()}
+                        >
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
