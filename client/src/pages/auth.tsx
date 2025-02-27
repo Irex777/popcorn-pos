@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertUserSchema, type InsertUser } from "@shared/schema";
@@ -13,8 +14,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "react-i18next";
+import { languages } from "@/lib/settings";
+import i18n from "@/lib/i18n";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -85,6 +94,25 @@ export default function AuthPage() {
           <p className="text-sm text-muted-foreground mt-2">
             {isLogin ? t('auth.welcomeMessage') : t('auth.createAccount')}
           </p>
+        </div>
+
+        {/* Language Selector */}
+        <div className="w-full flex justify-end">
+          <Select
+            defaultValue={i18n.language}
+            onValueChange={(value) => i18n.changeLanguage(value)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select language" />
+            </SelectTrigger>
+            <SelectContent>
+              {languages.map(lang => (
+                <SelectItem key={lang.code} value={lang.code}>
+                  {lang.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <Card>

@@ -2,12 +2,13 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Settings, Menu } from "lucide-react";
+import { Moon, Sun, Settings, Menu, LogOut } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -18,6 +19,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [location] = useLocation();
   const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { toast } = useToast();
 
   const menuItems = [
     { href: "/", label: t('common.pos') },
@@ -26,6 +28,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { href: "/categories", label: t('common.categories') },
     { href: "/analytics", label: t('analytics.title') },
   ];
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        window.location.href = '/auth';
+      } else {
+        throw new Error('Logout failed');
+      }
+    } catch (error) {
+      toast({
+        title: "Logout failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -90,6 +112,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                     {theme === 'dark' ? t('common.lightMode') : t('common.darkMode')}
                   </button>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 px-4 py-3 rounded-md text-base font-medium w-full text-left text-destructive hover:text-destructive/80"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    {t('common.logout')}
+                  </button>
                 </div>
               </SheetContent>
             </Sheet>
@@ -124,6 +153,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Settings className="h-5 w-5" />
               </Button>
             </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleLogout}
+              className="text-destructive hover:text-destructive/80"
+            >
+              <LogOut className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </header>

@@ -70,6 +70,10 @@ const resources = {
         "units": "units",
         "all": "All",
         "categories": "Categories",
+        "settings": "Settings",
+        "logout": "Logout",
+        "lightMode": "Light Mode",
+        "darkMode": "Dark Mode",
         "export": {
           "title": "Export",
           "csv": "Export as CSV",
@@ -193,6 +197,10 @@ const resources = {
         "units": "unidades",
         "all": "Todo",
         "categories": "Categorías",
+        "settings": "Configuración",
+        "logout": "Cerrar sesión",
+        "lightMode": "Modo claro",
+        "darkMode": "Modo oscuro",
         "export": {
           "title": "Exportar",
           "csv": "Exportar como CSV",
@@ -316,6 +324,10 @@ const resources = {
         "units": "Stück",
         "all": "Alle",
         "categories": "Kategorien",
+        "settings": "Einstellungen",
+        "logout": "Abmelden",
+        "lightMode": "Heller Modus",
+        "darkMode": "Dunkler Modus",
         "export": {
           "title": "Exportieren",
           "csv": "Als CSV exportieren",
@@ -439,6 +451,10 @@ const resources = {
         "units": "kusů",
         "all": "Vše",
         "categories": "Kategorie",
+        "settings": "Nastavení",
+        "logout": "Odhlásit",
+        "lightMode": "Světlý režim",
+        "darkMode": "Tmavý režim",
         "export": {
           "title": "Export",
           "csv": "Exportovat jako CSV",
