@@ -59,6 +59,44 @@ const resources = {
         "units": "unités"
       }
     }
+  },
+  de: {
+    translation: {
+      "settings": {
+        "title": "Einstellungen",
+        "language": "Sprache",
+        "currency": "Währung",
+        "save": "Änderungen speichern"
+      },
+      "common": {
+        "inventory": "Inventar",
+        "history": "Verlauf",
+        "pos": "Kasse",
+        "total": "Gesamt",
+        "pay": "Bezahlen",
+        "stock": "Bestand",
+        "units": "Stück"
+      }
+    }
+  },
+  cs: {
+    translation: {
+      "settings": {
+        "title": "Nastavení",
+        "language": "Jazyk",
+        "currency": "Měna",
+        "save": "Uložit změny"
+      },
+      "common": {
+        "inventory": "Sklad",
+        "history": "Historie",
+        "pos": "Pokladna",
+        "total": "Celkem",
+        "pay": "Zaplatit",
+        "stock": "Zásoba",
+        "units": "kusů"
+      }
+    }
   }
 };
 
