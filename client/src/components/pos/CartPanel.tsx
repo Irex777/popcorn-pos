@@ -56,8 +56,9 @@ export default function CartPanel() {
   );
 
   return (
-    <div className="py-4">
-      <div className="max-h-[200px] overflow-y-auto mb-4">
+    <div className="py-4 md:py-6">
+      {/* Cart items section with optimized height */}
+      <div className="max-h-[40vh] md:max-h-[calc(100vh-200px)] overflow-y-auto mb-4 -mx-2 px-2">
         <AnimatePresence>
           {cart.map(item => (
             <motion.div
@@ -67,9 +68,8 @@ export default function CartPanel() {
               exit={{ opacity: 0, height: 0 }}
               layout
               layoutId={`cart-item-${item.product.id}`}
-              className="relative"
+              className="relative mb-2"
             >
-              <div className="absolute inset-0 bg-destructive/10 rounded-lg" />
               <motion.div
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
@@ -94,12 +94,12 @@ export default function CartPanel() {
                   >
                     <button
                       onClick={() => updateQuantity(item.product.id, -1)}
-                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-1 transition-colors"
+                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-2 transition-colors"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
                     <motion.span 
-                      className="font-medium min-w-[20px] text-center"
+                      className="font-medium min-w-[24px] text-center"
                       key={item.quantity}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
@@ -109,12 +109,12 @@ export default function CartPanel() {
                     </motion.span>
                     <button
                       onClick={() => updateQuantity(item.product.id, 1)}
-                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-1 transition-colors"
+                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-2 transition-colors"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
                   </motion.div>
-                  <span className="font-medium">{item.product.name}</span>
+                  <span className="font-medium text-sm sm:text-base">{item.product.name}</span>
                 </div>
                 <motion.span 
                   className="text-sm font-medium"
@@ -128,26 +128,31 @@ export default function CartPanel() {
           ))}
         </AnimatePresence>
       </div>
-      <div className="flex items-center justify-between mb-4">
-        <span className="font-medium">{t('common.total')}</span>
-        <motion.span 
-          className="font-medium"
-          key={total}
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 300 }}
+
+      {/* Total and checkout section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <span className="font-medium">{t('common.total')}</span>
+          <motion.span 
+            className="font-medium text-lg"
+            key={total}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            {formatCurrency(total, currency)}
+          </motion.span>
+        </div>
+        <Button 
+          className="w-full" 
+          size="lg"
+          disabled={cart.length === 0}
+          onClick={() => setIsCheckoutOpen(true)}
         >
-          {formatCurrency(total, currency)}
-        </motion.span>
+          {t('common.pay')} {formatCurrency(total, currency)}
+        </Button>
       </div>
-      <Button 
-        className="w-full" 
-        size="lg"
-        disabled={cart.length === 0}
-        onClick={() => setIsCheckoutOpen(true)}
-      >
-        {t('common.pay')} {formatCurrency(total, currency)}
-      </Button>
+
       <CheckoutDialog 
         open={isCheckoutOpen} 
         onOpenChange={setIsCheckoutOpen}

@@ -125,7 +125,7 @@ export default function ProductGrid() {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-2 gap-4 product-grid"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 product-grid"
       >
         {filteredProducts?.map((product) => (
           <motion.button
@@ -134,10 +134,10 @@ export default function ProductGrid() {
             onClick={() => addToCart(product)}
             whileTap={buttonTapAnimation}
             layoutId={`product-${product.id}`}
-            className="bg-card hover:bg-accent active:bg-accent/90 rounded-lg p-4 text-left transition-colors w-full border shadow-sm"
+            className="bg-card hover:bg-accent active:bg-accent/90 rounded-lg p-3 sm:p-4 text-left transition-colors w-full border shadow-sm"
           >
-            <div className="flex flex-col h-full justify-between">
-              <span className="font-medium">{product.name}</span>
+            <div className="flex flex-col h-full justify-between min-h-[80px]">
+              <span className="font-medium text-sm sm:text-base">{product.name}</span>
               <span className="text-sm font-medium mt-2 text-primary">
                 {formatCurrency(Number(product.price), currency)}
               </span>
