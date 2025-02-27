@@ -5,6 +5,7 @@ import { Plus, Minus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import CheckoutDialog from "./CheckoutDialog";
+import { useTranslation } from "react-i18next";
 
 const bounceAnimation = {
   initial: { scale: 1 },
@@ -21,9 +22,10 @@ const bounceAnimation = {
 };
 
 const swipeConfidenceThreshold = 10000;
-const swipeThreshold = -100; // Amount of pixels to swipe before deletion
+const swipeThreshold = -100;
 
 export default function CartPanel() {
+  const { t } = useTranslation();
   const [cart, setCart] = useAtom(cartAtom);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
@@ -64,7 +66,6 @@ export default function CartPanel() {
               layoutId={`cart-item-${item.product.id}`}
               className="relative"
             >
-              {/* Background that shows during swipe */}
               <div className="absolute inset-0 bg-destructive/10 rounded-lg" />
 
               <motion.div
@@ -115,7 +116,7 @@ export default function CartPanel() {
         </AnimatePresence>
       </div>
       <div className="flex items-center justify-between mb-4">
-        <span className="font-medium">Total</span>
+        <span className="font-medium">{t('common.total')}</span>
         <motion.span 
           className="font-medium"
           {...bounceAnimation}
@@ -129,7 +130,7 @@ export default function CartPanel() {
         disabled={cart.length === 0}
         onClick={() => setIsCheckoutOpen(true)}
       >
-        Pay ${total.toFixed(2)}
+        {t('common.pay')} ${total.toFixed(2)}
       </Button>
       <CheckoutDialog 
         open={isCheckoutOpen} 
