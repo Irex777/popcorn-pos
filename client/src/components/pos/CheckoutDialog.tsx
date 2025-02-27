@@ -98,7 +98,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
   useEffect(() => {
     if (open && total > 0) {
       setIsLoading(true);
-      createPaymentIntent(total)
+      createPaymentIntent(total, currency)
         .then(data => {
           console.log('Payment intent created:', data);
           setClientSecret(data.clientSecret);
@@ -118,7 +118,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
     } else {
       setClientSecret(undefined);
     }
-  }, [open, total, toast, onOpenChange]);
+  }, [open, total, currency, toast, onOpenChange]);
 
   const checkoutMutation = useMutation({
     mutationFn: async () => {

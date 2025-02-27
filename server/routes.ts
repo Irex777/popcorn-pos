@@ -152,13 +152,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Payment endpoint
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
-      const { amount } = req.body;
+      const { amount, currency } = req.body;
 
       if (!amount || amount <= 0) {
         return res.status(400).json({ error: 'Invalid amount' });
       }
 
-      const paymentIntent = await createPaymentIntent(amount);
+      if (!currency) {
+        return res.status(400).json({ error: 'Currency is required' });
+      }
+
+      const paymentIntent = await createPaymentIntent(amount, currency);
       res.json(paymentIntent);
     } catch (error) {
       console.error('Error creating payment intent:', error);
