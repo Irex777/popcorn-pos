@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { type Product } from "@shared/schema";
 import { useAtom } from "jotai";
 import { cartAtom } from "@/lib/store";
+import { useState } from "react";
 
 const container = {
   hidden: { opacity: 0 },
@@ -30,10 +31,17 @@ const buttonTapAnimation = {
 
 export default function ProductGrid() {
   const [cart, setCart] = useAtom(cartAtom);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const { data: products, isLoading } = useQuery<Product[]>({
     queryKey: ['/api/products']
   });
+
+  const categories = [...new Set(products?.map(p => p.category) || [])];
+
+  const filteredProducts = activeCategory
+    ? products?.filter(p => p.category === activeCategory)
+    : products;
 
   const addToCart = (product: Product) => {
     setCart(current => {
@@ -51,38 +59,79 @@ export default function ProductGrid() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 gap-4">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="animate-pulse bg-muted rounded-lg h-24" />
-        ))}
+      <div className="space-y-4">
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="animate-pulse bg-muted rounded-full h-8 w-20 flex-shrink-0" />
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="animate-pulse bg-muted rounded-lg h-24" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      className="grid grid-cols-2 gap-4"
-    >
-      {products?.map((product) => (
+    <div className="space-y-4">
+      <motion.div 
+        className="flex gap-2 overflow-x-auto pb-2"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         <motion.button
-          key={product.id}
-          variants={item}
-          onClick={() => addToCart(product)}
           whileTap={buttonTapAnimation}
-          layoutId={`product-${product.id}`}
-          className="bg-card hover:bg-card/90 active:bg-card/80 rounded-lg p-4 text-left transition-colors w-full"
+          onClick={() => setActiveCategory(null)}
+          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+            activeCategory === null
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-primary/10 hover:bg-primary/20'
+          }`}
         >
-          <div className="flex flex-col h-full justify-between">
-            <span className="font-medium">{product.name}</span>
-            <span className="text-sm font-medium mt-2">
-              ${Number(product.price).toFixed(2)}
-            </span>
-          </div>
+          All
         </motion.button>
-      ))}
-    </motion.div>
+        {categories.map(category => (
+          <motion.button
+            key={category}
+            whileTap={buttonTapAnimation}
+            onClick={() => setActiveCategory(category)}
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+              activeCategory === category
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-primary/10 hover:bg-primary/20'
+            }`}
+          >
+            {category}
+          </motion.button>
+        ))}
+      </motion.div>
+
+      <motion.div
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-2 gap-4"
+      >
+        {filteredProducts?.map((product) => (
+          <motion.button
+            key={product.id}
+            variants={item}
+            onClick={() => addToCart(product)}
+            whileTap={buttonTapAnimation}
+            layoutId={`product-${product.id}`}
+            className="bg-card hover:bg-card/90 active:bg-card/80 rounded-lg p-4 text-left transition-colors w-full"
+          >
+            <div className="flex flex-col h-full justify-between">
+              <span className="font-medium">{product.name}</span>
+              <span className="text-sm font-medium mt-2">
+                ${Number(product.price).toFixed(2)}
+              </span>
+            </div>
+          </motion.button>
+        ))}
+      </motion.div>
+    </div>
   );
 }
