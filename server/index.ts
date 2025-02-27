@@ -46,7 +46,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Create default admin account if no users exist
+// Update createDefaultAdmin function
 async function createDefaultAdmin() {
   try {
     log("Starting default admin creation check...");
@@ -55,6 +55,7 @@ async function createDefaultAdmin() {
       const defaultAdmin = {
         username: "admin",
         password: await hashPassword("admin123"),
+        isAdmin: true, // Make the default user an admin
       };
       await storage.createUser(defaultAdmin);
       log("Default admin account created");

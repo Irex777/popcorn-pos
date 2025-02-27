@@ -128,7 +128,11 @@ export function setupAuth(app: Express) {
     if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
-    res.json({ id: req.user.id, username: req.user.username });
+    res.json({
+      id: req.user.id,
+      username: req.user.username,
+      isAdmin: req.user.isAdmin,
+    });
   });
 
   app.post("/api/change-password", asyncHandler(async (req, res) => {
@@ -152,5 +156,44 @@ export function setupAuth(app: Express) {
     await storage.updateUserPassword(user.id, hashedPassword);
 
     res.json({ message: "Password updated successfully" });
+  }));
+
+  // Add endpoint for creating new users (admin only)
+  app.post("/api/users", asyncHandler(async (req, res) => {
+    if (!req.user?.isAdmin) {
+      return res.status(403).json({ error: "Only administrators can create new users" });
+    }
+
+    const existingUser = await storage.getUserByUsername(req.body.username);
+    if (existingUser) {
+      return res.status(400).json({ error: "Username already exists" });
+    }
+
+    const hashedPassword = await hashPassword(req.body.password);
+    const user = await storage.createUser({
+      username: req.body.username,
+      password: hashedPassword,
+      isAdmin: false, // New users created by admins are not admins themselves
+    });
+
+    return res.status(201).json({
+      id: user.id,
+      username: user.username,
+      isAdmin: user.isAdmin,
+    });
+  }));
+
+  // Add endpoint for listing users (admin only)
+  app.get("/api/users", asyncHandler(async (req, res) => {
+    if (!req.user?.isAdmin) {
+      return res.status(403).json({ error: "Only administrators can view user list" });
+    }
+
+    const users = await storage.getAllUsers();
+    return res.json(users.map(user => ({
+      id: user.id,
+      username: user.username,
+      isAdmin: user.isAdmin,
+    })));
   }));
 }
