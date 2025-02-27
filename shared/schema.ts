@@ -27,7 +27,9 @@ export const orderItems = pgTable("order_items", {
 
 export const insertProductSchema = createInsertSchema(products).omit({ id: true });
 export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, createdAt: true });
-export const insertOrderItemSchema = createInsertSchema(orderItems).omit({ id: true });
+// Modify the order items schema to make orderId optional during insertion
+export const insertOrderItemSchema = createInsertSchema(orderItems)
+  .omit({ id: true, orderId: true });
 
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
