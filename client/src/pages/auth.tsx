@@ -32,21 +32,28 @@ export default function AuthPage() {
 
   const mutation = useMutation({
     mutationFn: async (data: InsertUser) => {
-      const response = await fetch(
-        `/api/${isLogin ? "login" : "register"}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+      try {
+        const response = await fetch(
+          `/api/${isLogin ? "login" : "register"}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          }
+        );
+
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.error || 'Authentication failed');
         }
-      );
 
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.error || 'Authentication failed');
+        return result;
+      } catch (error) {
+        if (error instanceof Error) {
+          throw error;
+        }
+        throw new Error('Authentication failed');
       }
-
-      return result;
     },
     onSuccess: () => {
       navigate("/");
