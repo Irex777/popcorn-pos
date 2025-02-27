@@ -19,6 +19,15 @@ const item = {
   show: { opacity: 1, y: 0 }
 };
 
+const buttonTapAnimation = {
+  scale: 0.95,
+  transition: {
+    type: "spring",
+    stiffness: 400,
+    damping: 15
+  }
+};
+
 export default function ProductGrid() {
   const [cart, setCart] = useAtom(cartAtom);
 
@@ -62,6 +71,8 @@ export default function ProductGrid() {
           key={product.id}
           variants={item}
           onClick={() => addToCart(product)}
+          whileTap={buttonTapAnimation}
+          layoutId={`product-${product.id}`}
           className="bg-card hover:bg-card/90 active:bg-card/80 rounded-lg p-4 text-left transition-colors w-full"
         >
           <div className="flex flex-col h-full justify-between">
