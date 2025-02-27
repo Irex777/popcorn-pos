@@ -3,7 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { type Product } from "@shared/schema";
 import { useAtom } from "jotai";
 import { cartAtom } from "@/lib/store";
+import { currencyAtom } from "@/lib/settings";
+import { formatCurrency } from "@/lib/settings";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const container = {
   hidden: { opacity: 0 },
@@ -30,7 +33,9 @@ const buttonTapAnimation = {
 };
 
 export default function ProductGrid() {
+  const { t } = useTranslation();
   const [cart, setCart] = useAtom(cartAtom);
+  const [currency] = useAtom(currencyAtom);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const { data: products, isLoading } = useQuery<Product[]>({
@@ -90,7 +95,7 @@ export default function ProductGrid() {
               : 'bg-primary/10 hover:bg-primary/20'
           }`}
         >
-          All
+          {t('common.all')}
         </motion.button>
         {categories.map(category => (
           <motion.button
@@ -126,7 +131,7 @@ export default function ProductGrid() {
             <div className="flex flex-col h-full justify-between">
               <span className="font-medium">{product.name}</span>
               <span className="text-sm font-medium mt-2">
-                ${Number(product.price).toFixed(2)}
+                {formatCurrency(Number(product.price), currency)}
               </span>
             </div>
           </motion.button>

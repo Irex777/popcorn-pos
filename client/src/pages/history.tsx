@@ -6,6 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
+import { useAtom } from "jotai";
+import { currencyAtom } from "@/lib/settings";
+import { formatCurrency } from "@/lib/settings";
 
 interface OrderWithId extends Order {
   id: number;
@@ -18,6 +22,8 @@ interface SummaryStats {
 }
 
 export default function History() {
+  const { t } = useTranslation();
+  const [currency] = useAtom(currencyAtom);
   const [expandedOrders, setExpandedOrders] = useState<number[]>([]);
   const [timeframe, setTimeframe] = useState<'day' | 'month'>('day');
 
@@ -59,7 +65,7 @@ export default function History() {
 
     orders.forEach(order => {
       const orderDate = new Date(order.createdAt!);
-      const key = timeframe === 'day' 
+      const key = timeframe === 'day'
         ? format(orderDate, 'yyyy-MM-dd')
         : format(orderDate, 'yyyy-MM');
 
@@ -93,19 +99,19 @@ export default function History() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Order History</h2>
+        <h2 className="text-xl font-bold">{t('common.history')}</h2>
         <div className="flex gap-2">
-          <Button 
+          <Button
             variant={timeframe === 'day' ? 'default' : 'outline'}
             onClick={() => setTimeframe('day')}
           >
-            Daily
+            {t('history.daily')}
           </Button>
-          <Button 
+          <Button
             variant={timeframe === 'month' ? 'default' : 'outline'}
             onClick={() => setTimeframe('month')}
           >
-            Monthly
+            {t('history.monthly')}
           </Button>
         </div>
       </div>
@@ -120,20 +126,20 @@ export default function History() {
             <div className="flex justify-between items-center bg-muted/50 p-4 rounded-lg">
               <div>
                 <h3 className="font-medium">
-                  {timeframe === 'day' 
+                  {timeframe === 'day'
                     ? format(new Date(date), 'MMMM d, yyyy')
                     : format(new Date(date), 'MMMM yyyy')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {stats.totalOrders} orders
+                  {stats.totalOrders} {t('history.orders')}
                 </p>
               </div>
               <div className="text-right">
                 <p className="font-medium">
-                  ${stats.totalRevenue.toFixed(2)}
+                  {formatCurrency(stats.totalRevenue, currency)}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Total Revenue
+                  {t('history.totalRevenue')}
                 </p>
               </div>
             </div>
@@ -146,22 +152,22 @@ export default function History() {
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-card rounded-lg p-4"
                 >
-                  <button 
+                  <button
                     onClick={() => toggleOrderExpansion(order.id)}
                     className="w-full"
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-medium">Order #{order.id}</p>
+                        <p className="font-medium">{t('history.orderNumber', { id: order.id })}</p>
                         <p className="text-sm text-muted-foreground">
                           {format(new Date(order.createdAt!), 'h:mm a')}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className={getStatusColor(order.status)}>
-                          {order.status}
+                          {t(`history.status.${order.status.toLowerCase()}`)}
                         </Badge>
-                        <p className="font-medium">${Number(order.total).toFixed(2)}</p>
+                        <p className="font-medium">{formatCurrency(Number(order.total), currency)}</p>
                         {expandedOrders.includes(order.id) ? (
                           <ChevronUp className="h-4 w-4" />
                         ) : (
@@ -182,9 +188,9 @@ export default function History() {
                         {order.items.map((item, index) => (
                           <div key={index} className="flex justify-between text-sm">
                             <span>
-                              {item.quantity}x {item.product?.name || 'Unknown Product'}
+                              {item.quantity}x {item.product?.name || t('history.unknownProduct')}
                             </span>
-                            <span>${Number(item.price).toFixed(2)}</span>
+                            <span>{formatCurrency(Number(item.price), currency)}</span>
                           </div>
                         ))}
                       </div>

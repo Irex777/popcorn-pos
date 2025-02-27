@@ -18,7 +18,21 @@ const resources = {
         "total": "Total",
         "pay": "Pay",
         "stock": "Stock",
-        "units": "units"
+        "units": "units",
+        "all": "All"
+      },
+      "history": {
+        "daily": "Daily",
+        "monthly": "Monthly",
+        "orders": "orders",
+        "totalRevenue": "Total Revenue",
+        "orderNumber": "Order #{{id}}",
+        "unknownProduct": "Unknown Product",
+        "status": {
+          "completed": "Completed",
+          "pending": "Pending",
+          "cancelled": "Cancelled"
+        }
       }
     }
   },
@@ -37,26 +51,21 @@ const resources = {
         "total": "Total",
         "pay": "Pagar",
         "stock": "Stock",
-        "units": "unidades"
-      }
-    }
-  },
-  fr: {
-    translation: {
-      "settings": {
-        "title": "Paramètres",
-        "language": "Langue",
-        "currency": "Devise",
-        "save": "Enregistrer"
+        "units": "unidades",
+        "all": "Todo"
       },
-      "common": {
-        "inventory": "Inventaire",
-        "history": "Historique",
-        "pos": "Caisse",
-        "total": "Total",
-        "pay": "Payer",
-        "stock": "Stock",
-        "units": "unités"
+      "history": {
+        "daily": "Diario",
+        "monthly": "Mensual",
+        "orders": "pedidos",
+        "totalRevenue": "Ingresos Totales",
+        "orderNumber": "Pedido #{{id}}",
+        "unknownProduct": "Producto Desconocido",
+        "status": {
+          "completed": "Completado",
+          "pending": "Pendiente",
+          "cancelled": "Cancelado"
+        }
       }
     }
   },
@@ -75,7 +84,21 @@ const resources = {
         "total": "Gesamt",
         "pay": "Bezahlen",
         "stock": "Bestand",
-        "units": "Stück"
+        "units": "Stück",
+        "all": "Alle"
+      },
+      "history": {
+        "daily": "Täglich",
+        "monthly": "Monatlich",
+        "orders": "Bestellungen",
+        "totalRevenue": "Gesamtumsatz",
+        "orderNumber": "Bestellung #{{id}}",
+        "unknownProduct": "Unbekanntes Produkt",
+        "status": {
+          "completed": "Abgeschlossen",
+          "pending": "In Bearbeitung",
+          "cancelled": "Storniert"
+        }
       }
     }
   },
@@ -94,7 +117,21 @@ const resources = {
         "total": "Celkem",
         "pay": "Zaplatit",
         "stock": "Zásoba",
-        "units": "kusů"
+        "units": "kusů",
+        "all": "Vše"
+      },
+      "history": {
+        "daily": "Denní",
+        "monthly": "Měsíční",
+        "orders": "objednávek",
+        "totalRevenue": "Celkové tržby",
+        "orderNumber": "Objednávka #{{id}}",
+        "unknownProduct": "Neznámý produkt",
+        "status": {
+          "completed": "Dokončeno",
+          "pending": "Zpracovává se",
+          "cancelled": "Zrušeno"
+        }
       }
     }
   }

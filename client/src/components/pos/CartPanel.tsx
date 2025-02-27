@@ -1,6 +1,8 @@
 import { useAtom } from "jotai";
 import { motion, AnimatePresence } from "framer-motion";
 import { cartAtom } from "@/lib/store";
+import { currencyAtom } from "@/lib/settings";
+import { formatCurrency } from "@/lib/settings";
 import { Plus, Minus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +29,7 @@ const swipeThreshold = -100;
 export default function CartPanel() {
   const { t } = useTranslation();
   const [cart, setCart] = useAtom(cartAtom);
+  const [currency] = useAtom(currencyAtom);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   const updateQuantity = (productId: number, delta: number) => {
@@ -67,7 +70,6 @@ export default function CartPanel() {
               className="relative"
             >
               <div className="absolute inset-0 bg-destructive/10 rounded-lg" />
-
               <motion.div
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
@@ -108,7 +110,7 @@ export default function CartPanel() {
                   className="text-sm font-medium"
                   {...bounceAnimation}
                 >
-                  ${(Number(item.product.price) * item.quantity).toFixed(2)}
+                  {formatCurrency(Number(item.product.price) * item.quantity, currency)}
                 </motion.span>
               </motion.div>
             </motion.div>
@@ -121,7 +123,7 @@ export default function CartPanel() {
           className="font-medium"
           {...bounceAnimation}
         >
-          ${total.toFixed(2)}
+          {formatCurrency(total, currency)}
         </motion.span>
       </div>
       <Button 
@@ -130,7 +132,7 @@ export default function CartPanel() {
         disabled={cart.length === 0}
         onClick={() => setIsCheckoutOpen(true)}
       >
-        {t('common.pay')} ${total.toFixed(2)}
+        {t('common.pay')} {formatCurrency(total, currency)}
       </Button>
       <CheckoutDialog 
         open={isCheckoutOpen} 
