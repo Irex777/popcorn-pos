@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { type Order, type Product } from "@shared/schema";
-import { format, startOfMonth, startOfDay, isWithinInterval, startOfYear } from "date-fns";
+import { format } from "date-fns";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell
@@ -14,7 +14,6 @@ import { formatCurrency } from "@/lib/settings";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
@@ -115,38 +114,42 @@ export default function Analytics() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">{t('analytics.title', 'Sales Analytics')}</h2>
-        <ExportButtons
-          data={prepareExportData()}
-          filename={`analytics-${format(new Date(), 'yyyy-MM-dd')}`}
-          title="Sales Analytics Report"
-        />
-        <div className="flex gap-2">
-          <Button
-            variant={timeframe === 'day' ? 'default' : 'outline'}
-            onClick={() => setTimeframe('day')}
-          >
-            {t('analytics.daily', 'Daily')}
-          </Button>
-          <Button
-            variant={timeframe === 'week' ? 'default' : 'outline'}
-            onClick={() => setTimeframe('week')}
-          >
-            {t('analytics.weekly', 'Weekly')}
-          </Button>
-          <Button
-            variant={timeframe === 'month' ? 'default' : 'outline'}
-            onClick={() => setTimeframe('month')}
-          >
-            {t('analytics.monthly', 'Monthly')}
-          </Button>
+        <h2 className="text-xl font-bold analytics-heading">{t('analytics.title')}</h2>
+        <div className="flex items-center gap-4">
+          <div className="export-buttons">
+            <ExportButtons
+              data={prepareExportData()}
+              filename={`analytics-${format(new Date(), 'yyyy-MM-dd')}`}
+              title="Analytics Report"
+            />
+          </div>
+          <div className="time-filters flex gap-2">
+            <Button
+              variant={timeframe === 'day' ? 'default' : 'outline'}
+              onClick={() => setTimeframe('day')}
+            >
+              {t('analytics.daily')}
+            </Button>
+            <Button
+              variant={timeframe === 'week' ? 'default' : 'outline'}
+              onClick={() => setTimeframe('week')}
+            >
+              {t('analytics.weekly')}
+            </Button>
+            <Button
+              variant={timeframe === 'month' ? 'default' : 'outline'}
+              onClick={() => setTimeframe('month')}
+            >
+              {t('analytics.monthly')}
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 analytics-cards">
         <Card>
           <CardHeader>
-            <CardTitle>{t('analytics.totalSales', 'Total Sales')}</CardTitle>
+            <CardTitle>{t('analytics.totalSales')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">
@@ -156,7 +159,7 @@ export default function Analytics() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>{t('analytics.totalOrders', 'Total Orders')}</CardTitle>
+            <CardTitle>{t('analytics.totalOrders')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{totalOrders}</p>
@@ -164,7 +167,7 @@ export default function Analytics() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>{t('analytics.averageOrder', 'Average Order')}</CardTitle>
+            <CardTitle>{t('analytics.averageOrder')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">
@@ -177,7 +180,7 @@ export default function Analytics() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>{t('analytics.salesTrend', 'Sales Trend')}</CardTitle>
+            <CardTitle>{t('analytics.salesTrend')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
@@ -194,7 +197,7 @@ export default function Analytics() {
                     type="monotone"
                     dataKey="total"
                     stroke="#8884d8"
-                    name={t('analytics.revenue', 'Revenue')}
+                    name={t('analytics.revenue')}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -204,7 +207,7 @@ export default function Analytics() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t('analytics.salesByCategory', 'Sales by Category')}</CardTitle>
+            <CardTitle>{t('analytics.salesByCategory')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
@@ -238,7 +241,7 @@ export default function Analytics() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t('analytics.topProducts', 'Top Products')}</CardTitle>
+            <CardTitle>{t('analytics.topProducts')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px]">
@@ -252,7 +255,7 @@ export default function Analytics() {
                   <Bar
                     dataKey="sales"
                     fill="#8884d8"
-                    name={t('analytics.unitsSold', 'Units Sold')}
+                    name={t('analytics.unitsSold')}
                   />
                 </BarChart>
               </ResponsiveContainer>
