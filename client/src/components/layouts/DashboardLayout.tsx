@@ -49,18 +49,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <SheetContent side="right" className="w-[80vw] px-2 py-6">
                 <nav className="flex flex-col gap-2">
                   {menuItems.map(item => (
-                    <Link key={item.href} href={item.href}>
-                      <a
-                        className={`px-4 py-3 rounded-md text-base font-medium ${
-                          location === item.href
-                            ? "bg-primary text-primary-foreground"
-                            : "text-foreground/60 hover:text-foreground"
-                        }`}
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {item.label}
-                      </a>
-                    </Link>
+                    <button
+                      key={item.href}
+                      className={`px-4 py-3 rounded-md text-base font-medium w-full text-left ${
+                        location === item.href
+                          ? "bg-primary text-primary-foreground"
+                          : "text-foreground/60 hover:text-foreground"
+                      }`}
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        window.location.href = item.href;
+                      }}
+                    >
+                      {item.label}
+                    </button>
                   ))}
                 </nav>
               </SheetContent>
@@ -72,13 +74,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <nav className="flex items-center gap-2 mr-4">
               {menuItems.map(item => (
                 <Link key={item.href} href={item.href}>
-                  <a className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    location === item.href
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground/60 hover:text-foreground"
-                  }`}>
+                  <button
+                    className={`px-3 py-2 rounded-md text-sm font-medium ${
+                      location === item.href
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground/60 hover:text-foreground"
+                    }`}
+                  >
                     {item.label}
-                  </a>
+                  </button>
                 </Link>
               ))}
             </nav>
@@ -90,11 +94,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
             <Link href="/settings">
-              <a>
-                <Button variant="ghost" size="icon">
-                  <Settings className="h-5 w-5" />
-                </Button>
-              </a>
+              <Button variant="ghost" size="icon">
+                <Settings className="h-5 w-5" />
+              </Button>
             </Link>
           </div>
         </div>
