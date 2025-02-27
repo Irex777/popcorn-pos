@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertProductSchema } from "@shared/schema";
+import { type Category, type InsertProduct, insertProductSchema } from "@shared/schema";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -19,30 +19,29 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: categories } = useQuery({
+  const { data: categories } = useQuery<Category[]>({
     queryKey: ['/api/categories']
   });
 
-  const form = useForm({
+  const form = useForm<InsertProduct>({
     resolver: zodResolver(insertProductSchema),
     defaultValues: {
       name: "",
-      price: "",
-      categoryId: undefined,
+      price: "0",
+      categoryId: 0,
       imageUrl: "",
       stock: 0
     }
   });
 
   const createProductMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: InsertProduct) => {
       const formattedData = {
         ...data,
         price: Number(data.price).toFixed(2),
         categoryId: Number(data.categoryId)
       };
 
-      console.log('Sending product data:', formattedData);
       const response = await apiRequest(
         'POST',
         '/api/products',
@@ -115,8 +114,8 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
                 <FormItem>
                   <FormLabel>Category</FormLabel>
                   <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value?.toString()}
+                    onValueChange={(value) => field.onChange(Number(value))}
+                    value={field.value?.toString()}
                   >
                     <FormControl>
                       <SelectTrigger>
