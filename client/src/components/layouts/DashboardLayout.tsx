@@ -7,6 +7,7 @@ import { Link, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -65,6 +66,31 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </button>
                   ))}
                 </nav>
+
+                <Separator className="my-4" />
+
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.location.href = "/settings";
+                    }}
+                    className="flex items-center gap-2 px-4 py-3 rounded-md text-base font-medium w-full text-left text-foreground/60 hover:text-foreground"
+                  >
+                    <Settings className="h-5 w-5" />
+                    {t('common.settings')}
+                  </button>
+                  <button
+                    onClick={() => {
+                      toggleTheme();
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2 px-4 py-3 rounded-md text-base font-medium w-full text-left text-foreground/60 hover:text-foreground"
+                  >
+                    {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                    {theme === 'dark' ? t('common.lightMode') : t('common.darkMode')}
+                  </button>
+                </div>
               </SheetContent>
             </Sheet>
           </div>
