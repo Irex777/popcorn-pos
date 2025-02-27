@@ -107,7 +107,16 @@ const resources = {
         "salesByCategory": "Sales by Category",
         "topProducts": "Top Products",
         "revenue": "Revenue",
-        "unitsSold": "Units Sold"
+        "unitsSold": "Units Sold",
+        "predictions": "Sales Predictions",
+        "nextHour": "Next Hour",
+        "nextDay": "Next 24 Hours",
+        "nextWeek": "Next 7 Days",
+        "confidenceInterval": "Confidence Interval",
+        "predictedValue": "Predicted Sales",
+        "currentHourSales": "Current Hour Sales",
+        "activeCustomers": "Active Customers",
+        "averageOrderValue": "Average Order Value",
       },
       "onboarding": {
         "pos": {
@@ -234,7 +243,16 @@ const resources = {
         "salesByCategory": "Ventas por Categoría",
         "topProducts": "Productos Principales",
         "revenue": "Ingresos",
-        "unitsSold": "Unidades Vendidas"
+        "unitsSold": "Unidades Vendidas",
+        "predictions": "Predicciones de Ventas",
+        "nextHour": "Próxima Hora",
+        "nextDay": "Próximas 24 Horas",
+        "nextWeek": "Próximos 7 Días",
+        "confidenceInterval": "Intervalo de Confianza",
+        "predictedValue": "Ventas Previstas",
+        "currentHourSales": "Ventas de la Hora Actual",
+        "activeCustomers": "Clientes Activos",
+        "averageOrderValue": "Valor Promedio del Pedido",
       },
       "onboarding": {
         "pos": {
@@ -361,7 +379,16 @@ const resources = {
         "salesByCategory": "Verkäufe nach Kategorie",
         "topProducts": "Top-Produkte",
         "revenue": "Umsatz",
-        "unitsSold": "Verkaufte Einheiten"
+        "unitsSold": "Verkaufte Einheiten",
+        "predictions": "Verkaufsprognosen",
+        "nextHour": "Nächste Stunde",
+        "nextDay": "Nächste 24 Stunden",
+        "nextWeek": "Nächste 7 Tage",
+        "confidenceInterval": "Konfidenzintervall",
+        "predictedValue": "Prognostizierte Verkäufe",
+        "currentHourSales": "Aktuelle Stunden Verkäufe",
+        "activeCustomers": "Aktive Kunden",
+        "averageOrderValue": "Durchschnittlicher Bestellwert",
       },
       "onboarding": {
         "pos": {
@@ -488,7 +515,16 @@ const resources = {
         "salesByCategory": "Prodeje dle Kategorie",
         "topProducts": "Nejlepší Produkty",
         "revenue": "Tržby",
-        "unitsSold": "Prodané Jednotky"
+        "unitsSold": "Prodané Jednotky",
+        "predictions": "Predikce Prodejů",
+        "nextHour": "Příští Hodina",
+        "nextDay": "Příštích 24 Hodin",
+        "nextWeek": "Příštích 7 Dní",
+        "confidenceInterval": "Interval Spolehlivosti",
+        "predictedValue": "Předpokládané Prodeje",
+        "currentHourSales": "Prodeje v Aktuální Hodině",
+        "activeCustomers": "Aktivní Zákazníci",
+        "averageOrderValue": "Průměrná Hodnota Objednávky",
       },
       "onboarding": {
         "pos": {

@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertOrderSchema, insertOrderItemSchema, updateProductStockSchema, insertProductSchema, insertCategorySchema } from "@shared/schema";
 import { z } from "zod";
+import { setupWebSocket } from "./websocket";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Categories
@@ -147,6 +148,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ order, items });
   });
 
+  // Analytics endpoints
+  app.get("/api/analytics/real-time", async (_req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const currentHour = new Date().getHours();
+
+      // Calculate real-time metrics
+      const currentHourOrders = orders.filter(order => {
+        const orderHour = new Date(order.createdAt!).getHours();
+        return orderHour === currentHour;
+      });
+
+      const realtimeMetrics = {
+        currentHourSales: currentHourOrders.reduce((sum, order) => sum + Number(order.total), 0),
+        activeCustomers: new Set(currentHourOrders.map(order => order.id)).size,
+        averageOrderValue: currentHourOrders.length > 0
+          ? currentHourOrders.reduce((sum, order) => sum + Number(order.total), 0) / currentHourOrders.length
+          : 0
+      };
+
+      res.json({ realtimeMetrics });
+    } catch (error) {
+      console.error('Error fetching real-time analytics:', error);
+      res.status(500).json({ error: 'Failed to fetch analytics data' });
+    }
+  });
+
+  app.get("/api/analytics/historical", async (_req, res) => {
+    try {
+      const orders = await storage.getOrders();
+      const historicalData = orders.map(order => ({
+        date: order.createdAt,
+        total: Number(order.total)
+      }));
+
+      res.json(historicalData);
+    } catch (error) {
+      console.error('Error fetching historical analytics:', error);
+      res.status(500).json({ error: 'Failed to fetch historical data' });
+    }
+  });
+
+  // Create HTTP server and set up WebSocket
   const httpServer = createServer(app);
+  setupWebSocket(httpServer);
+  // Temporarily disabled to debug server startup
+  // startAnalyticsUpdates();
+
   return httpServer;
 }

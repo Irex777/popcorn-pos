@@ -19,7 +19,9 @@ import {
 } from "@/components/ui/card";
 import { useState } from "react";
 import { ExportButtons } from "@/components/ui/export-buttons";
-import { LoadingAnimation, LoadingCard } from "@/components/ui/loading-animation";
+import { LoadingAnimation } from "@/components/ui/loading-animation";
+import { PredictiveInsights } from "@/components/analytics/PredictiveInsights";
+import { useRealTimeAnalytics } from "@/hooks/use-real-time-analytics";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
@@ -31,6 +33,7 @@ export default function Analytics() {
   const { t } = useTranslation();
   const [currency] = useAtom(currencyAtom);
   const [timeframe, setTimeframe] = useState<'day' | 'week' | 'month'>('day');
+  const { analyticsData, isLoading: realtimeLoading } = useRealTimeAnalytics();
 
   const { data: orders, isLoading: ordersLoading } = useQuery<OrderWithItems[]>({
     queryKey: ['/api/orders']
@@ -40,32 +43,13 @@ export default function Analytics() {
     queryKey: ['/api/products']
   });
 
-  if (ordersLoading || productsLoading) {
+  if (ordersLoading || productsLoading || realtimeLoading || !analyticsData) {
     return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold analytics-heading">{t('analytics.title')}</h2>
-          <div className="animate-pulse flex gap-4">
-            <div className="bg-muted rounded-md h-9 w-32" />
-            <div className="bg-muted rounded-md h-9 w-32" />
-            <div className="bg-muted rounded-md h-9 w-32" />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[...Array(3)].map((_, i) => (
-            <LoadingCard key={i} />
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[...Array(3)].map((_, i) => (
-            <LoadingCard key={i} />
-          ))}
-        </div>
-      </div>
+      <LoadingAnimation />
     );
   }
+
+  const { realtimeMetrics } = analyticsData;
 
   // Calculate sales metrics
   const totalSales = orders?.reduce((sum, order) => sum + Number(order.total), 0) || 0;
@@ -131,38 +115,65 @@ export default function Analytics() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold analytics-heading">{t('analytics.title')}</h2>
-        <div className="flex items-center gap-4">
-          <div className="export-buttons">
-            <ExportButtons
-              data={prepareExportData()}
-              filename={`analytics-${format(new Date(), 'yyyy-MM-dd')}`}
-              title="Analytics Report"
-            />
-          </div>
-          <div className="time-filters flex gap-2">
-            <Button
-              variant={timeframe === 'day' ? 'default' : 'outline'}
-              onClick={() => setTimeframe('day')}
-            >
-              {t('analytics.daily')}
-            </Button>
-            <Button
-              variant={timeframe === 'week' ? 'default' : 'outline'}
-              onClick={() => setTimeframe('week')}
-            >
-              {t('analytics.weekly')}
-            </Button>
-            <Button
-              variant={timeframe === 'month' ? 'default' : 'outline'}
-              onClick={() => setTimeframe('month')}
-            >
-              {t('analytics.monthly')}
-            </Button>
-          </div>
-        </div>
+      <h2 className="text-3xl font-bold">
+        {t('analytics.title')}
+      </h2>
+
+      {/* Real-time Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('analytics.currentHourSales')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">
+                {formatCurrency(realtimeMetrics.currentHourSales, currency)}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('analytics.activeCustomers')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">
+                {realtimeMetrics.activeCustomers}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('analytics.averageOrderValue')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">
+                {formatCurrency(realtimeMetrics.averageOrderValue, currency)}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
+
+      {/* Predictive Insights */}
+      <PredictiveInsights />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 analytics-cards">
         <Card>
@@ -256,7 +267,6 @@ export default function Analytics() {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader>
             <CardTitle>{t('analytics.topProducts')}</CardTitle>
