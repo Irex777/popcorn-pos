@@ -3,12 +3,14 @@ import CartPanel from "@/components/pos/CartPanel";
 
 export default function POS() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2">
+    <div className="pb-[300px] md:pb-0">
+      <div className="container mx-auto px-4">
         <ProductGrid />
       </div>
-      <div className="lg:col-span-1">
-        <CartPanel />
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t md:relative md:border-none">
+        <div className="container mx-auto px-4">
+          <CartPanel />
+        </div>
       </div>
     </div>
   );

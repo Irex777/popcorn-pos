@@ -1,10 +1,9 @@
 import { useAtom } from "jotai";
 import { motion, AnimatePresence } from "framer-motion";
 import { cartAtom } from "@/lib/store";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Plus, Minus, Trash2 } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import CheckoutDialog from "./CheckoutDialog";
 
 export default function CartPanel() {
@@ -31,64 +30,61 @@ export default function CartPanel() {
   );
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardContent className="flex-1 overflow-auto p-4">
+    <div className="py-4">
+      <div className="max-h-[200px] overflow-y-auto mb-4">
         <AnimatePresence>
           {cart.map(item => (
             <motion.div
               key={item.product.id}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="flex items-center justify-between mb-4"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="flex items-center justify-between py-2"
             >
-              <div>
-                <h3 className="font-medium">{item.product.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  ${Number(item.product.price).toFixed(2)}
-                </p>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => updateQuantity(item.product.id, -1)}
+                    className="bg-primary/10 hover:bg-primary/20 rounded-full p-1"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <span className="font-medium min-w-[20px] text-center">
+                    {item.quantity}
+                  </span>
+                  <button
+                    onClick={() => updateQuantity(item.product.id, 1)}
+                    className="bg-primary/10 hover:bg-primary/20 rounded-full p-1"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                </div>
+                <span className="font-medium">{item.product.name}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => updateQuantity(item.product.id, -1)}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <span className="w-8 text-center">{item.quantity}</span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => updateQuantity(item.product.id, 1)}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
+              <span className="text-sm font-medium">
+                ${(Number(item.product.price) * item.quantity).toFixed(2)}
+              </span>
             </motion.div>
           ))}
         </AnimatePresence>
-      </CardContent>
-      <CardFooter className="border-t p-4">
-        <div className="w-full">
-          <div className="flex justify-between mb-4">
-            <span className="font-medium">Total</span>
-            <span className="font-medium">${total.toFixed(2)}</span>
-          </div>
-          <Button 
-            className="w-full" 
-            disabled={cart.length === 0}
-            onClick={() => setIsCheckoutOpen(true)}
-          >
-            Checkout
-          </Button>
-        </div>
-      </CardFooter>
+      </div>
+      <div className="flex items-center justify-between mb-4">
+        <span className="font-medium">Total</span>
+        <span className="font-medium">${total.toFixed(2)}</span>
+      </div>
+      <Button 
+        className="w-full" 
+        size="lg"
+        disabled={cart.length === 0}
+        onClick={() => setIsCheckoutOpen(true)}
+      >
+        Pay ${total.toFixed(2)}
+      </Button>
       <CheckoutDialog 
         open={isCheckoutOpen} 
         onOpenChange={setIsCheckoutOpen}
         total={total}
       />
-    </Card>
+    </div>
   );
 }
