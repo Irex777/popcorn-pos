@@ -55,6 +55,25 @@ const resources = {
         "topProducts": "Top Products",
         "revenue": "Revenue",
         "unitsSold": "Units Sold"
+      },
+      "onboarding": {
+        "pos": {
+          "welcome": "Welcome to Boutique POS! This is your main point of sale screen where you can process orders quickly and efficiently.",
+          "categories": "Filter products by categories to find items faster.",
+          "products": "Click on products to add them to the cart. The grid updates in real-time with stock information.",
+          "cart": "Your shopping cart shows the current order. Adjust quantities or swipe items to remove them."
+        },
+        "inventory": {
+          "welcome": "Manage your product inventory here. Keep track of stock levels and update product information.",
+          "addProduct": "Click here to add new products to your inventory.",
+          "stock": "Update stock levels and get alerts for low inventory items."
+        },
+        "analytics": {
+          "welcome": "Track your business performance with detailed analytics and reports.",
+          "timeFilters": "Switch between different time periods to analyze trends.",
+          "export": "Export your data in various formats for further analysis.",
+          "metrics": "Monitor key metrics like total sales, orders, and average order value."
+        }
       }
     }
   },
@@ -110,6 +129,25 @@ const resources = {
         "topProducts": "Productos Principales",
         "revenue": "Ingresos",
         "unitsSold": "Unidades Vendidas"
+      },
+      "onboarding": {
+        "pos": {
+          "welcome": "¡Bienvenido a Boutique POS! Esta es tu pantalla principal de punto de venta donde puedes procesar pedidos de forma rápida y eficiente.",
+          "categories": "Filtra productos por categorías para encontrar artículos más rápido.",
+          "products": "Haz clic en los productos para añadirlos al carrito. La cuadrícula se actualiza en tiempo real con información de stock.",
+          "cart": "Tu carrito de compras muestra el pedido actual. Ajusta cantidades o desliza elementos para eliminarlos."
+        },
+        "inventory": {
+          "welcome": "Gestiona tu inventario de productos aquí. Mantén un seguimiento de los niveles de stock y actualiza la información de productos.",
+          "addProduct": "Haz clic aquí para añadir nuevos productos a tu inventario.",
+          "stock": "Actualiza niveles de stock y recibe alertas de productos con bajo inventario."
+        },
+        "analytics": {
+          "welcome": "Analiza el rendimiento de tu negocio con análisis y reportes detallados.",
+          "timeFilters": "Alterna entre diferentes períodos de tiempo para analizar tendencias.",
+          "export": "Exporta tus datos en varios formatos para un análisis más detallado.",
+          "metrics": "Monitorea métricas clave como ventas totales, pedidos y valor promedio de pedido."
+        }
       }
     }
   },
@@ -165,6 +203,25 @@ const resources = {
         "topProducts": "Top-Produkte",
         "revenue": "Umsatz",
         "unitsSold": "Verkaufte Einheiten"
+      },
+      "onboarding": {
+        "pos": {
+          "welcome": "Willkommen bei Boutique POS! Dies ist Ihr Hauptbildschirm für den Point of Sale, auf dem Sie Bestellungen schnell und effizient bearbeiten können.",
+          "categories": "Filtern Sie Produkte nach Kategorien, um Artikel schneller zu finden.",
+          "products": "Klicken Sie auf Produkte, um sie zum Warenkorb hinzuzufügen. Das Raster wird in Echtzeit mit Lagerinformationen aktualisiert.",
+          "cart": "Ihr Warenkorb zeigt die aktuelle Bestellung an. Passen Sie Mengen an oder streichen Sie Artikel, um sie zu entfernen."
+        },
+        "inventory": {
+          "welcome": "Verwalten Sie hier Ihr Produktinventar. Behalten Sie den Überblick über Lagerbestände und aktualisieren Sie Produktinformationen.",
+          "addProduct": "Klicken Sie hier, um neue Produkte zu Ihrem Inventar hinzuzufügen.",
+          "stock": "Aktualisieren Sie Lagerbestände und erhalten Sie Benachrichtigungen bei Artikeln mit niedrigem Lagerbestand."
+        },
+        "analytics": {
+          "welcome": "Verfolgen Sie die Leistung Ihres Unternehmens mit detaillierten Analysen und Berichten.",
+          "timeFilters": "Wechseln Sie zwischen verschiedenen Zeiträumen, um Trends zu analysieren.",
+          "export": "Exportieren Sie Ihre Daten in verschiedenen Formaten für eine weitere Analyse.",
+          "metrics": "Überwachen Sie wichtige Kennzahlen wie Gesamtumsatz, Bestellungen und durchschnittlicher Bestellwert."
+        }
       }
     }
   },
@@ -220,6 +277,25 @@ const resources = {
         "topProducts": "Nejlepší Produkty",
         "revenue": "Tržby",
         "unitsSold": "Prodané Jednotky"
+      },
+      "onboarding": {
+        "pos": {
+          "welcome": "Vítejte v Boutique POS! Toto je vaše hlavní obrazovka prodejního místa, kde můžete rychle a efektivně zpracovávat objednávky.",
+          "categories": "Filtrujte produkty podle kategorií, abyste rychleji našli položky.",
+          "products": "Kliknutím na produkty je přidáte do košíku. Mřížka se aktualizuje v reálném čase s informacemi o skladu.",
+          "cart": "Váš nákupní košík zobrazuje aktuální objednávku. Upravte množství nebo přejeďte prstem přes položky, abyste je odstranili."
+        },
+        "inventory": {
+          "welcome": "Spravujte zde svůj inventář produktů. Sledujte úrovně skladu a aktualizujte informace o produktech.",
+          "addProduct": "Kliknutím sem přidáte nové produkty do svého inventáře.",
+          "stock": "Aktualizujte úrovně skladu a získejte upozornění na položky s nízkým stavem skladu."
+        },
+        "analytics": {
+          "welcome": "Sledujte výkon vašeho podnikání pomocí podrobných analýz a zpráv.",
+          "timeFilters": "Přepínejte mezi různými časovými úseky, abyste analyzovali trendy.",
+          "export": "Exportujte svá data v různých formátech pro další analýzu.",
+          "metrics": "Monitorujte klíčové metriky, jako je celkový prodej, objednávky a průměrná hodnota objednávky."
+        }
       }
     }
   }
