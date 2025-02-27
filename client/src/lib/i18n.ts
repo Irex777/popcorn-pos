@@ -5,6 +5,24 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 const resources = {
   en: {
     translation: {
+      "auth": {
+        "login": "Login",
+        "register": "Register",
+        "loginDescription": "Welcome back! Please sign in to your account",
+        "registerDescription": "Create a new account to get started",
+        "username": "Username",
+        "password": "Password",
+        "needAccount": "Need an account? Register",
+        "haveAccount": "Already have an account? Login",
+        "loginSuccess": "Login Successful",
+        "registerSuccess": "Registration Successful",
+        "welcomeBack": "Welcome back!",
+        "accountCreated": "Your account has been created",
+        "loginFailed": "Login Failed",
+        "registerFailed": "Registration Failed",
+        "welcomeMessage": "Welcome to Boutique POS",
+        "createAccount": "Create a new account"
+      },
       "settings": {
         "title": "Settings",
         "language": "Language",
@@ -110,6 +128,24 @@ const resources = {
   },
   es: {
     translation: {
+      "auth": {
+        "login": "Iniciar Sesión",
+        "register": "Registrarse",
+        "loginDescription": "¡Bienvenido de nuevo! Por favor, inicie sesión en su cuenta",
+        "registerDescription": "Cree una nueva cuenta para comenzar",
+        "username": "Nombre de Usuario",
+        "password": "Contraseña",
+        "needAccount": "¿Necesita una cuenta? Regístrese",
+        "haveAccount": "¿Ya tiene una cuenta? Inicie sesión",
+        "loginSuccess": "Inicio de Sesión Exitoso",
+        "registerSuccess": "Registro Exitoso",
+        "welcomeBack": "¡Bienvenido de nuevo!",
+        "accountCreated": "Su cuenta ha sido creada",
+        "loginFailed": "Error de Inicio de Sesión",
+        "registerFailed": "Error de Registro",
+        "welcomeMessage": "Bienvenido a Boutique POS",
+        "createAccount": "Crear una nueva cuenta"
+      },
       "settings": {
         "title": "Configuración",
         "language": "Idioma",
@@ -215,6 +251,24 @@ const resources = {
   },
   de: {
     translation: {
+      "auth": {
+        "login": "Anmelden",
+        "register": "Registrieren",
+        "loginDescription": "Willkommen zurück! Bitte melden Sie sich in Ihrem Konto an",
+        "registerDescription": "Erstellen Sie ein neues Konto, um loszulegen",
+        "username": "Benutzername",
+        "password": "Passwort",
+        "needAccount": "Benötigen Sie ein Konto? Registrieren",
+        "haveAccount": "Haben Sie bereits ein Konto? Anmelden",
+        "loginSuccess": "Anmeldung Erfolgreich",
+        "registerSuccess": "Registrierung Erfolgreich",
+        "welcomeBack": "Willkommen zurück!",
+        "accountCreated": "Ihr Konto wurde erstellt",
+        "loginFailed": "Anmeldung Fehlgeschlagen",
+        "registerFailed": "Registrierung Fehlgeschlagen",
+        "welcomeMessage": "Willkommen bei Boutique POS",
+        "createAccount": "Neues Konto erstellen"
+      },
       "settings": {
         "title": "Einstellungen",
         "language": "Sprache",
@@ -320,6 +374,24 @@ const resources = {
   },
   cs: {
     translation: {
+      "auth": {
+        "login": "Přihlášení",
+        "register": "Registrace",
+        "loginDescription": "Vítejte zpět! Přihlaste se prosím do svého účtu",
+        "registerDescription": "Vytvořte si nový účet a začněte",
+        "username": "Uživatelské jméno",
+        "password": "Heslo",
+        "needAccount": "Potřebujete účet? Zaregistrujte se",
+        "haveAccount": "Již máte účet? Přihlaste se",
+        "loginSuccess": "Přihlášení Úspěšné",
+        "registerSuccess": "Registrace Úspěšná",
+        "welcomeBack": "Vítejte zpět!",
+        "accountCreated": "Váš účet byl vytvořen",
+        "loginFailed": "Přihlášení Selhalo",
+        "registerFailed": "Registrace Selhala",
+        "welcomeMessage": "Vítejte v Boutique POS",
+        "createAccount": "Vytvořit nový účet"
+      },
       "settings": {
         "title": "Nastavení",
         "language": "Jazyk",
