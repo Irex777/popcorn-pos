@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
-import { motion } from 'framer-motion';
-import { languages, languageAtom, currencies, currencyAtom } from '@/lib/settings';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Plus, Loader2 } from 'lucide-react';
-import i18n from '@/lib/i18n';
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useAtom } from "jotai";
+import { motion } from "framer-motion";
+import { languages, languageAtom, currencies, currencyAtom } from "@/lib/settings";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
+import { Plus, Loader2, Pencil } from "lucide-react";
+import i18n from "@/lib/i18n";
 import {
   Select,
   SelectContent,
@@ -13,29 +14,70 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/hooks/use-toast';
-import { insertUserSchema } from '@shared/schema';
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { insertUserSchema, type User } from "@shared/schema";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 export default function Settings() {
   const { t } = useTranslation();
   const [language, setLanguage] = useAtom(languageAtom);
   const [currency, setCurrency] = useAtom(currencyAtom);
   const { toast } = useToast();
+  const [editingUser, setEditingUser] = useState<{ id: number; username: string } | null>(null);
 
   // Get current user details
-  const { data: currentUser } = useQuery({
+  const { data: currentUser } = useQuery<User>({
     queryKey: ['/api/user']
   });
 
   // Get all users if admin
-  const { data: users, isLoading: usersLoading } = useQuery({
+  const { data: users, isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ['/api/users'],
     enabled: currentUser?.isAdmin,
+  });
+
+  // Edit user mutation
+  const editUserMutation = useMutation({
+    mutationFn: async (data: { id: number; username?: string; password?: string }) => {
+      const response = await fetch(`/api/users/${data.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update user');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+      setEditingUser(null);
+      toast({
+        title: t('settings.userUpdated'),
+        description: t('settings.userUpdateSuccess'),
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('settings.userUpdateFailed'),
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   // Create new user mutation
@@ -55,6 +97,7 @@ export default function Settings() {
       return response.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
       toast({
         title: t('settings.userCreated'),
         description: t('settings.userCreatedSuccess'),
@@ -277,11 +320,20 @@ export default function Settings() {
                           className="flex items-center justify-between p-2 rounded-md bg-muted"
                         >
                           <span className="font-medium">{user.username}</span>
-                          {user.isAdmin && (
-                            <span className="text-sm text-muted-foreground">
-                              {t('settings.adminUser')}
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {user.isAdmin && (
+                              <span className="text-sm text-muted-foreground">
+                                {t('settings.adminUser')}
+                              </span>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditingUser({ id: user.id, username: user.username })}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -293,6 +345,83 @@ export default function Settings() {
         )}
 
         <Separator />
+
+        {/* Edit User Dialog */}
+        <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t('settings.editUser')}</DialogTitle>
+              <DialogDescription>
+                {t('settings.editUserDescription')}
+              </DialogDescription>
+            </DialogHeader>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!editingUser) return;
+
+                const formData = new FormData(e.currentTarget);
+                const username = formData.get('username') as string;
+                const password = formData.get('password') as string;
+
+                const updates: { id: number; username?: string; password?: string } = {
+                  id: editingUser.id,
+                };
+
+                if (username && username !== editingUser.username) {
+                  updates.username = username;
+                }
+
+                if (password) {
+                  updates.password = password;
+                }
+
+                if (Object.keys(updates).length > 1) {
+                  editUserMutation.mutate(updates);
+                }
+              }}
+              className="space-y-4"
+            >
+              <div className="space-y-2">
+                <Label htmlFor="edit-username">{t('settings.username')}</Label>
+                <Input
+                  id="edit-username"
+                  name="username"
+                  defaultValue={editingUser?.username}
+                  minLength={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-password">{t('settings.newPassword')}</Label>
+                <Input
+                  id="edit-password"
+                  name="password"
+                  type="password"
+                  placeholder={t('settings.leaveBlankPassword')}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditingUser(null)}
+                >
+                  {t('common.cancel')}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={editUserMutation.isPending}
+                >
+                  {editUserMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    t('common.save')
+                  )}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
 
         {/* Preferences Section */}
         <Card>

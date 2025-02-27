@@ -196,4 +196,39 @@ export function setupAuth(app: Express) {
       isAdmin: user.isAdmin,
     })));
   }));
+
+  // Add endpoint for updating users (admin only)
+  app.patch("/api/users/:id", asyncHandler(async (req, res) => {
+    if (!req.user?.isAdmin) {
+      return res.status(403).json({ error: "Only administrators can modify users" });
+    }
+
+    const userId = parseInt(req.params.id);
+    const user = await storage.getUser(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const updates: { username?: string; password?: string } = {};
+
+    if (req.body.username) {
+      const existingUser = await storage.getUserByUsername(req.body.username);
+      if (existingUser && existingUser.id !== userId) {
+        return res.status(400).json({ error: "Username already exists" });
+      }
+      updates.username = req.body.username;
+    }
+
+    if (req.body.password) {
+      updates.password = await hashPassword(req.body.password);
+    }
+
+    const updatedUser = await storage.updateUser(userId, updates);
+    return res.json({
+      id: updatedUser.id,
+      username: updatedUser.username,
+      isAdmin: updatedUser.isAdmin,
+    });
+  }));
 }
