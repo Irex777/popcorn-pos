@@ -7,6 +7,7 @@ import POS from "@/pages/pos";
 import History from "@/pages/history";
 import Inventory from "@/pages/inventory";
 import Settings from "@/pages/settings";
+import Categories from "@/pages/categories";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Provider as JotaiProvider } from 'jotai';
 import { I18nextProvider } from 'react-i18next';
@@ -20,6 +21,7 @@ function Router() {
         <Route path="/history" component={History} />
         <Route path="/inventory" component={Inventory} />
         <Route path="/settings" component={Settings} />
+        <Route path="/categories" component={Categories} />
         <Route component={NotFound} />
       </Switch>
     </DashboardLayout>
