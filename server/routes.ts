@@ -44,11 +44,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const productData = insertProductSchema.parse(req.body);
-      const [product] = await db
-        .update(products)
-        .set(productData)
-        .where(eq(products.id, id))
-        .returning();
+      const product = await storage.updateProduct(id, productData);
 
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
