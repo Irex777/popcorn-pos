@@ -8,26 +8,33 @@ import History from "@/pages/history";
 import Inventory from "@/pages/inventory";
 import Settings from "@/pages/settings";
 import Categories from "@/pages/categories";
+import Analytics from "@/pages/analytics";
+import AuthPage from "@/pages/auth";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Provider as JotaiProvider } from 'jotai';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './lib/i18n';
-import Analytics from "@/pages/analytics";
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 function Router() {
   return (
-    <DashboardLayout>
-      <Switch>
-        <Route path="/" component={POS} />
-        <Route path="/history" component={History} />
-        <Route path="/inventory" component={Inventory} />
-        <Route path="/settings" component={Settings} />
-        <Route path="/categories" component={Categories} />
-        <Route path="/analytics" component={Analytics} />
-        <Route component={NotFound} />
-      </Switch>
-    </DashboardLayout>
+    <Switch>
+      <Route path="/auth" component={AuthPage} />
+      <Route>
+        <DashboardLayout>
+          <Switch>
+            <ProtectedRoute path="/" component={POS} />
+            <ProtectedRoute path="/history" component={History} />
+            <ProtectedRoute path="/inventory" component={Inventory} />
+            <ProtectedRoute path="/settings" component={Settings} />
+            <ProtectedRoute path="/categories" component={Categories} />
+            <ProtectedRoute path="/analytics" component={Analytics} />
+            <Route component={NotFound} />
+          </Switch>
+        </DashboardLayout>
+      </Route>
+    </Switch>
   );
 }
 
