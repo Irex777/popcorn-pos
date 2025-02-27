@@ -66,16 +66,13 @@ export class DatabaseStorage implements IStorage {
       name: products.name,
       price: products.price,
       categoryId: products.categoryId,
-      category: categories.name,
       imageUrl: products.imageUrl,
       stock: products.stock,
     })
-    .from(products)
-    .leftJoin(categories, eq(products.categoryId, categories.id));
+      .from(products);
 
     return results.map(product => ({
       ...product,
-      category: product.category || 'Uncategorized'
     }));
   }
 
@@ -86,20 +83,20 @@ export class DatabaseStorage implements IStorage {
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
     try {
-      // Ensure the category exists
-      const [category] = await db.select()
-        .from(categories)
-        .where(eq(categories.id, Number(insertProduct.categoryId)));
+      // Ensure the category exists.  This check is now redundant since we've removed the category column.
+      // const [category] = await db.select()
+      //   .from(categories)
+      //   .where(eq(categories.id, Number(insertProduct.categoryId)));
 
-      if (!category) {
-        throw new Error('Invalid category selected');
-      }
+      // if (!category) {
+      //   throw new Error('Invalid category selected');
+      // }
 
       // Format the product data
       const formattedProduct = {
         name: insertProduct.name,
         price: typeof insertProduct.price === 'string' ? insertProduct.price : insertProduct.price.toFixed(2),
-        categoryId: Number(insertProduct.categoryId),
+        categoryId: Number(insertProduct.categoryId) || null, // Handle potential null categoryId
         imageUrl: insertProduct.imageUrl || null,
         stock: Number(insertProduct.stock)
       };
@@ -116,7 +113,7 @@ export class DatabaseStorage implements IStorage {
 
       return {
         ...product,
-        category: category.name
+        // category: category.name // Removed category field
       };
     } catch (error) {
       console.error('Error creating product:', error);
@@ -145,7 +142,7 @@ export class DatabaseStorage implements IStorage {
   async decrementProductStock(id: number, quantity: number): Promise<Product | undefined> {
     const [product] = await db
       .update(products)
-      .set({ 
+      .set({
         stock: sql`GREATEST(${products.stock} - ${quantity}, 0)`
       })
       .where(eq(products.id, id))
