@@ -1,4 +1,4 @@
-import { type Product, type Order, type OrderItem, type InsertProduct, type InsertOrder, type InsertOrderItem } from "@shared/schema";
+import { type Product, type Order, type OrderItem, type InsertProduct, type InsertOrder, type InsertOrderItem, type UpdateProductStock } from "@shared/schema";
 import { db } from "./db";
 import { products, orders, orderItems } from "@shared/schema";
 import { eq } from "drizzle-orm";
@@ -8,6 +8,8 @@ export interface IStorage {
   getProducts(): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
+  updateProductStock(id: number, update: UpdateProductStock): Promise<Product | undefined>;
+  decrementProductStock(id: number, quantity: number): Promise<Product | undefined>;
 
   // Orders
   createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order>;
@@ -31,10 +33,36 @@ export class DatabaseStorage implements IStorage {
     return product;
   }
 
+  async updateProductStock(id: number, update: UpdateProductStock): Promise<Product | undefined> {
+    const [product] = await db
+      .update(products)
+      .set({ stock: update.stock })
+      .where(eq(products.id, id))
+      .returning();
+    return product;
+  }
+
+  async decrementProductStock(id: number, quantity: number): Promise<Product | undefined> {
+    const [product] = await db
+      .update(products)
+      .set({ 
+        stock: db.raw(`GREATEST(stock - ${quantity}, 0)`)
+      })
+      .where(eq(products.id, id))
+      .returning();
+    return product;
+  }
+
   async createOrder(insertOrder: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
     const [order] = await db.insert(orders).values(insertOrder).returning();
 
     if (items.length > 0) {
+      // Update stock levels for each product
+      for (const item of items) {
+        await this.decrementProductStock(item.productId, item.quantity);
+      }
+
+      // Create order items
       await db.insert(orderItems).values(
         items.map(item => ({
           ...item,

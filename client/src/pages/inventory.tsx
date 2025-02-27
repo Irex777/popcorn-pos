@@ -3,6 +3,9 @@ import { motion } from "framer-motion";
 import { type Product } from "@shared/schema";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import EditProductDialog from "@/components/inventory/EditProductDialog";
+import { Edit } from "lucide-react";
 
 const container = {
   hidden: { opacity: 0 },
@@ -30,6 +33,8 @@ const buttonTapAnimation = {
 
 export default function Inventory() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
   const { data: products, isLoading } = useQuery<Product[]>({
     queryKey: ['/api/products']
   });
@@ -112,8 +117,23 @@ export default function Inventory() {
                     {product.category}
                   </p>
                 </div>
-                <Badge variant="outline" className="bg-primary/10 text-primary">
-                  ${Number(product.price).toFixed(2)}
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="bg-primary/10 text-primary">
+                    ${Number(product.price).toFixed(2)}
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setEditingProduct(product)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Stock</span>
+                <Badge variant={product.stock > 10 ? "outline" : "destructive"}>
+                  {product.stock} units
                 </Badge>
               </div>
               {product.imageUrl && (
@@ -127,6 +147,14 @@ export default function Inventory() {
           </motion.div>
         ))}
       </motion.div>
+
+      {editingProduct && (
+        <EditProductDialog
+          product={editingProduct}
+          open={true}
+          onOpenChange={(open) => !open && setEditingProduct(null)}
+        />
+      )}
     </div>
   );
 }

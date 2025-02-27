@@ -8,6 +8,7 @@ export const products = pgTable("products", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   category: text("category").notNull(),
   imageUrl: text("image_url").notNull(),
+  stock: integer("stock").notNull().default(0),
 });
 
 export const orders = pgTable("orders", {
@@ -27,7 +28,6 @@ export const orderItems = pgTable("order_items", {
 
 export const insertProductSchema = createInsertSchema(products).omit({ id: true });
 export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, createdAt: true });
-// Modify the order items schema to make orderId optional during insertion
 export const insertOrderItemSchema = createInsertSchema(orderItems)
   .omit({ id: true, orderId: true });
 
@@ -37,3 +37,10 @@ export type Order = typeof orders.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
+
+// Schema for updating product stock
+export const updateProductStockSchema = z.object({
+  stock: z.number().min(0, "Stock cannot be negative"),
+});
+
+export type UpdateProductStock = z.infer<typeof updateProductStockSchema>;

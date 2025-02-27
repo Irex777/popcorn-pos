@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertOrderSchema, insertOrderItemSchema } from "@shared/schema";
+import { insertOrderSchema, insertOrderItemSchema, updateProductStockSchema, insertProductSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -9,6 +9,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/products", async (_req, res) => {
     const products = await storage.getProducts();
     res.json(products);
+  });
+
+  // Create new product
+  app.post("/api/products", async (req, res) => {
+    try {
+      const productData = insertProductSchema.parse(req.body);
+      const product = await storage.createProduct(productData);
+      res.json(product);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid product data" });
+    }
+  });
+
+  // Update product stock
+  app.patch("/api/products/:id/stock", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const update = updateProductStockSchema.parse(req.body);
+      const product = await storage.updateProductStock(id, update);
+
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      res.json(product);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid stock update data" });
+    }
   });
 
   // Get all orders
@@ -26,8 +54,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create new order
   app.post("/api/orders", async (req, res) => {
     try {
-      console.log('Received order data:', req.body); // Add logging
-
       const orderData = insertOrderSchema.parse({
         total: req.body.order.total,
         status: req.body.order.status
@@ -44,8 +70,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const order = await storage.createOrder(orderData, itemsData);
       res.json(order);
     } catch (error) {
-      console.error('Order validation error:', error); // Add logging
-      res.status(400).json({ error: "Invalid order data", details: error });
+      console.error('Order validation error:', error);
+      res.status(400).json({ error: "Invalid order data" });
     }
   });
 
