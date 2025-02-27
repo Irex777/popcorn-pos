@@ -34,6 +34,20 @@ const resources = {
           "pending": "Pending",
           "cancelled": "Cancelled"
         }
+      },
+      "analytics": {
+        "title": "Sales Analytics",
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "totalSales": "Total Sales",
+        "totalOrders": "Total Orders",
+        "averageOrder": "Average Order",
+        "salesTrend": "Sales Trend",
+        "salesByCategory": "Sales by Category",
+        "topProducts": "Top Products",
+        "revenue": "Revenue",
+        "unitsSold": "Units Sold"
       }
     }
   },
@@ -68,6 +82,20 @@ const resources = {
           "pending": "Pendiente",
           "cancelled": "Cancelado"
         }
+      },
+      "analytics": {
+        "title": "Análisis de Ventas",
+        "daily": "Diario",
+        "weekly": "Semanal",
+        "monthly": "Mensual",
+        "totalSales": "Ventas Totales",
+        "totalOrders": "Pedidos Totales",
+        "averageOrder": "Pedido Promedio",
+        "salesTrend": "Tendencia de Ventas",
+        "salesByCategory": "Ventas por Categoría",
+        "topProducts": "Productos Principales",
+        "revenue": "Ingresos",
+        "unitsSold": "Unidades Vendidas"
       }
     }
   },
@@ -102,6 +130,20 @@ const resources = {
           "pending": "In Bearbeitung",
           "cancelled": "Storniert"
         }
+      },
+      "analytics": {
+        "title": "Verkaufsanalyse",
+        "daily": "Täglich",
+        "weekly": "Wöchentlich",
+        "monthly": "Monatlich",
+        "totalSales": "Gesamtverkäufe",
+        "totalOrders": "Gesamtbestellungen",
+        "averageOrder": "Durchschnittliche Bestellung",
+        "salesTrend": "Verkaufstrend",
+        "salesByCategory": "Verkäufe nach Kategorie",
+        "topProducts": "Top-Produkte",
+        "revenue": "Umsatz",
+        "unitsSold": "Verkaufte Einheiten"
       }
     }
   },
@@ -136,6 +178,20 @@ const resources = {
           "pending": "Zpracovává se",
           "cancelled": "Zrušeno"
         }
+      },
+      "analytics": {
+        "title": "Analýza Prodeje",
+        "daily": "Denní",
+        "weekly": "Týdenní",
+        "monthly": "Měsíční",
+        "totalSales": "Celkové Prodeje",
+        "totalOrders": "Celkové Objednávky",
+        "averageOrder": "Průměrná Objednávka",
+        "salesTrend": "Trend Prodejů",
+        "salesByCategory": "Prodeje dle Kategorie",
+        "topProducts": "Nejlepší Produkty",
+        "revenue": "Tržby",
+        "unitsSold": "Prodané Jednotky"
       }
     }
   }

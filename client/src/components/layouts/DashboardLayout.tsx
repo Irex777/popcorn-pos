@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { useTheme } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Settings, History, Package, Grid2X2 } from "lucide-react";
+import { Moon, Sun, Settings, History, Package, Grid2X2, BarChart2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 
@@ -19,7 +19,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-2xl font-bold"
@@ -54,6 +54,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   location === "/categories" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
                 }`}>
                   {t('common.categories')}
+                </a>
+              </Link>
+              <Link href="/analytics">
+                <a className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  location === "/analytics" ? "bg-primary text-primary-foreground" : "text-foreground/60 hover:text-foreground"
+                }`}>
+                  {t('analytics.title')}
                 </a>
               </Link>
             </nav>

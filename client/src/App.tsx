@@ -12,6 +12,7 @@ import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Provider as JotaiProvider } from 'jotai';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './lib/i18n';
+import Analytics from "@/pages/analytics";
 
 function Router() {
   return (
@@ -22,6 +23,7 @@ function Router() {
         <Route path="/inventory" component={Inventory} />
         <Route path="/settings" component={Settings} />
         <Route path="/categories" component={Categories} />
+        <Route path="/analytics" component={Analytics} />
         <Route component={NotFound} />
       </Switch>
     </DashboardLayout>
