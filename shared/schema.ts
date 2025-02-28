@@ -18,7 +18,7 @@ export const insertShopSchema = createInsertSchema(shops)
   })
   .omit({ id: true, createdAt: true });
 
-// User model 
+// User model and schema
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -26,6 +26,17 @@ export const users = pgTable("users", {
   isAdmin: boolean("is_admin").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const insertUserSchema = createInsertSchema(users)
+  .extend({
+    username: z.string().min(3, "Username must be at least 3 characters"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+  })
+  .omit({ id: true, createdAt: true, isAdmin: true });
+
+// Export user types
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
 
 // Add shopId to categories
 export const categories = pgTable("categories", {
@@ -89,8 +100,6 @@ export const insertOrderItemSchema = createInsertSchema(orderItems)
 // Export types
 export type Shop = typeof shops.$inferSelect;
 export type InsertShop = z.infer<typeof insertShopSchema>;
-export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Product = typeof products.$inferSelect;
