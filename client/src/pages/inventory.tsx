@@ -1,18 +1,19 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { type Product, type Category } from "@shared/schema";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import EditProductDialog from "@/components/inventory/EditProductDialog";
-import { Edit } from "lucide-react";
-import { Plus } from "lucide-react";
+import { Edit, Plus, Trash2 } from "lucide-react";
 import CreateProductDialog from "@/components/inventory/CreateProductDialog";
 import { useTranslation } from "react-i18next";
 import { useAtom } from "jotai";
 import { currencyAtom } from "@/lib/settings";
 import { formatCurrency } from "@/lib/settings";
 import { useShop } from "@/lib/shop-context";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 const container = {
   hidden: { opacity: 0 },
@@ -45,6 +46,8 @@ export default function Inventory() {
   const { t } = useTranslation();
   const [currency] = useAtom(currencyAtom);
   const { currentShop } = useShop();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: [`/api/shops/${currentShop?.id}/products`],
@@ -54,6 +57,35 @@ export default function Inventory() {
   const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
     queryKey: [`/api/shops/${currentShop?.id}/categories`],
     enabled: !!currentShop
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (productId: number) => {
+      if (!currentShop) throw new Error("No shop selected");
+      const response = await apiRequest(
+        'DELETE',
+        `/api/shops/${currentShop.id}/products/${productId}`
+      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || t('inventory.deleteError'));
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/shops/${currentShop?.id}/products`] });
+      toast({
+        title: t('inventory.productDeleted'),
+        description: t('inventory.productDeleteSuccess')
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('common.error'),
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   });
 
   const isLoading = productsLoading || categoriesLoading;
@@ -163,6 +195,17 @@ export default function Inventory() {
                     onClick={() => setEditingProduct(product)}
                   >
                     <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      if (confirm(t('inventory.confirmDelete'))) {
+                        deleteMutation.mutate(product.id);
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
