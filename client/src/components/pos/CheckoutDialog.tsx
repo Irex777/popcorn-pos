@@ -7,7 +7,7 @@ import { formatCurrency } from "@/lib/settings";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { stripePromise, createPaymentIntent } from "@/lib/stripe";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
@@ -110,10 +110,10 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
             console.log('Payment intent created:', data);
             setClientSecret(data.clientSecret);
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error creating payment intent:', error);
           if (mounted) {
-            setStripeError('Failed to initialize payment. Please try again.');
+            setStripeError(error.message || 'Failed to initialize payment. Please try again.');
             toast({
               title: "Error",
               description: "Failed to initialize payment",
