@@ -89,7 +89,11 @@ export default function Settings() {
       const response = await fetch(`/api/shops/${data.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: data.name, address: data.address }),
+        // Only send name and address
+        body: JSON.stringify({
+          name: data.name,
+          address: data.address || null
+        }),
       });
 
       if (!response.ok) {
@@ -108,6 +112,7 @@ export default function Settings() {
       });
     },
     onError: (error: Error) => {
+      console.error('Shop update error:', error);
       toast({
         title: t('common.error'),
         description: error.message,
@@ -148,7 +153,6 @@ export default function Settings() {
       });
     },
   });
-
   // Keep other existing mutations and handlers...
   const createUserMutation = useMutation({
     mutationFn: async (data: { username: string; password: string }) => {
@@ -605,18 +609,20 @@ export default function Settings() {
                 const name = formData.get('name') as string;
                 const address = formData.get('address') as string;
 
-                try {
-                  const parsed = insertShopSchema.parse({ name, address });
-                  editShopMutation.mutate({ id: editingShop.id, ...parsed });
-                } catch (error) {
-                  if (error instanceof Error) {
-                    toast({
-                      title: t('settings.validationError'),
-                      description: error.message,
-                      variant: "destructive",
-                    });
-                  }
+                if (!name.trim()) {
+                  toast({
+                    title: t('settings.validationError'),
+                    description: t('common.shop.nameRequired'),
+                    variant: "destructive",
+                  });
+                  return;
                 }
+
+                editShopMutation.mutate({ 
+                  id: editingShop.id, 
+                  name: name.trim(),
+                  address: address.trim() || undefined
+                });
               }}
               className="space-y-4"
             >
@@ -634,7 +640,7 @@ export default function Settings() {
                 <Input
                   id="edit-address"
                   name="address"
-                  defaultValue={editingShop?.address}
+                  defaultValue={editingShop?.address || ''}
                 />
               </div>
               <div className="flex justify-end gap-2">
