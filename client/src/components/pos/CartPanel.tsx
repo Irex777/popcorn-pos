@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import CheckoutDialog from "./CheckoutDialog";
 import { useTranslation } from "react-i18next";
 
+// Animation configurations remain the same
 const bounceAnimation = {
   initial: { scale: 1 },
   animate: { 
@@ -33,17 +34,17 @@ export default function CartPanel() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   const updateQuantity = (productId: number, delta: number) => {
-    setCart(current =>
-      current.map(item => {
+    setCart(current => {
+      const updatedCart = current.map(item => {
         if (item.product.id === productId) {
           const newQuantity = item.quantity + delta;
-          return newQuantity > 0
-            ? { ...item, quantity: newQuantity }
-            : item;
+          return newQuantity > 0 ? { ...item, quantity: newQuantity } : null;
         }
         return item;
-      }).filter(item => item.quantity > 0)
-    );
+      }).filter((item): item is NonNullable<typeof item> => item !== null);
+
+      return updatedCart;
+    });
   };
 
   const removeItem = (productId: number) => {

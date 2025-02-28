@@ -102,6 +102,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/products/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const product = await storage.getProduct(id);
+
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      // Delete the product from storage.  This line assumes 'db' and 'products' are defined elsewhere.
+      await db.delete(products).where(eq(products.id, id));
+
+      res.json({ success: true, message: "Product deleted successfully" });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      res.status(500).json({ error: "Failed to delete product" });
+    }
+  });
+
   // Orders
   app.get("/api/orders", async (_req, res) => {
     const orders = await storage.getOrders();
