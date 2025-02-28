@@ -269,9 +269,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analytics endpoints
-  app.get("/api/analytics/real-time", requireShopAccess, async (req, res) => {
+  app.get("/api/shops/:shopId/analytics/real-time", requireShopAccess, async (req, res) => {
     try {
-      const shopId = parseInt(req.params.shopId || req.body.shopId);
+      const shopId = parseInt(req.params.shopId);
       if (!shopId) {
         return res.status(400).json({ error: "Shop ID is required" });
       }
@@ -314,9 +314,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/analytics/historical", requireShopAccess, async (req, res) => {
+  app.get("/api/shops/:shopId/analytics/historical", requireShopAccess, async (req, res) => {
     try {
-      const shopId = parseInt(req.params.shopId || req.body.shopId);
+      const shopId = parseInt(req.params.shopId);
       if (!shopId) {
         return res.status(400).json({ error: "Shop ID is required" });
       }

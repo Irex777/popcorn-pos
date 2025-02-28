@@ -34,23 +34,21 @@ export function useRealTimeAnalytics() {
 
   // Set up WebSocket connection when the hook is first used
   useEffect(() => {
-    wsClient.connect();
-    return () => wsClient.disconnect();
-  }, []);
+    if (currentShop) {
+      wsClient.connect();
+      return () => wsClient.disconnect();
+    }
+  }, [currentShop]);
 
   // Fetch real-time analytics data
   const { data: analyticsData, isLoading } = useQuery<AnalyticsData>({
     queryKey: [`/api/shops/${currentShop?.id}/analytics/real-time`],
-    enabled: !!currentShop,
-    // Polling as backup in case WebSocket fails
     refetchInterval: 30000, // Fetch every 30 seconds
   });
 
   // Fetch historical data for predictions
   const { data: historicalData } = useQuery({
     queryKey: [`/api/shops/${currentShop?.id}/analytics/historical`],
-    enabled: !!currentShop,
-    // Cache historical data longer since it changes less frequently
     staleTime: 1000 * 60 * 15, // 15 minutes
   });
 
