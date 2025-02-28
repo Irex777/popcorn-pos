@@ -9,6 +9,9 @@ import { Edit } from "lucide-react";
 import { Plus } from "lucide-react";
 import CreateProductDialog from "@/components/inventory/CreateProductDialog";
 import { useTranslation } from "react-i18next";
+import { useAtom } from "jotai";
+import { currencyAtom } from "@/lib/settings";
+import { formatCurrency } from "@/lib/settings";
 
 const container = {
   hidden: { opacity: 0 },
@@ -39,6 +42,7 @@ export default function Inventory() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { t } = useTranslation();
+  const [currency] = useAtom(currencyAtom);
 
   const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ['/api/products']
@@ -139,7 +143,7 @@ export default function Inventory() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="bg-primary/10 text-primary">
-                    ${Number(product.price).toFixed(2)}
+                    {formatCurrency(Number(product.price), currency)}
                   </Badge>
                   <Button
                     variant="ghost"
