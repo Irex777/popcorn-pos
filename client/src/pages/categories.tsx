@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { insertCategorySchema } from "@shared/schema";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { useTranslation } from "react-i18next";
+import { useShop } from "@/lib/shop-context";
 
 const container = {
   hidden: { opacity: 0 },
@@ -39,48 +40,56 @@ function CategoryDialog({ category, open, onOpenChange }: CategoryDialogProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
+  const { currentShop } = useShop();
 
   const form = useForm({
     resolver: zodResolver(insertCategorySchema),
     defaultValues: {
       name: category?.name || "",
       description: category?.description || "",
-      color: category?.color || "#94A3B8"
+      color: category?.color || "#94A3B8",
+      shopId: currentShop?.id
     }
   });
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
+      if (!currentShop) {
+        throw new Error("No shop selected");
+      }
+
       const response = await apiRequest(
         category ? 'PATCH' : 'POST',
-        category ? `/api/categories/${category.id}` : '/api/categories',
+        category ? `/api/shops/${currentShop.id}/categories/${category.id}` : `/api/shops/${currentShop.id}/categories`,
         data
       );
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/shops/${currentShop?.id}/categories`] });
       toast({
-        title: category ? "Category updated" : "Category created",
-        description: category ? "Category has been updated successfully." : "New category has been added successfully."
+        title: category ? t("Category updated") : t("Category created"),
+        description: category ? t("Category has been updated successfully.") : t("New category has been added successfully.")
       });
       onOpenChange(false);
       form.reset();
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: category ? "Failed to update category." : "Failed to create category.",
+        title: t("Error"),
+        description: category ? t("Failed to update category.") : t("Failed to create category."),
         variant: "destructive"
       });
     }
   });
 
+  if (!currentShop) return null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{category ? "Edit Category" : "Create New Category"}</DialogTitle>
+          <DialogTitle>{category ? t("Edit Category") : t("Create New Category")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(data => mutation.mutate(data))} className="space-y-4">
@@ -131,7 +140,7 @@ function CategoryDialog({ category, open, onOpenChange }: CategoryDialogProps) {
               className="w-full"
               disabled={mutation.isPending}
             >
-              {mutation.isPending ? (category ? "Updating..." : "Creating...") : (category ? "Update Category" : "Create Category")}
+              {mutation.isPending ? (category ? t("Updating...") : t("Creating...")) : (category ? t("Update Category") : t("Create Category"))}
             </Button>
           </form>
         </Form>
@@ -146,31 +155,44 @@ export default function Categories() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
+  const { currentShop } = useShop();
 
   const { data: categories, isLoading } = useQuery<Category[]>({
-    queryKey: ['/api/categories']
+    queryKey: [`/api/shops/${currentShop?.id}/categories`],
+    enabled: !!currentShop
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await apiRequest('DELETE', `/api/categories/${id}`);
+      if (!currentShop) {
+        throw new Error("No shop selected");
+      }
+      const response = await apiRequest('DELETE', `/api/shops/${currentShop.id}/categories/${id}`);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/shops/${currentShop?.id}/categories`] });
       toast({
-        title: "Category deleted",
-        description: "Category has been deleted successfully."
+        title: t("Category deleted"),
+        description: t("Category has been deleted successfully.")
       });
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to delete category.",
+        title: t("Error"),
+        description: t("Failed to delete category."),
         variant: "destructive"
       });
     }
   });
+
+  if (!currentShop) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">{t('common.selectShop')}</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -185,10 +207,10 @@ export default function Categories() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Categories</h2>
+        <h2 className="text-xl font-bold">{t('Categories')}</h2>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Category
+          {t('Add Category')}
         </Button>
       </div>
 
@@ -231,7 +253,7 @@ export default function Categories() {
                   variant="ghost"
                   size="icon"
                   onClick={() => {
-                    if (confirm("Are you sure you want to delete this category?")) {
+                    if (confirm(t("Are you sure you want to delete this category?"))) {
                       deleteMutation.mutate(category.id);
                     }
                   }}
