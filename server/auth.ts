@@ -29,16 +29,24 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
+  // Configure session settings
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'lax',
+      path: '/',
+      httpOnly: true
     },
-    store: storage.sessionStore
+    store: storage.sessionStore,
+    proxy: true // trust the reverse proxy
   };
+
+  // Trust first proxy
+  app.set('trust proxy', 1);
 
   app.use(session(sessionSettings));
   app.use(passport.initialize());
@@ -81,6 +89,7 @@ export function setupAuth(app: Express) {
   app.post("/api/login", (req, res, next) => {
     passport.authenticate("local", (err: any, user: any, info: any) => {
       if (err) {
+        console.error("Login error:", err);
         return res.status(500).json({ error: "Login failed" });
       }
       if (!user) {
@@ -88,6 +97,7 @@ export function setupAuth(app: Express) {
       }
       req.login(user, (loginErr) => {
         if (loginErr) {
+          console.error("Login error:", loginErr);
           return res.status(500).json({ error: "Login failed" });
         }
         return res.json({ id: user.id, username: user.username });
@@ -109,6 +119,7 @@ export function setupAuth(app: Express) {
 
     req.login(user, (err) => {
       if (err) {
+        console.error("Registration login error:", err);
         return res.status(500).json({ error: "Login failed after registration" });
       }
       return res.status(201).json({ id: user.id, username: user.username });
@@ -118,6 +129,7 @@ export function setupAuth(app: Express) {
   app.post("/api/logout", (req, res) => {
     req.logout((err) => {
       if (err) {
+        console.error("Logout error:", err);
         return res.status(500).json({ error: "Logout failed" });
       }
       res.json({ message: "Logged out successfully" });
@@ -135,6 +147,7 @@ export function setupAuth(app: Express) {
     });
   });
 
+  // Add endpoint for changing password
   app.post("/api/change-password", asyncHandler(async (req, res) => {
     if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
@@ -157,7 +170,6 @@ export function setupAuth(app: Express) {
 
     res.json({ message: "Password updated successfully" });
   }));
-
   // Add endpoint for creating new users (admin only)
   app.post("/api/users", asyncHandler(async (req, res) => {
     if (!req.user?.isAdmin) {
