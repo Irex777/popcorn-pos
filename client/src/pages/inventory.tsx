@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { useAtom } from "jotai";
 import { currencyAtom } from "@/lib/settings";
 import { formatCurrency } from "@/lib/settings";
+import { useShop } from "@/lib/shop-context";
 
 const container = {
   hidden: { opacity: 0 },
@@ -43,13 +44,16 @@ export default function Inventory() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { t } = useTranslation();
   const [currency] = useAtom(currencyAtom);
+  const { currentShop } = useShop();
 
   const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
-    queryKey: ['/api/products']
+    queryKey: [`/api/shops/${currentShop?.id}/products`],
+    enabled: !!currentShop
   });
 
   const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
-    queryKey: ['/api/categories']
+    queryKey: [`/api/shops/${currentShop?.id}/categories`],
+    enabled: !!currentShop
   });
 
   const isLoading = productsLoading || categoriesLoading;
@@ -61,6 +65,14 @@ export default function Inventory() {
   const getCategoryName = (categoryId: number) => {
     return categories?.find(c => c.id === categoryId)?.name || t('common.unknown');
   };
+
+  if (!currentShop) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">{t('common.selectShop')}</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

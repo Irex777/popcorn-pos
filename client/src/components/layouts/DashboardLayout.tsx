@@ -9,6 +9,8 @@ import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { ShopSelector } from "./ShopSelector";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -20,6 +22,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { toast } = useToast();
+  const { user, logoutMutation } = useAuth();
 
   const menuItems = [
     { href: "/", label: t('common.pos') },
@@ -29,24 +32,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { href: "/analytics", label: t('analytics.title') },
   ];
 
-  const handleLogout = async () => {
-    try {
-      const response = await fetch('/api/logout', {
-        method: 'POST',
-      });
-
-      if (response.ok) {
+  const handleLogout = () => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
         window.location.href = '/auth';
-      } else {
-        throw new Error('Logout failed');
+      },
+      onError: (error) => {
+        toast({
+          title: t('common.error'),
+          description: error.message,
+          variant: "destructive",
+        });
       }
-    } catch (error) {
-      toast({
-        title: "Logout failed",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    }
+    });
   };
 
   return (
@@ -62,7 +60,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </motion.h1>
 
           {/* Mobile Menu */}
-          <div className="flex md:hidden">
+          <div className="flex md:hidden items-center gap-2">
+            <ShopSelector />
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -141,6 +140,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </Link>
               ))}
             </nav>
+            <ShopSelector />
             <Button
               variant="ghost"
               size="icon"

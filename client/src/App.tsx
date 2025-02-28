@@ -16,6 +16,8 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from './lib/i18n';
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AuthProvider } from "@/hooks/use-auth";
+import { ShopProvider } from "@/lib/shop-context";
 
 function Router() {
   return (
@@ -43,10 +45,14 @@ function App() {
     <JotaiProvider>
       <I18nextProvider i18n={i18n}>
         <QueryClientProvider client={queryClient}>
-          <OnboardingProvider>
-            <Router />
-            <Toaster />
-          </OnboardingProvider>
+          <AuthProvider>
+            <ShopProvider>
+              <OnboardingProvider>
+                <Router />
+                <Toaster />
+              </OnboardingProvider>
+            </ShopProvider>
+          </AuthProvider>
         </QueryClientProvider>
       </I18nextProvider>
     </JotaiProvider>

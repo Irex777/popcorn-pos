@@ -12,6 +12,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useShop } from "@/lib/shop-context";
 
 interface CreateProductDialogProps {
   open: boolean;
@@ -22,9 +23,11 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
+  const { currentShop } = useShop();
 
   const { data: categories } = useQuery<Category[]>({
-    queryKey: ['/api/categories']
+    queryKey: [`/api/shops/${currentShop?.id}/categories`],
+    enabled: !!currentShop
   });
 
   const form = useForm<InsertProduct>({
@@ -34,26 +37,33 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
       price: "0",
       categoryId: undefined,
       imageUrl: "",
-      stock: 0
+      stock: 0,
+      shopId: currentShop?.id
     }
   });
 
   const createProductMutation = useMutation({
     mutationFn: async (data: InsertProduct) => {
+      if (!currentShop) {
+        throw new Error("No shop selected");
+      }
+
       // Ensure all required fields are present and properly formatted
       const formattedData = {
+        ...data,
         name: data.name.trim(),
         price: Number(data.price).toFixed(2),
         categoryId: Number(data.categoryId),
         imageUrl: data.imageUrl?.trim() || '',
-        stock: Number(data.stock)
+        stock: Number(data.stock),
+        shopId: currentShop.id
       };
 
       console.log('Sending product data:', formattedData);
 
       const response = await apiRequest(
         'POST',
-        '/api/products',
+        `/api/shops/${currentShop.id}/products`,
         formattedData
       );
 
@@ -65,7 +75,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/shops/${currentShop?.id}/products`] });
       toast({
         title: t('inventory.productCreated'),
         description: t('inventory.productCreateSuccess')
@@ -82,6 +92,10 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
       });
     }
   });
+
+  if (!currentShop) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
