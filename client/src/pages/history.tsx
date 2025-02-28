@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useAtom } from "jotai";
 import { currencyAtom } from "@/lib/settings";
 import { formatCurrency } from "@/lib/settings";
+import { ExportButtons } from "@/components/ui/export-buttons";
 
 interface OrderWithId extends Order {
   id: number;
@@ -59,6 +60,20 @@ export default function History() {
     }), { totalOrders: 0, totalRevenue: 0 });
   };
 
+  const prepareExportData = () => {
+    if (!orders) return [];
+
+    return orders.map(order => ({
+      'Order ID': order.id,
+      'Date': format(new Date(order.createdAt!), 'yyyy-MM-dd HH:mm:ss'),
+      'Status': t(`history.status.${order.status.toLowerCase()}`),
+      'Total': formatCurrency(Number(order.total), currency),
+      'Items': order.items.map(item => 
+        `${item.quantity}x ${item.product?.name || t('history.unknownProduct')} (${formatCurrency(Number(item.price), currency)})`
+      ).join(', ')
+    }));
+  };
+
   const groupOrdersByDate = (orders: OrderWithId[] = []) => {
     const now = new Date();
     const groups = new Map<string, OrderWithId[]>();
@@ -100,19 +115,26 @@ export default function History() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold">{t('common.history')}</h2>
-        <div className="flex gap-2">
-          <Button
-            variant={timeframe === 'day' ? 'default' : 'outline'}
-            onClick={() => setTimeframe('day')}
-          >
-            {t('history.daily')}
-          </Button>
-          <Button
-            variant={timeframe === 'month' ? 'default' : 'outline'}
-            onClick={() => setTimeframe('month')}
-          >
-            {t('history.monthly')}
-          </Button>
+        <div className="flex items-center gap-4">
+          <div className="flex gap-2">
+            <Button
+              variant={timeframe === 'day' ? 'default' : 'outline'}
+              onClick={() => setTimeframe('day')}
+            >
+              {t('history.daily')}
+            </Button>
+            <Button
+              variant={timeframe === 'month' ? 'default' : 'outline'}
+              onClick={() => setTimeframe('month')}
+            >
+              {t('history.monthly')}
+            </Button>
+          </div>
+          <ExportButtons
+            data={prepareExportData()}
+            filename="order-history"
+            title={t('common.history')}
+          />
         </div>
       </div>
 
