@@ -43,13 +43,15 @@ export function useRealTimeAnalytics() {
   // Fetch real-time analytics data
   const { data: analyticsData, isLoading } = useQuery<AnalyticsData>({
     queryKey: [`/api/shops/${currentShop?.id}/analytics/real-time`],
-    refetchInterval: 30000, // Fetch every 30 seconds
+    enabled: !!currentShop,
+    refetchInterval: 30000 // Fetch every 30 seconds
   });
 
   // Fetch historical data for predictions
   const { data: historicalData } = useQuery({
     queryKey: [`/api/shops/${currentShop?.id}/analytics/historical`],
-    staleTime: 1000 * 60 * 15, // 15 minutes
+    enabled: !!currentShop,
+    staleTime: 1000 * 60 * 15 // 15 minutes
   });
 
   return {
