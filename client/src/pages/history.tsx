@@ -1,9 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { type Order } from "@shared/schema";
-import { format, startOfMonth, startOfDay, isWithinInterval, startOfYear } from "date-fns";
+import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
@@ -11,6 +11,10 @@ import { useAtom } from "jotai";
 import { currencyAtom } from "@/lib/settings";
 import { formatCurrency } from "@/lib/settings";
 import { ExportButtons } from "@/components/ui/export-buttons";
+import { useShop } from "@/lib/shop-context";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 interface OrderWithId extends Order {
   id: number;
@@ -27,9 +31,43 @@ export default function History() {
   const [currency] = useAtom(currencyAtom);
   const [expandedOrders, setExpandedOrders] = useState<number[]>([]);
   const [timeframe, setTimeframe] = useState<'day' | 'month'>('day');
+  const { currentShop } = useShop();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: orders, isLoading } = useQuery<OrderWithId[]>({
-    queryKey: ['/api/orders']
+    queryKey: [`/api/shops/${currentShop?.id}/orders`],
+    enabled: !!currentShop
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (orderId: number) => {
+      if (!currentShop) throw new Error("No shop selected");
+      const response = await apiRequest(
+        'DELETE',
+        `/api/shops/${currentShop.id}/orders/${orderId}`
+      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || t('history.deleteError'));
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/shops/${currentShop?.id}/orders`] });
+      toast({
+        title: t('history.orderDeleted'),
+        description: t('history.orderDeleteSuccess')
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('common.error'),
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   });
 
   const toggleOrderExpansion = (orderId: number) => {
@@ -75,7 +113,6 @@ export default function History() {
   };
 
   const groupOrdersByDate = (orders: OrderWithId[] = []) => {
-    const now = new Date();
     const groups = new Map<string, OrderWithId[]>();
 
     orders.forEach(order => {
@@ -98,6 +135,14 @@ export default function History() {
         stats: calculateStats(orders)
       }));
   };
+
+  if (!currentShop) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">{t('common.selectShop')}</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -190,6 +235,20 @@ export default function History() {
                           {t(`history.status.${order.status.toLowerCase()}`)}
                         </Badge>
                         <p className="font-medium">{formatCurrency(Number(order.total), currency)}</p>
+                        {user?.isAdmin && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (confirm(t('history.confirmDelete'))) {
+                                deleteMutation.mutate(order.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                         {expandedOrders.includes(order.id) ? (
                           <ChevronUp className="h-4 w-4" />
                         ) : (

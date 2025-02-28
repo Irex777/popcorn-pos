@@ -227,6 +227,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ order, items });
   });
 
+  app.delete("/api/shops/:shopId/orders/:id", requireShopAccess, async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.shopId);
+      const orderId = parseInt(req.params.id);
+      const order = await storage.deleteOrder(orderId, shopId);
+
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+
+      res.json({ success: true, message: "Order deleted successfully" });
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      res.status(500).json({ error: "Failed to delete order" });
+    }
+  });
 
   // Payment endpoint
   app.post("/api/create-payment-intent", async (req, res) => {
@@ -251,7 +267,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: errorMessage });
     }
   });
-
 
 
   // Analytics endpoints
