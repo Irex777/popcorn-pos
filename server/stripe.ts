@@ -5,12 +5,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16', // Use the current stable version
 });
 
+// Minimum amounts per currency in smallest units (e.g., cents)
+const MINIMUM_AMOUNTS: Record<string, number> = {
+  usd: 50, // $0.50
+  eur: 50, // €0.50
+  gbp: 30, // £0.30
+  czk: 1500, // 15 CZK
+  // Add other currencies as needed
+};
+
 export async function createPaymentIntent(amount: number, currency: string) {
   try {
-    // Convert the amount to the smallest currency unit (cents/hellers)
-    const unitAmount = Math.round(amount * 100);
-    console.log('Creating payment intent:', { amount: unitAmount, currency });
-
     if (typeof currency !== 'string') {
       throw new Error('Currency must be a string');
     }
@@ -19,9 +24,18 @@ export async function createPaymentIntent(amount: number, currency: string) {
       throw new Error('Invalid currency code format');
     }
 
+    const lowerCaseCurrency = currency.toLowerCase();
+    const minimumAmount = MINIMUM_AMOUNTS[lowerCaseCurrency] || 50;
+
+    if (amount < minimumAmount) {
+      throw new Error(`Amount must be at least ${minimumAmount/100} ${currency.toUpperCase()}`);
+    }
+
+    console.log('Creating payment intent:', { amount, currency: lowerCaseCurrency });
+
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: unitAmount,
-      currency: currency.toLowerCase(), // Stripe expects lowercase currency codes
+      amount: amount,
+      currency: lowerCaseCurrency,
       payment_method_types: ['card'],
       metadata: {
         integration_check: 'accept_a_payment',

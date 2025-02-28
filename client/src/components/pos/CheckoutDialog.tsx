@@ -143,8 +143,10 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
       setIsLoading(true);
       setStripeError(undefined);
       try {
-        console.log('Initializing payment with currency code:', currency.code);
-        const data = await createPaymentIntent(total, currency.code);
+        // Convert total to the smallest currency unit (e.g., cents)
+        const amountInSmallestUnit = Math.round(total * 100);
+        console.log('Initializing payment with currency:', currency.code, 'amount:', amountInSmallestUnit);
+        const data = await createPaymentIntent(amountInSmallestUnit, currency.code);
         console.log('Payment intent created:', data);
         setClientSecret(data.clientSecret);
       } catch (error: any) {
@@ -161,7 +163,6 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
     }
   };
 
-  // Initialize card payment when switching to card payment method
   useEffect(() => {
     if (paymentMethod === 'card') {
       initializeCardPayment();
