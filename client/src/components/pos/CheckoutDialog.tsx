@@ -104,8 +104,8 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
         setIsLoading(true);
         setStripeError(undefined);
         try {
-          console.log('Initializing payment with currency:', currency);
-          const data = await createPaymentIntent(total, currency);
+          console.log('Initializing payment with currency code:', currency.code);
+          const data = await createPaymentIntent(total, currency.code);
           if (mounted) {
             console.log('Payment intent created:', data);
             setClientSecret(data.clientSecret);
@@ -136,7 +136,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
     return () => {
       mounted = false;
     };
-  }, [open, total, currency, toast]);
+  }, [open, total, currency.code, toast]);
 
   const checkoutMutation = useMutation({
     mutationFn: async () => {

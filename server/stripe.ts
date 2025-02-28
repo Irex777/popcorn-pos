@@ -15,6 +15,10 @@ export async function createPaymentIntent(amount: number, currency: string) {
       throw new Error('Currency must be a string');
     }
 
+    if (!currency || currency.length !== 3) {
+      throw new Error('Invalid currency code format');
+    }
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: unitAmount,
       currency: currency.toLowerCase(),
@@ -26,8 +30,12 @@ export async function createPaymentIntent(amount: number, currency: string) {
 
     console.log('Payment intent created:', paymentIntent.id);
     return { clientSecret: paymentIntent.client_secret };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating payment intent:', error);
+    // If it's a Stripe error, get the specific error message
+    if (error.type === 'StripeError') {
+      throw new Error(error.raw?.message || error.message);
+    }
     throw error;
   }
 }

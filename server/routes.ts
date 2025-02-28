@@ -162,11 +162,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Currency is required' });
       }
 
+      console.log('Creating payment intent:', { amount, currency });
       const paymentIntent = await createPaymentIntent(amount, currency);
+      console.log('Payment intent created successfully');
       res.json(paymentIntent);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating payment intent:', error);
-      res.status(500).json({ error: 'Failed to create payment intent' });
+      const errorMessage = error.message || 'Failed to create payment intent';
+      res.status(500).json({ error: errorMessage });
     }
   });
 
