@@ -156,6 +156,30 @@ const resources = {
         "thankYou": "Thank you for your purchase!",
         "orderProcessingFailed": "Failed to process order. Please try again.",
         "completeCashPayment": "Complete Cash Payment"
+      },
+      "inventory": {
+        "title": "Inventory",
+        "addProduct": "Add Product",
+        "createProduct": "Create New Product",
+        "editProduct": "Edit {{name}}",
+        "productName": "Name",
+        "price": "Price",
+        "category": "Category",
+        "imageUrl": "Image URL",
+        "stock": "Stock",
+        "initialStock": "Initial Stock",
+        "selectCategory": "Select a category",
+        "productCreated": "Product Created",
+        "productCreateSuccess": "New product has been added successfully",
+        "productUpdated": "Product Updated",
+        "productUpdateSuccess": "Product has been updated successfully",
+        "productUpdateError": "Failed to update product",
+        "productDeleted": "Product Deleted",
+        "productDeleteSuccess": "Product has been deleted successfully",
+        "productDeleteError": "Failed to delete product",
+        "createError": "Failed to create product",
+        "confirmDelete": "Are you sure you want to delete this product?",
+        "units": "units"
       }
     }
   },
@@ -312,6 +336,30 @@ const resources = {
         "thankYou": "¡Gracias por su compra!",
         "orderProcessingFailed": "Error al procesar el pedido. Por favor, inténtelo de nuevo.",
         "completeCashPayment": "Completar Pago en Efectivo"
+      },
+      "inventory": {
+        "title": "Inventario",
+        "addProduct": "Añadir Producto",
+        "createProduct": "Crear Nuevo Producto",
+        "editProduct": "Editar {{name}}",
+        "productName": "Nombre",
+        "price": "Precio",
+        "category": "Categoría",
+        "imageUrl": "URL de Imagen",
+        "stock": "Stock",
+        "initialStock": "Stock Inicial",
+        "selectCategory": "Seleccionar categoría",
+        "productCreated": "Producto Creado",
+        "productCreateSuccess": "El nuevo producto ha sido añadido con éxito",
+        "productUpdated": "Producto Actualizado",
+        "productUpdateSuccess": "El producto ha sido actualizado con éxito",
+        "productUpdateError": "Error al actualizar el producto",
+        "productDeleted": "Producto Eliminado",
+        "productDeleteSuccess": "El producto ha sido eliminado con éxito",
+        "productDeleteError": "Error al eliminar el producto",
+        "createError": "Error al crear el producto",
+        "confirmDelete": "¿Está seguro de que desea eliminar este producto?",
+        "units": "unidades"
       }
     }
   },
@@ -468,6 +516,30 @@ const resources = {
         "thankYou": "Vielen Dank für Ihren Einkauf!",
         "orderProcessingFailed": "Fehler beim Verarbeiten der Bestellung. Bitte versuchen Sie es erneut.",
         "completeCashPayment": "Barzahlung abschließen"
+      },
+      "inventory": {
+        "title": "Inventar",
+        "addProduct": "Produkt hinzufügen",
+        "createProduct": "Neues Produkt erstellen",
+        "editProduct": "{{name}} bearbeiten",
+        "productName": "Name",
+        "price": "Preis",
+        "category": "Kategorie",
+        "imageUrl": "Bild-URL",
+        "stock": "Bestand",
+        "initialStock": "Anfangsbestand",
+        "selectCategory": "Kategorie auswählen",
+        "productCreated": "Produkt erstellt",
+        "productCreateSuccess": "Neues Produkt wurde erfolgreich hinzugefügt",
+        "productUpdated": "Produkt aktualisiert",
+        "productUpdateSuccess": "Produkt wurde erfolgreich aktualisiert",
+        "productUpdateError": "Fehler beim Aktualisieren des Produkts",
+        "productDeleted": "Produkt gelöscht",
+        "productDeleteSuccess": "Produkt wurde erfolgreich gelöscht",
+        "productDeleteError": "Fehler beim Löschen des Produkts",
+        "createError": "Fehler beim Erstellen des Produkts",
+        "confirmDelete": "Sind Sie sicher, dass Sie dieses Produkt löschen möchten?",
+        "units": "Stück"
       }
     }
   },
@@ -624,6 +696,30 @@ const resources = {
         "thankYou": "Děkujeme za váš nákup!",
         "orderProcessingFailed": "Nepodařilo se zpracovat objednávku. Zkuste to prosím znovu.",
         "completeCashPayment": "Dokončit platbu v hotovosti"
+      },
+      "inventory": {
+        "title": "Inventář",
+        "addProduct": "Přidat produkt",
+        "createProduct": "Vytvořit nový produkt",
+        "editProduct": "Upravit {{name}}",
+        "productName": "Název",
+        "price": "Cena",
+        "category": "Kategorie",
+        "imageUrl": "URL obrázku",
+        "stock": "Skladem",
+        "initialStock": "Počáteční zásoba",
+        "selectCategory": "Vybrat kategorii",
+        "productCreated": "Produkt vytvořen",
+        "productCreateSuccess": "Nový produkt byl úspěšně přidán",
+        "productUpdated": "Produkt aktualizován",
+        "productUpdateSuccess": "Produkt byl úspěšně aktualizován",
+        "productUpdateError":"Nepodařilo se aktualizovat produkt",
+        "productDeleted": "Produkt smazán",
+        "productDeleteSuccess": "Produkt byl úspěšně smazán",
+        "productDeleteError": "Nepodařilo se smazat produkt",
+        "createError": "Nepodařilo se vytvořit produkt",
+        "confirmDelete": "Opravdu chcete tento produkt smazat?",
+        "units": "kusů"
       }
     }
   }
