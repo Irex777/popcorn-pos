@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { wsClient } from '@/lib/websocket';
+import { useShop } from '@/lib/shop-context';
 
 interface SalesPrediction {
   timestamp: string;
@@ -29,6 +30,8 @@ interface AnalyticsData {
 }
 
 export function useRealTimeAnalytics() {
+  const { currentShop } = useShop();
+
   // Set up WebSocket connection when the hook is first used
   useEffect(() => {
     wsClient.connect();
@@ -37,14 +40,16 @@ export function useRealTimeAnalytics() {
 
   // Fetch real-time analytics data
   const { data: analyticsData, isLoading } = useQuery<AnalyticsData>({
-    queryKey: ['/api/analytics/real-time'],
+    queryKey: [`/api/shops/${currentShop?.id}/analytics/real-time`],
+    enabled: !!currentShop,
     // Polling as backup in case WebSocket fails
     refetchInterval: 30000, // Fetch every 30 seconds
   });
 
   // Fetch historical data for predictions
   const { data: historicalData } = useQuery({
-    queryKey: ['/api/analytics/historical'],
+    queryKey: [`/api/shops/${currentShop?.id}/analytics/historical`],
+    enabled: !!currentShop,
     // Cache historical data longer since it changes less frequently
     staleTime: 1000 * 60 * 15, // 15 minutes
   });

@@ -22,6 +22,7 @@ import { ExportButtons } from "@/components/ui/export-buttons";
 import { LoadingAnimation } from "@/components/ui/loading-animation";
 import { PredictiveInsights } from "@/components/analytics/PredictiveInsights";
 import { useRealTimeAnalytics } from "@/hooks/use-real-time-analytics";
+import { useShop } from "@/lib/shop-context";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
@@ -33,15 +34,26 @@ export default function Analytics() {
   const { t } = useTranslation();
   const [currency] = useAtom(currencyAtom);
   const [timeframe, setTimeframe] = useState<'day' | 'week' | 'month'>('day');
+  const { currentShop } = useShop();
   const { analyticsData, isLoading: realtimeLoading } = useRealTimeAnalytics();
 
   const { data: orders, isLoading: ordersLoading } = useQuery<OrderWithItems[]>({
-    queryKey: ['/api/orders']
+    queryKey: [`/api/shops/${currentShop?.id}/orders`],
+    enabled: !!currentShop
   });
 
   const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
-    queryKey: ['/api/products']
+    queryKey: [`/api/shops/${currentShop?.id}/products`],
+    enabled: !!currentShop
   });
+
+  if (!currentShop) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">{t('common.selectShop')}</p>
+      </div>
+    );
+  }
 
   if (ordersLoading || productsLoading || realtimeLoading || !analyticsData) {
     return (
@@ -62,10 +74,11 @@ export default function Analytics() {
       .filter(item => item.productId === product.id)
       .reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0) || 0;
 
-    if (!acc[product.category]) {
-      acc[product.category] = 0;
+    const categoryName = product.categoryId.toString(); 
+    if (!acc[categoryName]) {
+      acc[categoryName] = 0;
     }
-    acc[product.category] += productSales;
+    acc[categoryName] += productSales;
     return acc;
   }, {} as Record<string, number>);
 
@@ -115,9 +128,16 @@ export default function Analytics() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold">
-        {t('analytics.title')}
-      </h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold">
+          {t('analytics.title')}
+        </h2>
+        <ExportButtons
+          data={prepareExportData()}
+          filename="sales-analytics"
+          title={t('analytics.title')}
+        />
+      </div>
 
       {/* Real-time Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -172,10 +192,8 @@ export default function Analytics() {
         </motion.div>
       </div>
 
-      {/* Predictive Insights */}
-      <PredictiveInsights />
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 analytics-cards">
+      {/* Sales Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader>
             <CardTitle>{t('analytics.totalSales')}</CardTitle>
@@ -206,6 +224,7 @@ export default function Analytics() {
         </Card>
       </div>
 
+      {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -267,6 +286,7 @@ export default function Analytics() {
             </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>{t('analytics.topProducts')}</CardTitle>

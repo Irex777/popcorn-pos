@@ -268,11 +268,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-
   // Analytics endpoints
-  app.get("/api/analytics/real-time", async (_req, res) => {
+  app.get("/api/analytics/real-time", requireShopAccess, async (req, res) => {
     try {
-      const orders = await storage.getOrders();
+      const shopId = parseInt(req.params.shopId);
+      const orders = await storage.getOrders(shopId);
       const currentHour = new Date().getHours();
 
       // Calculate real-time metrics
@@ -310,9 +310,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/analytics/historical", async (_req, res) => {
+  app.get("/api/analytics/historical", requireShopAccess, async (req, res) => {
     try {
-      const orders = await storage.getOrders();
+      const shopId = parseInt(req.params.shopId);
+      const orders = await storage.getOrders(shopId);
       const historicalData = orders.map(order => ({
         date: order.createdAt,
         total: Number(order.total)
