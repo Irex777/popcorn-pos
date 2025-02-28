@@ -271,7 +271,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Analytics endpoints
   app.get("/api/analytics/real-time", requireShopAccess, async (req, res) => {
     try {
-      const shopId = parseInt(req.params.shopId);
+      const shopId = parseInt(req.params.shopId || req.body.shopId);
+      if (!shopId) {
+        return res.status(400).json({ error: "Shop ID is required" });
+      }
+
       const orders = await storage.getOrders(shopId);
       const currentHour = new Date().getHours();
 
@@ -312,7 +316,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/analytics/historical", requireShopAccess, async (req, res) => {
     try {
-      const shopId = parseInt(req.params.shopId);
+      const shopId = parseInt(req.params.shopId || req.body.shopId);
+      if (!shopId) {
+        return res.status(400).json({ error: "Shop ID is required" });
+      }
+
       const orders = await storage.getOrders(shopId);
       const historicalData = orders.map(order => ({
         date: order.createdAt,
