@@ -1,4 +1,4 @@
-import { type Product, type Order, type OrderItem, type InsertProduct, type InsertOrder, type InsertOrderItem, type UpdateProductStock, type Category, type InsertCategory, type User, type InsertUser, users } from "@shared/schema";
+import { type Product, type Order, type OrderItem, type InsertProduct, type InsertOrder, type InsertOrderItem, type UpdateProductStock, type Category, type InsertCategory, type User, type InsertUser, type Shop, type InsertShop, users, shops } from "@shared/schema";
 import { db } from "./db";
 import { products, orders, orderItems, categories } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
@@ -16,15 +16,22 @@ export interface IStorage {
   updateUser(id: number, updates: { username?: string; password?: string }): Promise<User>;
   getAllUsers(): Promise<User[]>;
 
+  // Shops
+  createShop(shop: InsertShop): Promise<Shop>;
+  getShop(id: number): Promise<Shop | undefined>;
+  getAllShops(): Promise<Shop[]>;
+  updateShop(id: number, shop: InsertShop): Promise<Shop | undefined>;
+  deleteShop(id: number): Promise<Shop | undefined>;
+
   // Categories
-  getCategories(): Promise<Category[]>;
+  getCategories(shopId: number): Promise<Category[]>;
   getCategory(id: number): Promise<Category | undefined>;
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: number, category: InsertCategory): Promise<Category | undefined>;
   deleteCategory(id: number): Promise<Category | undefined>;
 
   // Products
-  getProducts(): Promise<Product[]>;
+  getProducts(shopId: number): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: number, product: InsertProduct): Promise<Product | undefined>;
@@ -35,7 +42,7 @@ export interface IStorage {
   // Orders
   createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order>;
   getOrder(id: number): Promise<Order | undefined>;
-  getOrders(): Promise<Order[]>;
+  getOrders(shopId: number): Promise<Order[]>;
   getOrderItems(orderId: number): Promise<OrderItem[]>;
 
   // Session store
@@ -51,7 +58,62 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
-  // User methods
+  // Shop methods
+  async createShop(shop: InsertShop): Promise<Shop> {
+    const [newShop] = await db.insert(shops).values(shop).returning();
+    return newShop;
+  }
+
+  async getShop(id: number): Promise<Shop | undefined> {
+    const [shop] = await db.select().from(shops).where(eq(shops.id, id));
+    return shop;
+  }
+
+  async getAllShops(): Promise<Shop[]> {
+    return await db.select().from(shops);
+  }
+
+  async updateShop(id: number, shop: InsertShop): Promise<Shop | undefined> {
+    const [updatedShop] = await db
+      .update(shops)
+      .set(shop)
+      .where(eq(shops.id, id))
+      .returning();
+    return updatedShop;
+  }
+
+  async deleteShop(id: number): Promise<Shop | undefined> {
+    const [deletedShop] = await db
+      .delete(shops)
+      .where(eq(shops.id, id))
+      .returning();
+    return deletedShop;
+  }
+
+  // Update existing methods to be shop-specific
+  async getCategories(shopId: number): Promise<Category[]> {
+    return await db
+      .select()
+      .from(categories)
+      .where(eq(categories.shopId, shopId));
+  }
+
+  async getProducts(shopId: number): Promise<Product[]> {
+    return await db
+      .select()
+      .from(products)
+      .where(eq(products.shopId, shopId));
+  }
+
+  async getOrders(shopId: number): Promise<Order[]> {
+    return await db
+      .select()
+      .from(orders)
+      .where(eq(orders.shopId, shopId))
+      .orderBy(orders.createdAt);
+  }
+
+  // Keep other existing methods but add shopId validation where appropriate
   async getAllUsers(): Promise<User[]> {
     return await db.select().from(users);
   }
@@ -95,11 +157,6 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  // Categories
-  async getCategories(): Promise<Category[]> {
-    return await db.select().from(categories);
-  }
-
   async getCategory(id: number): Promise<Category | undefined> {
     const [category] = await db.select().from(categories).where(eq(categories.id, id));
     return category;
@@ -127,8 +184,7 @@ export class DatabaseStorage implements IStorage {
     return category;
   }
 
-  // Products
-  async getProducts(): Promise<Product[]> {
+  async getProducts(shopId: number): Promise<Product[]> {
     const results = await db.select({
       id: products.id,
       name: products.name,
@@ -136,8 +192,10 @@ export class DatabaseStorage implements IStorage {
       categoryId: products.categoryId,
       imageUrl: products.imageUrl,
       stock: products.stock,
+      shopId: products.shopId,
     })
-      .from(products);
+      .from(products)
+      .where(eq(products.shopId, shopId));
 
     return results.map(product => ({
       ...product,
@@ -157,7 +215,8 @@ export class DatabaseStorage implements IStorage {
         price: typeof insertProduct.price === 'string' ? insertProduct.price : insertProduct.price.toFixed(2),
         categoryId: Number(insertProduct.categoryId),
         imageUrl: insertProduct.imageUrl || '', // Always ensure a string, never null
-        stock: Number(insertProduct.stock)
+        stock: Number(insertProduct.stock),
+        shopId: insertProduct.shopId
       };
 
       console.log('Creating product with data:', formattedProduct);
@@ -241,10 +300,11 @@ export class DatabaseStorage implements IStorage {
     return order;
   }
 
-  async getOrders(): Promise<Order[]> {
+  async getOrders(shopId: number): Promise<Order[]> {
     return await db
       .select()
       .from(orders)
+      .where(eq(orders.shopId, shopId))
       .orderBy(orders.createdAt);
   }
 

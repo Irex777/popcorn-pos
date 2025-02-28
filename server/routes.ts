@@ -1,21 +1,70 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertOrderSchema, insertOrderItemSchema, updateProductStockSchema, insertProductSchema, insertCategorySchema } from "@shared/schema";
+import { insertOrderSchema, insertOrderItemSchema, updateProductStockSchema, insertProductSchema, insertCategorySchema, insertShopSchema } from "@shared/schema";
 import { z } from "zod";
 import { setupWebSocket, startAnalyticsUpdates } from "./websocket";
 import { createPaymentIntent } from './stripe';
 
+// Middleware to check if user is admin
+const requireAdmin = (req: any, res: any, next: any) => {
+  if (!req.user?.isAdmin) {
+    return res.status(403).json({ error: "Only administrators can perform this action" });
+  }
+  next();
+};
+
+// Middleware to check if user has access to shop
+const requireShopAccess = async (req: any, res: any, next: any) => {
+  const shopId = parseInt(req.params.shopId || req.body.shopId);
+  if (!shopId) {
+    return res.status(400).json({ error: "Shop ID is required" });
+  }
+
+  const shop = await storage.getShop(shopId);
+  if (!shop) {
+    return res.status(404).json({ error: "Shop not found" });
+  }
+
+  // Allow access if user is admin or if they have specific permissions
+  // For now, we'll only check admin status
+  if (!req.user?.isAdmin) {
+    return res.status(403).json({ error: "Access denied" });
+  }
+
+  next();
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Categories
-  app.get("/api/categories", async (_req, res) => {
-    const categories = await storage.getCategories();
+  // Shop management routes (admin only)
+  app.post("/api/shops", requireAdmin, async (req, res) => {
+    try {
+      const shopData = insertShopSchema.parse({
+        ...req.body,
+        createdById: req.user.id
+      });
+      const shop = await storage.createShop(shopData);
+      res.status(201).json(shop);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid shop data" });
+    }
+  });
+
+  app.get("/api/shops", requireAdmin, async (_req, res) => {
+    const shops = await storage.getAllShops();
+    res.json(shops);
+  });
+
+  // Update existing routes to be shop-specific
+  app.get("/api/shops/:shopId/categories", requireShopAccess, async (req, res) => {
+    const categories = await storage.getCategories(parseInt(req.params.shopId));
     res.json(categories);
   });
 
-  app.post("/api/categories", async (req, res) => {
+  app.post("/api/shops/:shopId/categories", requireShopAccess, async (req, res) => {
     try {
       const categoryData = insertCategorySchema.parse(req.body);
+      categoryData.shopId = parseInt(req.params.shopId);
       const category = await storage.createCategory(categoryData);
       res.json(category);
     } catch (error) {
@@ -23,11 +72,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/categories/:id", async (req, res) => {
+  app.patch("/api/shops/:shopId/categories/:id", requireShopAccess, async (req, res) => {
     try {
+      const shopId = parseInt(req.params.shopId);
       const id = parseInt(req.params.id);
       const categoryData = insertCategorySchema.parse(req.body);
-      const category = await storage.updateCategory(id, categoryData);
+      const category = await storage.updateCategory(id, categoryData, shopId);
 
       if (!category) {
         return res.status(404).json({ error: "Category not found" });
@@ -39,10 +89,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/categories/:id", async (req, res) => {
+  app.delete("/api/shops/:shopId/categories/:id", requireShopAccess, async (req, res) => {
     try {
+      const shopId = parseInt(req.params.shopId);
       const id = parseInt(req.params.id);
-      const category = await storage.deleteCategory(id);
+      const category = await storage.deleteCategory(id, shopId);
 
       if (!category) {
         return res.status(404).json({ error: "Category not found" });
@@ -54,15 +105,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Products
-  app.get("/api/products", async (_req, res) => {
-    const products = await storage.getProducts();
+
+  app.get("/api/shops/:shopId/products", requireShopAccess, async (req, res) => {
+    const products = await storage.getProducts(parseInt(req.params.shopId));
     res.json(products);
   });
 
-  app.post("/api/products", async (req, res) => {
+  app.post("/api/shops/:shopId/products", requireShopAccess, async (req, res) => {
     try {
-      const productData = insertProductSchema.parse(req.body);
+      const productData = insertProductSchema.parse({...req.body, shopId: parseInt(req.params.shopId)});
       const product = await storage.createProduct(productData);
       res.json(product);
     } catch (error) {
@@ -70,11 +121,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/products/:id/stock", async (req, res) => {
+  app.patch("/api/shops/:shopId/products/:id/stock", requireShopAccess, async (req, res) => {
     try {
+      const shopId = parseInt(req.params.shopId);
       const id = parseInt(req.params.id);
       const update = updateProductStockSchema.parse(req.body);
-      const product = await storage.updateProductStock(id, update);
+      const product = await storage.updateProductStock(id, update, shopId);
 
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
@@ -86,11 +138,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/products/:id", async (req, res) => {
+  app.patch("/api/shops/:shopId/products/:id", requireShopAccess, async (req, res) => {
     try {
+      const shopId = parseInt(req.params.shopId);
       const id = parseInt(req.params.id);
       const productData = insertProductSchema.parse(req.body);
-      const product = await storage.updateProduct(id, productData);
+      const product = await storage.updateProduct(id, productData, shopId);
 
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
@@ -102,10 +155,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/products/:id", async (req, res) => {
+  app.delete("/api/shops/:shopId/products/:id", requireShopAccess, async (req, res) => {
     try {
+      const shopId = parseInt(req.params.shopId);
       const id = parseInt(req.params.id);
-      const product = await storage.deleteProduct(id);
+      const product = await storage.deleteProduct(id, shopId);
 
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
@@ -118,9 +172,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Orders
-  app.get("/api/orders", async (_req, res) => {
-    const orders = await storage.getOrders();
+  app.get("/api/shops/:shopId/orders", requireShopAccess, async (req, res) => {
+    const orders = await storage.getOrders(parseInt(req.params.shopId));
     const ordersWithItems = await Promise.all(
       orders.map(async (order) => {
         const items = await storage.getOrderItems(order.id);
@@ -130,12 +183,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(ordersWithItems);
   });
 
-  app.post("/api/orders", async (req, res) => {
+  app.post("/api/shops/:shopId/orders", requireShopAccess, async (req, res) => {
     try {
       const orderData = insertOrderSchema.parse({
-        total: req.body.order.total,
-        status: req.body.order.status
+        ...req.body.order,
+        shopId: parseInt(req.params.shopId)
       });
+
 
       const itemsData = z.array(insertOrderItemSchema).parse(
         req.body.items.map((item: any) => ({
@@ -153,9 +207,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/orders/:id", async (req, res) => {
+  app.get("/api/shops/:shopId/orders/:id", requireShopAccess, async (req, res) => {
+    const shopId = parseInt(req.params.shopId);
     const orderId = parseInt(req.params.id);
-    const order = await storage.getOrder(orderId);
+    const order = await storage.getOrder(orderId, shopId);
 
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
@@ -164,6 +219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const items = await storage.getOrderItems(orderId);
     res.json({ order, items });
   });
+
 
   // Payment endpoint
   app.post("/api/create-payment-intent", async (req, res) => {
@@ -188,6 +244,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: errorMessage });
     }
   });
+
 
 
   // Analytics endpoints
@@ -246,11 +303,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create HTTP server and set up WebSocket
   const httpServer = createServer(app);
   setupWebSocket(httpServer);
 
-  // Start analytics updates in the next tick to avoid blocking server startup
   process.nextTick(() => {
     try {
       startAnalyticsUpdates();

@@ -2,7 +2,23 @@ import { pgTable, text, serial, integer, decimal, timestamp, boolean } from "dri
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// User model
+// Shops model
+export const shops = pgTable("shops", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  address: text("address"),
+  createdAt: timestamp("created_at").defaultNow(),
+  createdById: integer("created_by_id").references(() => users.id).notNull(),
+});
+
+export const insertShopSchema = createInsertSchema(shops)
+  .extend({
+    name: z.string().min(1, "Shop name is required"),
+    address: z.string().optional(),
+  })
+  .omit({ id: true, createdAt: true });
+
+// User model 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -11,26 +27,16 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Create insert schemas with proper validation
-export const insertUserSchema = createInsertSchema(users)
-  .extend({
-    username: z.string().min(3, "Username must be at least 3 characters"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-  })
-  .omit({ id: true, createdAt: true, isAdmin: true });
-
-// Export user types
-export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
-
-// Keep existing models
+// Add shopId to categories
 export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
   color: text("color").notNull().default("#94A3B8"),
+  shopId: integer("shop_id").references(() => shops.id).notNull(),
 });
 
+// Add shopId to products
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -38,16 +44,20 @@ export const products = pgTable("products", {
   categoryId: integer("category_id").references(() => categories.id).notNull(),
   imageUrl: text("image_url").notNull().default(''),
   stock: integer("stock").notNull().default(0),
+  shopId: integer("shop_id").references(() => shops.id).notNull(),
 });
 
+// Add shopId to orders
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
   status: text("status").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   userId: integer("user_id").references(() => users.id),
+  shopId: integer("shop_id").references(() => shops.id).notNull(),
 });
 
+// OrderItems 
 export const orderItems = pgTable("order_items", {
   id: serial("id").primaryKey(),
   orderId: integer("order_id").references(() => orders.id).notNull(),
@@ -56,8 +66,9 @@ export const orderItems = pgTable("order_items", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
 });
 
-// Keep existing schemas
-export const insertCategorySchema = createInsertSchema(categories).omit({ id: true });
+// Update schemas
+export const insertCategorySchema = createInsertSchema(categories)
+  .omit({ id: true });
 
 export const insertProductSchema = createInsertSchema(products)
   .omit({ id: true })
@@ -69,10 +80,17 @@ export const insertProductSchema = createInsertSchema(products)
     stock: z.number().int().min(0, "Stock cannot be negative"),
   });
 
-export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, createdAt: true });
-export const insertOrderItemSchema = createInsertSchema(orderItems).omit({ id: true, orderId: true });
+export const insertOrderSchema = createInsertSchema(orders)
+  .omit({ id: true, createdAt: true });
 
-// Export existing types
+export const insertOrderItemSchema = createInsertSchema(orderItems)
+  .omit({ id: true, orderId: true });
+
+// Export types
+export type Shop = typeof shops.$inferSelect;
+export type InsertShop = z.infer<typeof insertShopSchema>;
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Product = typeof products.$inferSelect;
