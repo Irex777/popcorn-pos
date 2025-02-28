@@ -76,12 +76,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateShop(id: number, shop: InsertShop): Promise<Shop | undefined> {
-    const [updatedShop] = await db
-      .update(shops)
-      .set(shop)
-      .where(eq(shops.id, id))
-      .returning();
-    return updatedShop;
+    try {
+      const [updatedShop] = await db
+        .update(shops)
+        .set({
+          name: shop.name,
+          address: shop.address,
+          createdById: shop.createdById // Preserve the existing createdById
+        })
+        .where(eq(shops.id, id))
+        .returning();
+      return updatedShop;
+    } catch (error) {
+      console.error('Error updating shop:', error);
+      return undefined;
+    }
   }
 
   async deleteShop(id: number): Promise<Shop | undefined> {

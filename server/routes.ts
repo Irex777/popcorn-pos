@@ -57,19 +57,30 @@ export function registerRoutes(app: Express): Server {
   app.patch("/api/shops/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      // Get existing shop to preserve createdById
+
+      // Get existing shop first
       const existingShop = await storage.getShop(id);
       if (!existingShop) {
         return res.status(404).json({ error: "Shop not found" });
       }
 
-      // Merge existing data with updates, keeping createdById
+      // Only validate the updateable fields
+      const updateData = {
+        name: req.body.name,
+        address: req.body.address
+      };
+
+      // Merge with existing data to preserve createdById
       const shopData = {
-        ...req.body,
+        ...updateData,
         createdById: existingShop.createdById
       };
 
       const shop = await storage.updateShop(id, shopData);
+      if (!shop) {
+        throw new Error("Failed to update shop");
+      }
+
       res.json(shop);
     } catch (error) {
       console.error('Error updating shop:', error);
