@@ -7,7 +7,7 @@ import { formatCurrency } from "@/lib/settings";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { stripePromise, createPaymentIntent } from "@/lib/stripe";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
@@ -183,11 +183,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-4"
-          >
+          <div className="space-y-4">
             {cart.map(item => (
               <div key={item.product.id} className="flex justify-between">
                 <span>
@@ -204,7 +200,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
                 <span>{formatCurrency(total, currency)}</span>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {isLoading ? (
             <div className="mt-6">
