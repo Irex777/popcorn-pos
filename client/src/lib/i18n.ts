@@ -136,6 +136,26 @@ const resources = {
           "export": "Export your data in various formats for further analysis.",
           "metrics": "Monitor key metrics like total sales, orders, and average order value."
         }
+      },
+      "checkout": {
+        "title": "Checkout",
+        "selectPaymentMethod": "Select your payment method",
+        "card": "Card",
+        "cash": "Cash",
+        "pay": "Pay",
+        "processing": "Processing...",
+        "paymentFailed": "Payment Failed",
+        "paymentSuccessful": "Payment Successful",
+        "orderProcessed": "Your order has been processed",
+        "error": "Error",
+        "paymentSystemNotReady": "Payment system is not ready",
+        "unexpectedError": "An unexpected error occurred",
+        "initializationFailed": "Failed to initialize payment form. Please try again.",
+        "paymentInitializationFailed": "Failed to initialize payment",
+        "orderCompleted": "Order Completed",
+        "thankYou": "Thank you for your purchase!",
+        "orderProcessingFailed": "Failed to process order. Please try again.",
+        "completeCashPayment": "Complete Cash Payment"
       }
     }
   },
@@ -272,6 +292,26 @@ const resources = {
           "export": "Exporta tus datos en varios formatos para un análisis más detallado.",
           "metrics": "Monitorea métricas clave como ventas totales, pedidos y valor promedio de pedido."
         }
+      },
+      "checkout": {
+        "title": "Pago",
+        "selectPaymentMethod": "Seleccione su método de pago",
+        "card": "Tarjeta",
+        "cash": "Efectivo",
+        "pay": "Pagar",
+        "processing": "Procesando...",
+        "paymentFailed": "Pago Fallido",
+        "paymentSuccessful": "Pago Exitoso",
+        "orderProcessed": "Su pedido ha sido procesado",
+        "error": "Error",
+        "paymentSystemNotReady": "El sistema de pago no está listo",
+        "unexpectedError": "Ocurrió un error inesperado",
+        "initializationFailed": "Error al inicializar el formulario de pago. Por favor, inténtelo de nuevo.",
+        "paymentInitializationFailed": "Error al inicializar el pago",
+        "orderCompleted": "Pedido Completado",
+        "thankYou": "¡Gracias por su compra!",
+        "orderProcessingFailed": "Error al procesar el pedido. Por favor, inténtelo de nuevo.",
+        "completeCashPayment": "Completar Pago en Efectivo"
       }
     }
   },
@@ -408,6 +448,26 @@ const resources = {
           "export": "Exportieren Sie Ihre Daten in verschiedenen Formaten für eine weitere Analyse.",
           "metrics": "Überwachen Sie wichtige Kennzahlen wie Gesamtumsatz, Bestellungen und durchschnittlicher Bestellwert."
         }
+      },
+      "checkout": {
+        "title": "Kasse",
+        "selectPaymentMethod": "Wählen Sie Ihre Zahlungsmethode",
+        "card": "Karte",
+        "cash": "Bargeld",
+        "pay": "Bezahlen",
+        "processing": "Verarbeitung...",
+        "paymentFailed": "Zahlung fehlgeschlagen",
+        "paymentSuccessful": "Zahlung erfolgreich",
+        "orderProcessed": "Ihre Bestellung wurde bearbeitet",
+        "error": "Fehler",
+        "paymentSystemNotReady": "Zahlungssystem ist nicht bereit",
+        "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten",
+        "initializationFailed": "Fehler beim Initialisieren des Zahlungsformulars. Bitte versuchen Sie es erneut.",
+        "paymentInitializationFailed": "Fehler beim Initialisieren der Zahlung",
+        "orderCompleted": "Bestellung abgeschlossen",
+        "thankYou": "Vielen Dank für Ihren Einkauf!",
+        "orderProcessingFailed": "Fehler beim Verarbeiten der Bestellung. Bitte versuchen Sie es erneut.",
+        "completeCashPayment": "Barzahlung abschließen"
       }
     }
   },
@@ -544,6 +604,26 @@ const resources = {
           "export": "Exportujte svá data v různých formátech pro další analýzu.",
           "metrics": "Monitorujte klíčové metriky, jako je celkový prodej, objednávky a průměrná hodnota objednávky."
         }
+      },
+      "checkout": {
+        "title": "Pokladna",
+        "selectPaymentMethod": "Vyberte způsob platby",
+        "card": "Karta",
+        "cash": "Hotovost",
+        "pay": "Zaplatit",
+        "processing": "Zpracování...",
+        "paymentFailed": "Platba selhala",
+        "paymentSuccessful": "Platba úspěšná",
+        "orderProcessed": "Vaše objednávka byla zpracována",
+        "error": "Chyba",
+        "paymentSystemNotReady": "Platební systém není připraven",
+        "unexpectedError": "Došlo k neočekávané chybě",
+        "initializationFailed": "Nepodařilo se inicializovat platební formulář. Zkuste to prosím znovu.",
+        "paymentInitializationFailed": "Nepodařilo se inicializovat platbu",
+        "orderCompleted": "Objednávka dokončena",
+        "thankYou": "Děkujeme za váš nákup!",
+        "orderProcessingFailed": "Nepodařilo se zpracovat objednávku. Zkuste to prosím znovu.",
+        "completeCashPayment": "Dokončit platbu v hotovosti"
       }
     }
   }
