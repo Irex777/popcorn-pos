@@ -8,6 +8,7 @@ import { formatCurrency } from "@/lib/settings";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LoadingAnimation, LoadingGrid } from "@/components/ui/loading-animation";
+import { useShop } from "@/lib/shop-context";
 
 const container = {
   hidden: { opacity: 0 },
@@ -38,13 +39,16 @@ export default function ProductGrid() {
   const [cart, setCart] = useAtom(cartAtom);
   const [currency] = useAtom(currencyAtom);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
+  const { currentShop } = useShop();
 
   const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
-    queryKey: ['/api/products']
+    queryKey: [`/api/shops/${currentShop?.id}/products`],
+    enabled: !!currentShop
   });
 
   const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
-    queryKey: ['/api/categories']
+    queryKey: [`/api/shops/${currentShop?.id}/categories`],
+    enabled: !!currentShop
   });
 
   const filteredProducts = activeCategory
@@ -64,6 +68,14 @@ export default function ProductGrid() {
       return [...current, { product, quantity: 1 }];
     });
   };
+
+  if (!currentShop) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">{t('common.selectShop')}</p>
+      </div>
+    );
+  }
 
   if (productsLoading || categoriesLoading) {
     return (

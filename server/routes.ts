@@ -26,10 +26,9 @@ const requireShopAccess = async (req: any, res: any, next: any) => {
     return res.status(404).json({ error: "Shop not found" });
   }
 
-  // Allow access if user is admin or if they have specific permissions
-  // For now, we'll only check admin status
-  if (!req.user?.isAdmin) {
-    return res.status(403).json({ error: "Access denied" });
+  // Allow access if user is authenticated
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ error: "Authentication required" });
   }
 
   next();
@@ -189,8 +188,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body.order,
         shopId: parseInt(req.params.shopId)
       });
-
-
       const itemsData = z.array(insertOrderItemSchema).parse(
         req.body.items.map((item: any) => ({
           productId: item.productId,
@@ -300,6 +297,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching historical analytics:', error);
       res.status(500).json({ error: 'Failed to fetch historical data' });
+    }
+  });
+
+  // Add shop PATCH endpoint after the existing shop routes
+  app.patch("/api/shops/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const shopData = insertShopSchema.parse(req.body);
+      const shop = await storage.updateShop(id, shopData);
+
+      if (!shop) {
+        return res.status(404).json({ error: "Shop not found" });
+      }
+
+      res.json(shop);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid shop data" });
     }
   });
 

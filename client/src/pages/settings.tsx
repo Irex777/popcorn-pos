@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { insertUserSchema, type User } from "@shared/schema";
+import { insertUserSchema, insertShopSchema, type User } from "@shared/schema";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +28,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { useAuth } from "@/hooks/use-auth";
+import { useShop } from "@/lib/shop-context";
 
 export default function Settings() {
   const { t } = useTranslation();
@@ -35,19 +37,86 @@ export default function Settings() {
   const [currency, setCurrency] = useAtom(currencyAtom);
   const { toast } = useToast();
   const [editingUser, setEditingUser] = useState<{ id: number; username: string } | null>(null);
-
-  // Get current user details
-  const { data: currentUser } = useQuery<User>({
-    queryKey: ['/api/user']
-  });
+  const [editingShop, setEditingShop] = useState<{ id: number; name: string; address?: string } | null>(null);
+  const { user } = useAuth();
+  const { shops, setCurrentShop } = useShop();
 
   // Get all users if admin
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ['/api/users'],
-    enabled: currentUser?.isAdmin,
+    enabled: user?.isAdmin,
   });
 
-  // Edit user mutation
+  // Create new shop mutation
+  const createShopMutation = useMutation({
+    mutationFn: async (data: { name: string; address?: string }) => {
+      const response = await fetch('/api/shops', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || t('common.shop.createError'));
+      }
+
+      return response.json();
+    },
+    onSuccess: (shop) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
+      setCurrentShop(shop);
+      toast({
+        title: t('common.shop.created'),
+        description: t('common.shop.createSuccess'),
+      });
+      // Reset form
+      const form = document.getElementById('createShopForm') as HTMLFormElement;
+      if (form) form.reset();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('common.error'),
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Edit shop mutation
+  const editShopMutation = useMutation({
+    mutationFn: async (data: { id: number; name: string; address?: string }) => {
+      const response = await fetch(`/api/shops/${data.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: data.name, address: data.address }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || t('common.shop.updateError'));
+      }
+
+      return response.json();
+    },
+    onSuccess: (shop) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
+      setEditingShop(null);
+      toast({
+        title: t('common.shop.updated'),
+        description: t('common.shop.updateSuccess'),
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('common.error'),
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Keep existing mutations and handlers
   const editUserMutation = useMutation({
     mutationFn: async (data: { id: number; username?: string; password?: string }) => {
       const response = await fetch(`/api/users/${data.id}`, {
@@ -80,7 +149,7 @@ export default function Settings() {
     },
   });
 
-  // Create new user mutation
+  // Keep other existing mutations and handlers...
   const createUserMutation = useMutation({
     mutationFn: async (data: { username: string; password: string }) => {
       const response = await fetch('/api/users', {
@@ -191,6 +260,101 @@ export default function Settings() {
         animate={{ opacity: 1 }}
         className="space-y-6"
       >
+        {/* Shop Management Section - Only visible to admins */}
+        {user?.isAdmin && (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('common.shops')}</CardTitle>
+                <CardDescription>{t('settings.shopManagementDescription')}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Create Shop Form */}
+                <form
+                  id="createShopForm"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.currentTarget);
+                    const name = formData.get('name') as string;
+                    const address = formData.get('address') as string;
+
+                    try {
+                      const parsed = insertShopSchema.parse({ name, address });
+                      createShopMutation.mutate(parsed);
+                    } catch (error) {
+                      if (error instanceof Error) {
+                        toast({
+                          title: t('settings.validationError'),
+                          description: error.message,
+                          variant: "destructive",
+                        });
+                      }
+                    }
+                  }}
+                  className="space-y-4"
+                >
+                  <div className="space-y-2">
+                    <Label htmlFor="name">{t('common.shop.name')}</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="address">{t('common.shop.address')}</Label>
+                    <Input
+                      id="address"
+                      name="address"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    disabled={createShopMutation.isPending}
+                    className="w-full"
+                  >
+                    {createShopMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Plus className="h-4 w-4 mr-2" />
+                    )}
+                    {t('common.shop.create')}
+                  </Button>
+                </form>
+
+                {/* Shop List */}
+                <div className="space-y-2">
+                  <h3 className="font-medium">{t('common.shops')}</h3>
+                  <div className="space-y-2">
+                    {shops?.map(shop => (
+                      <div
+                        key={shop.id}
+                        className="flex items-center justify-between p-2 rounded-md bg-muted"
+                      >
+                        <div>
+                          <span className="font-medium">{shop.name}</span>
+                          {shop.address && (
+                            <p className="text-sm text-muted-foreground">{shop.address}</p>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditingShop({ id: shop.id, name: shop.name, address: shop.address })}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Separator />
+          </>
+        )}
+
         {/* Account Section */}
         <Card>
           <CardHeader>
@@ -200,7 +364,7 @@ export default function Settings() {
           <CardContent className="space-y-4">
             <div className="space-y-1">
               <Label>{t('settings.username')}</Label>
-              <p className="text-sm text-muted-foreground">{currentUser?.username}</p>
+              <p className="text-sm text-muted-foreground">{user?.username}</p>
             </div>
 
             <form onSubmit={handlePasswordChange} className="space-y-4">
@@ -239,7 +403,7 @@ export default function Settings() {
         </Card>
 
         {/* User Management Section - Only visible to admins */}
-        {currentUser?.isAdmin && (
+        {user?.isAdmin && (
           <>
             <Separator />
             <Card>
@@ -413,6 +577,79 @@ export default function Settings() {
                   disabled={editUserMutation.isPending}
                 >
                   {editUserMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    t('common.save')
+                  )}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Shop Dialog */}
+        <Dialog open={!!editingShop} onOpenChange={(open) => !open && setEditingShop(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t('common.shop.edit')}</DialogTitle>
+              <DialogDescription>
+                {t('settings.shopEditDescription')}
+              </DialogDescription>
+            </DialogHeader>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!editingShop) return;
+
+                const formData = new FormData(e.currentTarget);
+                const name = formData.get('name') as string;
+                const address = formData.get('address') as string;
+
+                try {
+                  const parsed = insertShopSchema.parse({ name, address });
+                  editShopMutation.mutate({ id: editingShop.id, ...parsed });
+                } catch (error) {
+                  if (error instanceof Error) {
+                    toast({
+                      title: t('settings.validationError'),
+                      description: error.message,
+                      variant: "destructive",
+                    });
+                  }
+                }
+              }}
+              className="space-y-4"
+            >
+              <div className="space-y-2">
+                <Label htmlFor="edit-name">{t('common.shop.name')}</Label>
+                <Input
+                  id="edit-name"
+                  name="name"
+                  defaultValue={editingShop?.name}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-address">{t('common.shop.address')}</Label>
+                <Input
+                  id="edit-address"
+                  name="address"
+                  defaultValue={editingShop?.address}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditingShop(null)}
+                >
+                  {t('common.cancel')}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={editShopMutation.isPending}
+                >
+                  {editShopMutation.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     t('common.save')
