@@ -197,10 +197,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
 
       const order = await storage.createOrder(orderData, itemsData);
-      res.json(order);
+
+      if (!order) {
+        return res.status(500).json({ error: "Failed to create order" });
+      }
+
+      // Get order items for the response
+      const items = await storage.getOrderItems(order.id);
+      res.status(201).json({ ...order, items });
     } catch (error) {
-      console.error('Order validation error:', error);
-      res.status(400).json({ error: "Invalid order data" });
+      console.error('Order creation error:', error);
+      res.status(400).json({ 
+        error: error instanceof Error ? error.message : "Invalid order data",
+        details: error instanceof Error ? error.stack : undefined
+      });
     }
   });
 

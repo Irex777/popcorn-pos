@@ -13,6 +13,7 @@ import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-
 import { LoadingAnimation } from "@/components/ui/loading-animation";
 import { useTranslation } from "react-i18next";
 import { CreditCard, Banknote } from "lucide-react";
+import { useShop } from "@/lib/shop-context";
 
 interface CheckoutDialogProps {
   open: boolean;
@@ -101,14 +102,20 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
   const [stripeError, setStripeError] = useState<string>();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   const { t } = useTranslation();
+  const { currentShop } = useShop();
 
   const checkoutMutation = useMutation({
     mutationFn: async () => {
+      if (!currentShop) {
+        throw new Error("No shop selected");
+      }
+
       const orderData = {
         order: {
           total: total.toFixed(2),
           status: "completed",
-          paymentMethod
+          paymentMethod,
+          shopId: currentShop.id
         },
         items: cart.map(item => ({
           productId: item.product.id,
@@ -117,7 +124,17 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
         }))
       };
 
-      const response = await apiRequest('POST', '/api/orders', orderData);
+      const response = await apiRequest(
+        'POST',
+        `/api/shops/${currentShop.id}/orders`,
+        orderData
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || t('checkout.orderProcessingFailed'));
+      }
+
       return response.json();
     },
     onSuccess: () => {
@@ -132,7 +149,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
       console.error('Checkout error:', error);
       toast({
         title: t('checkout.error'),
-        description: t('checkout.orderProcessingFailed'),
+        description: error instanceof Error ? error.message : t('checkout.orderProcessingFailed'),
         variant: "destructive"
       });
     }
@@ -143,7 +160,6 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
       setIsLoading(true);
       setStripeError(undefined);
       try {
-        // Convert total to the smallest currency unit (e.g., cents)
         const amountInSmallestUnit = Math.round(total * 100);
         console.log('Initializing payment with currency:', currency.code, 'amount:', amountInSmallestUnit);
         const data = await createPaymentIntent(amountInSmallestUnit, currency.code);
@@ -204,7 +220,6 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
               </Button>
             </div>
 
-            {/* Order Summary */}
             <div className="space-y-4">
               {cart.map(item => (
                 <div key={item.product.id} className="flex justify-between">
@@ -224,7 +239,6 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
               </div>
             </div>
 
-            {/* Payment Section */}
             {paymentMethod === 'card' ? (
               isLoading ? (
                 <div className="mt-6">
