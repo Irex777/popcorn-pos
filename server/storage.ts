@@ -30,6 +30,7 @@ export interface IStorage {
   updateProduct(id: number, product: InsertProduct): Promise<Product | undefined>;
   updateProductStock(id: number, update: UpdateProductStock): Promise<Product | undefined>;
   decrementProductStock(id: number, quantity: number): Promise<Product | undefined>;
+  deleteProduct(id: number): Promise<Product | undefined>;
 
   // Orders
   createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order>;
@@ -200,6 +201,14 @@ export class DatabaseStorage implements IStorage {
       .set({
         stock: sql`GREATEST(${products.stock} - ${quantity}, 0)`
       })
+      .where(eq(products.id, id))
+      .returning();
+    return product;
+  }
+
+  async deleteProduct(id: number): Promise<Product | undefined> {
+    const [product] = await db
+      .delete(products)
       .where(eq(products.id, id))
       .returning();
     return product;
