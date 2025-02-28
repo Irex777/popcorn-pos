@@ -67,7 +67,7 @@ export function registerRoutes(app: Express): Server {
       // Only validate the updateable fields
       const updateData = {
         name: req.body.name,
-        address: req.body.address
+        address: req.body.address || null
       };
 
       // Merge with existing data to preserve createdById
@@ -105,15 +105,11 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Other category routes...
-
   // Products routes
   app.get("/api/shops/:shopId/products", requireShopAccess, async (req, res) => {
     const products = await storage.getProducts(parseInt(req.params.shopId));
     res.json(products);
   });
-
-  // Other product routes...
 
   // Orders routes
   app.get("/api/shops/:shopId/orders", requireShopAccess, async (req, res) => {
@@ -151,7 +147,7 @@ export function registerRoutes(app: Express): Server {
       res.status(201).json({ ...order, items });
     } catch (error) {
       console.error('Order creation error:', error);
-      res.status(400).json({
+      res.status(400).json({ 
         error: error instanceof Error ? error.message : "Invalid order data",
         details: error instanceof Error ? error.stack : undefined
       });
