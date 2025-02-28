@@ -44,6 +44,8 @@ export interface IStorage {
   getOrder(id: number): Promise<Order | undefined>;
   getOrders(shopId: number): Promise<Order[]>;
   getOrderItems(orderId: number): Promise<OrderItem[]>;
+  deleteOrderItems(orderId: number): Promise<void>;
+  deleteOrderById(orderId: number, shopId: number): Promise<Order | undefined>;
 
   // Session store
   sessionStore: session.Store;
@@ -310,6 +312,31 @@ export class DatabaseStorage implements IStorage {
 
   async getOrderItems(orderId: number): Promise<OrderItem[]> {
     return await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+  }
+
+  async deleteOrderItems(orderId: number): Promise<void> {
+    await db.delete(orderItems)
+      .where(eq(orderItems.orderId, orderId));
+  }
+
+  async deleteOrderById(orderId: number, shopId: number): Promise<Order | undefined> {
+    // First verify the order belongs to the shop
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(sql`${orders.id} = ${orderId} AND ${orders.shopId} = ${shopId}`);
+
+    if (!order) {
+      return undefined;
+    }
+
+    // Delete the order
+    const [deletedOrder] = await db
+      .delete(orders)
+      .where(sql`${orders.id} = ${orderId} AND ${orders.shopId} = ${shopId}`)
+      .returning();
+
+    return deletedOrder;
   }
 }
 
