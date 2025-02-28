@@ -106,7 +106,7 @@ export default function History() {
       'Date': format(new Date(order.createdAt!), 'yyyy-MM-dd HH:mm:ss'),
       'Status': t(`history.status.${order.status.toLowerCase()}`),
       'Total': formatCurrency(Number(order.total), currency),
-      'Items': order.items.map(item => 
+      'Items': order.items.map(item =>
         `${item.quantity}x ${item.product?.name || t('history.unknownProduct')} (${formatCurrency(Number(item.price), currency)})`
       ).join(', ')
     }));
@@ -219,9 +219,9 @@ export default function History() {
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-card rounded-lg p-4"
                 >
-                  <button
+                  <div
                     onClick={() => toggleOrderExpansion(order.id)}
-                    className="w-full"
+                    className="w-full cursor-pointer"
                   >
                     <div className="flex justify-between items-start">
                       <div>
@@ -256,7 +256,7 @@ export default function History() {
                         )}
                       </div>
                     </div>
-                  </button>
+                  </div>
 
                   {expandedOrders.includes(order.id) && (
                     <motion.div

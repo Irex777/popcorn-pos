@@ -1,0 +1,232 @@
+client:536 WebSocket connection to 'wss://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/?token=zaBe5CcA-3qG' failed: 
+setupWebSocket @ client:536Understand this errorAI
+client:536 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=zaBe5CcA-3qG' is invalid.
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)Understand this errorAI
+chunk-RPCDYKBN.js?v=8e4dda31:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+3framer-motion.js?v=8e4dda31:222 You are trying to animate backgroundColor from "hsl(var(--primary))" to "hsl(var(--primary) / 0.5)". hsl(var(--primary)) is not an animatable value - to enable this animation set hsl(var(--primary)) to a value animatable to hsl(var(--primary) / 0.5) via the `style` property.
+warning @ framer-motion.js?v=8e4dda31:222Understand this warningAI
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_CLIENTUnderstand this errorAI
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_CLIENTUnderstand this errorAI
+shared-e8a01fb6079bbd92f8bc27afd8cd0d90.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-e8a01fb6079bbd92f8bc27afd8cd0d90.js:1:191064Understand this errorAI
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_CLIENTUnderstand this errorAI
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_CLIENTUnderstand this errorAI
+shared-e8a01fb6079bbd92f8bc27afd8cd0d90.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-e8a01fb6079bbd92f8bc27afd8cd0d90.js:1:191064Understand this errorAI
+chunk-RPCDYKBN.js?v=8e4dda31:521 Warning: validateDOMNesting(...): <button> cannot appear as a descendant of <button>.
+    at button
+    at _c (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/ui/button.tsx:47:11)
+    at div
+    at div
+    at button
+    at div
+    at MotionComponent (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/framer-motion.js?v=8e4dda31:6536:40)
+    at div
+    at div
+    at div
+    at MotionComponent (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/framer-motion.js?v=8e4dda31:6536:40)
+    at div
+    at History (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/pages/history.tsx:36:17)
+    at Route (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8e4dda31:323:16)
+    at ProtectedRoute (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/auth/ProtectedRoute.tsx:23:3)
+    at Switch (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8e4dda31:379:17)
+    at main
+    at div
+    at DashboardLayout (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/layouts/DashboardLayout.tsx:30:43)
+    at Route (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8e4dda31:323:16)
+    at Switch (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8e4dda31:379:17)
+    at Router
+    at OnboardingProvider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/onboarding/OnboardingProvider.tsx:21:38)
+    at ShopProvider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/lib/shop-context.tsx:22:32)
+    at AuthProvider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/hooks/use-auth.tsx:26:32)
+    at QueryClientProvider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=8e4dda31:2805:3)
+    at I18nextProvider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-i18next.js?v=8e4dda31:781:3)
+    at Provider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-USBXNPCS.js?v=8e4dda31:673:3)
+    at App
+printWarning @ chunk-RPCDYKBN.js?v=8e4dda31:521Understand this errorAI
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_CLIENTUnderstand this errorAI
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_CLIENTUnderstand this errorAI
+shared-e8a01fb6079bbd92f8bc27afd8cd0d90.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-e8a01fb6079bbd92f8bc27afd8cd0d90.js:1:191064Understand this errorAI
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_CLIENTUnderstand this errorAI
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_CLIENTUnderstand this errorAI
+shared-e8a01fb6079bbd92f8bc27afd8cd0d90.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-e8a01fb6079bbd92f8bc27afd8cd0d90.js:1:191064Understand this errorAI
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_CLIENTUnderstand this errorAI
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_CLIENTUnderstand this errorAI
+shared-e8a01fb6079bbd92f8bc27afd8cd0d90.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-e8a01fb6079bbd92f8bc27afd8cd0d90.js:1:191064Understand this errorAI
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_CLIENTUnderstand this errorAI
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_CLIENTUnderstand this errorAI
+shared-e8a01fb6079bbd92f8bc27afd8cd0d90.js:1 Uncaught (in promise) FetchError: Error fetching https://r.stripe.com/b: Failed to fetch
+    at shared-e8a01fb6079bbd92f8bc27afd8cd0d90.js:1:191064Understand this errorAI
+131Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Understand this warningAI
