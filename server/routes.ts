@@ -54,6 +54,29 @@ export function registerRoutes(app: Express): Server {
     res.json(shops);
   });
 
+  app.patch("/api/shops/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      // Get existing shop to preserve createdById
+      const existingShop = await storage.getShop(id);
+      if (!existingShop) {
+        return res.status(404).json({ error: "Shop not found" });
+      }
+
+      // Merge existing data with updates, keeping createdById
+      const shopData = {
+        ...req.body,
+        createdById: existingShop.createdById
+      };
+
+      const shop = await storage.updateShop(id, shopData);
+      res.json(shop);
+    } catch (error) {
+      console.error('Error updating shop:', error);
+      res.status(400).json({ error: "Invalid shop data" });
+    }
+  });
+
   // Categories routes
   app.get("/api/shops/:shopId/categories", requireShopAccess, async (req, res) => {
     const categories = await storage.getCategories(parseInt(req.params.shopId));
@@ -117,7 +140,7 @@ export function registerRoutes(app: Express): Server {
       res.status(201).json({ ...order, items });
     } catch (error) {
       console.error('Order creation error:', error);
-      res.status(400).json({ 
+      res.status(400).json({
         error: error instanceof Error ? error.message : "Invalid order data",
         details: error instanceof Error ? error.stack : undefined
       });
@@ -172,7 +195,7 @@ export function registerRoutes(app: Express): Server {
           : 0
       };
 
-      res.json({ 
+      res.json({
         realtimeMetrics,
         trendIndicators: {
           salesTrend: 'stable' as const,
