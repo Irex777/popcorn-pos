@@ -1,3 +1,4 @@
+import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface CreateProductDialogProps {
   open: boolean;
@@ -18,6 +21,7 @@ interface CreateProductDialogProps {
 export default function CreateProductDialog({ open, onOpenChange }: CreateProductDialogProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const { data: categories } = useQuery<Category[]>({
     queryKey: ['/api/categories']
@@ -28,7 +32,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
     defaultValues: {
       name: "",
       price: "0",
-      categoryId: 0,
+      categoryId: undefined,
       imageUrl: "",
       stock: 0
     }
@@ -55,7 +59,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to create product');
+        throw new Error(error.message || t('inventory.createError'));
       }
 
       return response.json();
@@ -63,8 +67,8 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/products'] });
       toast({
-        title: "Product created",
-        description: "New product has been added successfully."
+        title: t('inventory.productCreated'),
+        description: t('inventory.productCreateSuccess')
       });
       onOpenChange(false);
       form.reset();
@@ -72,8 +76,8 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
     onError: (error) => {
       console.error('Create product error:', error);
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create product. Please try again.",
+        title: t('common.error'),
+        description: error instanceof Error ? error.message : t('inventory.createError'),
         variant: "destructive"
       });
     }
@@ -83,7 +87,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create New Product</DialogTitle>
+          <DialogTitle>{t('inventory.createProduct')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(data => createProductMutation.mutate(data))} className="space-y-4">
@@ -92,7 +96,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t('inventory.productName')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -105,7 +109,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price</FormLabel>
+                  <FormLabel>{t('inventory.price')}</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
@@ -123,14 +127,14 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
               name="categoryId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
+                  <FormLabel>{t('inventory.category')}</FormLabel>
                   <Select 
                     onValueChange={(value) => field.onChange(Number(value))}
                     value={field.value?.toString()}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder={t('inventory.selectCategory')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -153,7 +157,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
               name="imageUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image URL (Optional)</FormLabel>
+                  <FormLabel>{t('inventory.imageUrl')}</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="https://example.com/image.jpg" />
                   </FormControl>
@@ -166,7 +170,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
               name="stock"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Initial Stock</FormLabel>
+                  <FormLabel>{t('inventory.initialStock')}</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
@@ -183,7 +187,10 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
               className="w-full"
               disabled={createProductMutation.isPending}
             >
-              {createProductMutation.isPending ? "Creating..." : "Create Product"}
+              {createProductMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
+              {createProductMutation.isPending ? t('common.creating') : t('common.create')}
             </Button>
           </form>
         </Form>

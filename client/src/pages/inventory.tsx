@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { type Product } from "@shared/schema";
+import { type Product, type Category } from "@shared/schema";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import EditProductDialog from "@/components/inventory/EditProductDialog";
 import { Edit } from "lucide-react";
 import { Plus } from "lucide-react";
 import CreateProductDialog from "@/components/inventory/CreateProductDialog";
+import { useTranslation } from "react-i18next";
 
 const container = {
   hidden: { opacity: 0 },
@@ -34,18 +35,28 @@ const buttonTapAnimation = {
 };
 
 export default function Inventory() {
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { t } = useTranslation();
 
-  const { data: products, isLoading } = useQuery<Product[]>({
+  const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ['/api/products']
   });
 
-  const categories = [...new Set(products?.map(p => p.category) || [])];
-  const filteredProducts = activeCategory
-    ? products?.filter(p => p.category === activeCategory)
+  const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ['/api/categories']
+  });
+
+  const isLoading = productsLoading || categoriesLoading;
+
+  const filteredProducts = selectedCategoryId
+    ? products?.filter(p => p.categoryId === selectedCategoryId)
     : products;
+
+  const getCategoryName = (categoryId: number) => {
+    return categories?.find(c => c.id === categoryId)?.name || t('common.unknown');
+  };
 
   if (isLoading) {
     return (
@@ -67,10 +78,10 @@ export default function Inventory() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Inventory</h2>
+        <h2 className="text-xl font-bold">{t('inventory.title')}</h2>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Product
+          {t('inventory.addProduct')}
         </Button>
       </div>
 
@@ -81,27 +92,27 @@ export default function Inventory() {
       >
         <motion.button
           whileTap={buttonTapAnimation}
-          onClick={() => setActiveCategory(null)}
+          onClick={() => setSelectedCategoryId(null)}
           className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-            activeCategory === null
+            selectedCategoryId === null
               ? 'bg-primary text-primary-foreground'
               : 'bg-primary/10 hover:bg-primary/20'
           }`}
         >
-          All
+          {t('common.all')}
         </motion.button>
-        {categories.map(category => (
+        {categories?.map(category => (
           <motion.button
-            key={category}
+            key={category.id}
             whileTap={buttonTapAnimation}
-            onClick={() => setActiveCategory(category)}
+            onClick={() => setSelectedCategoryId(category.id)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-              activeCategory === category
+              selectedCategoryId === category.id
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-primary/10 hover:bg-primary/20'
             }`}
           >
-            {category}
+            {category.name}
           </motion.button>
         ))}
       </motion.div>
@@ -122,8 +133,8 @@ export default function Inventory() {
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-medium">{product.name}</h3>
-                  <p className="text-sm text-muted-foreground capitalize">
-                    {product.category}
+                  <p className="text-sm text-muted-foreground">
+                    {getCategoryName(product.categoryId)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -140,9 +151,9 @@ export default function Inventory() {
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Stock</span>
+                <span className="text-sm text-muted-foreground">{t('inventory.stock')}</span>
                 <Badge variant={product.stock > 10 ? "outline" : "destructive"}>
-                  {product.stock} units
+                  {product.stock} {t('inventory.units')}
                 </Badge>
               </div>
               {product.imageUrl && (
