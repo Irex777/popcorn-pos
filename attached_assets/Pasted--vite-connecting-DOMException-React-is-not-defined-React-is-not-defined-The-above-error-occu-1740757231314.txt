@@ -1,0 +1,61 @@
+[vite] connecting...
+DOMException {}
+
+React is not defined
+React is not defined
+The above error occurred in the <CheckoutDialog> component:
+
+    at CheckoutDialog (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/pos/CheckoutDialog.tsx:119:42)
+    at div
+    at CartPanel (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/pos/CartPanel.tsx:46:17)
+    at div
+    at div
+    at div
+    at POS
+    at Route (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9d82c8cd:323:16)
+    at ProtectedRoute (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/auth/ProtectedRoute.tsx:23:3)
+    at Switch (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9d82c8cd:379:17)
+    at main
+    at div
+    at DashboardLayout (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/layouts/DashboardLayout.tsx:28:43)
+    at Route (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9d82c8cd:323:16)
+    at Switch (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9d82c8cd:379:17)
+    at Router
+    at OnboardingProvider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/onboarding/OnboardingProvider.tsx:21:38)
+    at QueryClientProvider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9d82c8cd:2805:3)
+    at I18nextProvider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-i18next.js?v=9d82c8cd:781:3)
+    at Provider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-USBXNPCS.js?v=9d82c8cd:673:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+at CheckoutDialog (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/pos/CheckoutDialog.tsx:119:42)
+at div
+at CartPanel (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/pos/CartPanel.tsx:46:17)
+at div
+at div
+at div
+at POS
+at Route (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9d82c8cd:323:16)
+at ProtectedRoute (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/auth/ProtectedRoute.tsx:23:3)
+at Switch (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9d82c8cd:379:17)
+at main
+at div
+at DashboardLayout (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/layouts/DashboardLayout.tsx:28:43)
+at Route (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9d82c8cd:323:16)
+at Switch (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9d82c8cd:379:17)
+at Router
+at OnboardingProvider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/onboarding/OnboardingProvider.tsx:21:38)
+at QueryClientProvider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9d82c8cd:2805:3)
+at I18nextProvider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-i18next.js?v=9d82c8cd:781:3)
+at Provider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-USBXNPCS.js?v=9d82c8cd:673:3)
+at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+at t.value (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+React is not defined

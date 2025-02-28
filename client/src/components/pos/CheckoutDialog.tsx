@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useAtom } from "jotai";
@@ -7,7 +8,6 @@ import { formatCurrency } from "@/lib/settings";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
 import { stripePromise, createPaymentIntent } from "@/lib/stripe";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { LoadingAnimation } from "@/components/ui/loading-animation";
@@ -81,9 +81,9 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <PaymentElement />
-      <Button 
-        type="submit" 
-        className="w-full mt-4" 
+      <Button
+        type="submit"
+        className="w-full mt-4"
         disabled={!stripe || !elements || isProcessing}
       >
         {isProcessing ? t('checkout.processing') : `${t('checkout.pay')} ${formatCurrency(total, currency)}`}
@@ -162,7 +162,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
   };
 
   // Initialize card payment when switching to card payment method
-  React.useEffect(() => {
+  useEffect(() => {
     if (paymentMethod === 'card') {
       initializeCardPayment();
     } else {
@@ -231,17 +231,17 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
                 </div>
               ) : clientSecret ? (
                 <div className="mt-6">
-                  <Elements 
-                    stripe={stripePromise} 
-                    options={{ 
+                  <Elements
+                    stripe={stripePromise}
+                    options={{
                       clientSecret,
                       appearance: {
                         theme: 'stripe',
                       }
                     }}
                   >
-                    <CheckoutForm 
-                      total={total} 
+                    <CheckoutForm
+                      total={total}
                       onSuccess={checkoutMutation.mutate}
                     />
                   </Elements>
