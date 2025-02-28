@@ -174,6 +174,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
 
+  // Add new endpoints for Stripe settings
+  app.get("/api/settings/stripe", async (_req, res) => {
+    try {
+      // For now, we'll store this in memory. In production, this should be in a database
+      const settings = {
+        enabled: process.env.STRIPE_ENABLED === 'true',
+        key: process.env.STRIPE_SECRET_KEY ? '••••' + process.env.STRIPE_SECRET_KEY.slice(-4) : null
+      };
+      res.json(settings);
+    } catch (error) {
+      console.error('Error fetching Stripe settings:', error);
+      res.status(500).json({ error: 'Failed to fetch Stripe settings' });
+    }
+  });
+
+  app.post("/api/settings/stripe", async (req, res) => {
+    try {
+      const { enabled } = req.body;
+      if (typeof enabled !== 'boolean') {
+        return res.status(400).json({ error: 'Invalid enabled state' });
+      }
+
+      // In production, this should update a database
+      process.env.STRIPE_ENABLED = enabled.toString();
+
+      res.json({ enabled });
+    } catch (error) {
+      console.error('Error updating Stripe enabled state:', error);
+      res.status(500).json({ error: 'Failed to update Stripe settings' });
+    }
+  });
+
+  app.post("/api/settings/stripe-key", async (req, res) => {
+    try {
+      const { key } = req.body;
+      if (!key || typeof key !== 'string' || !key.startsWith('sk_')) {
+        return res.status(400).json({ error: 'Invalid Stripe key format' });
+      }
+
+      // In production, this should update a database
+      process.env.STRIPE_SECRET_KEY = key;
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error updating Stripe key:', error);
+      res.status(500).json({ error: 'Failed to update Stripe key' });
+    }
+  });
+
   // Analytics endpoints
   app.get("/api/analytics/real-time", async (_req, res) => {
     try {
@@ -200,7 +249,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         confidence: 0.95
       };
 
-      res.json({ 
+      res.json({
         realtimeMetrics,
         trendIndicators,
         predictions: {
