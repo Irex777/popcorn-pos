@@ -47,6 +47,10 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
         `/api/products/${product.id}`,
         data
       );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || t('inventory.productUpdateError'));
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -57,10 +61,10 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
       });
       onOpenChange(false);
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: t('common.error'),
-        description: t('inventory.productUpdateError'),
+        description: error instanceof Error ? error.message : t('inventory.productUpdateError'),
         variant: "destructive"
       });
     }
@@ -72,6 +76,10 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
         'DELETE',
         `/api/products/${product.id}`
       );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || t('inventory.productDeleteError'));
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -82,10 +90,10 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
       });
       onOpenChange(false);
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: t('common.error'),
-        description: t('inventory.productDeleteError'),
+        description: error instanceof Error ? error.message : t('inventory.productDeleteError'),
         variant: "destructive"
       });
     }

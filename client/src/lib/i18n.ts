@@ -80,7 +80,12 @@ const resources = {
           "excel": "Export as Excel",
           "pdf": "Export as PDF",
           "generated": "Generated on"
-        }
+        },
+        "error": "Error",
+        "delete": "Delete",
+        "create": "Create",
+        "creating": "Creating...",
+        "unknown": "Unknown"
       },
       "history": {
         "daily": "Daily",
@@ -260,7 +265,12 @@ const resources = {
           "excel": "Exportar como Excel",
           "pdf": "Exportar como PDF",
           "generated": "Generado el"
-        }
+        },
+        "error": "Error",
+        "delete": "Eliminar",
+        "create": "Crear",
+        "creating": "Creando...",
+        "unknown": "Desconocido"
       },
       "history": {
         "daily": "Diario",
@@ -440,7 +450,12 @@ const resources = {
           "excel": "Als Excel exportieren",
           "pdf": "Als PDF exportieren",
           "generated": "Generiert am"
-        }
+        },
+        "error": "Fehler",
+        "delete": "Löschen",
+        "create": "Erstellen",
+        "creating": "Erstelle...",
+        "unknown": "Unbekannt"
       },
       "history": {
         "daily": "Täglich",
@@ -620,7 +635,12 @@ const resources = {
           "excel": "Exportovat jako Excel",
           "pdf": "Exportovat jako PDF",
           "generated": "Vygenerováno"
-        }
+        },
+        "error": "Chyba",
+        "delete": "Smazat",
+        "create": "Vytvořit",
+        "creating": "Vytváření...",
+        "unknown": "Neznámý"
       },
       "history": {
         "daily": "Denní",
