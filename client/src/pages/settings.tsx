@@ -28,22 +28,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch"; // Added import for Switch
-
-async function apiRequest(method: string, url: string, data: any) {
-  const response = await fetch(url, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'API request failed');
-  }
-
-  return response.json();
-}
 
 export default function Settings() {
   const { t } = useTranslation();
@@ -51,8 +35,6 @@ export default function Settings() {
   const [currency, setCurrency] = useAtom(currencyAtom);
   const { toast } = useToast();
   const [editingUser, setEditingUser] = useState<{ id: number; username: string } | null>(null);
-  const [stripeEnabled, setStripeEnabled] = useState(false); 
-  const [stripeKey, setStripeKey] = useState(""); 
 
   // Get current user details
   const { data: currentUser } = useQuery<User>({
@@ -64,16 +46,6 @@ export default function Settings() {
     queryKey: ['/api/users'],
     enabled: currentUser?.isAdmin,
   });
-
-  // Get Stripe settings
-  const { data: stripeSettings } = useQuery({
-    queryKey: ['/api/settings/stripe'],
-    onSuccess: (data) => {
-      setStripeEnabled(data.enabled);
-      setStripeKey(data.key || '');
-    }
-  });
-
 
   // Edit user mutation
   const editUserMutation = useMutation({
@@ -206,7 +178,7 @@ export default function Settings() {
 
   return (
     <div className="space-y-6">
-      <motion.h2
+      <motion.h2 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-xl font-bold"
@@ -214,7 +186,7 @@ export default function Settings() {
         {t('settings.title')}
       </motion.h2>
 
-      <motion.div
+      <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="space-y-6"
@@ -319,8 +291,8 @@ export default function Settings() {
                       minLength={6}
                     />
                   </div>
-                  <Button
-                    type="submit"
+                  <Button 
+                    type="submit" 
                     disabled={createUserMutation.isPending}
                     className="w-full"
                   >
@@ -489,84 +461,6 @@ export default function Settings() {
                 </SelectContent>
               </Select>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Payment Settings Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('settings.paymentSettings')}</CardTitle>
-            <CardDescription>{t('settings.paymentDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>{t('settings.enableStripe')}</Label>
-                <p className="text-sm text-muted-foreground">
-                  {t('settings.enableStripeDescription')}
-                </p>
-              </div>
-              <Switch
-                checked={stripeEnabled}
-                onCheckedChange={async (checked) => {
-                  try {
-                    await apiRequest('POST', '/api/settings/stripe', {
-                      enabled: checked
-                    });
-                    setStripeEnabled(checked);
-                    toast({
-                      title: checked ? t('settings.stripeEnabled') : t('settings.stripeDisabled'),
-                      description: t('settings.settingsSaved')
-                    });
-                  } catch (error) {
-                    toast({
-                      title: t('settings.error'),
-                      description: t('settings.saveFailed'),
-                      variant: "destructive"
-                    });
-                  }
-                }}
-              />
-            </div>
-
-            {stripeEnabled && (
-              <div className="space-y-2">
-                <Label htmlFor="stripeKey">{t('settings.stripeKey')}</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="stripeKey"
-                    type="password"
-                    value={stripeKey}
-                    onChange={(e) => setStripeKey(e.target.value)}
-                    placeholder="sk_test_..."
-                  />
-                  <Button
-                    onClick={async () => {
-                      try {
-                        await apiRequest('POST', '/api/settings/stripe-key', {
-                          key: stripeKey
-                        });
-                        toast({
-                          title: t('settings.stripeKeyUpdated'),
-                          description: t('settings.settingsSaved')
-                        });
-                      } catch (error) {
-                        toast({
-                          title: t('settings.error'),
-                          description: t('settings.saveFailed'),
-                          variant: "destructive"
-                        });
-                      }
-                    }}
-                  >
-                    {t('common.save')}
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {t('settings.stripeKeyDescription')}
-                </p>
-              </div>
-            )}
           </CardContent>
         </Card>
       </motion.div>
