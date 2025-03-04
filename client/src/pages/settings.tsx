@@ -47,7 +47,6 @@ export default function Settings() {
     enabled: user?.isAdmin,
   });
 
-  // Create new shop mutation
   const createShopMutation = useMutation({
     mutationFn: async (data: { name: string; address?: string }) => {
       const response = await fetch('/api/shops', {
@@ -87,7 +86,6 @@ export default function Settings() {
     },
   });
 
-  // Edit shop mutation
   const editShopMutation = useMutation({
     mutationFn: async (data: { id: number; name: string; address?: string }) => {
       const response = await fetch(`/api/shops/${data.id}`, {
@@ -125,7 +123,6 @@ export default function Settings() {
     },
   });
 
-  // Keep existing mutations and handlers
   const editUserMutation = useMutation({
     mutationFn: async (data: { id: number; username?: string; password?: string }) => {
       const response = await fetch(`/api/users/${data.id}`, {
@@ -157,7 +154,7 @@ export default function Settings() {
       });
     },
   });
-  // Keep other existing mutations and handlers...
+
   const createUserMutation = useMutation({
     mutationFn: async (data: { username: string; password: string }) => {
       const response = await fetch('/api/users', {
@@ -254,93 +251,200 @@ export default function Settings() {
   };
 
   return (
-    <div className="space-y-6">
-      <motion.h2
+    <div className="max-w-4xl mx-auto py-6 px-4 space-y-8">
+      <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-xl font-bold"
+        className="text-3xl font-bold mb-6"
       >
         {t('settings.title')}
-      </motion.h2>
+      </motion.h1>
 
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="space-y-6"
+        className="grid gap-8"
       >
-        {/* Shop Management Section - Only visible to admins */}
-        {user?.isAdmin && (
-          <>
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('common.shops')}</CardTitle>
-                <CardDescription>{t('settings.shopManagementDescription')}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Create Shop Form */}
-                <form
-                  id="createShopForm"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    const name = formData.get('name') as string;
-                    const address = formData.get('address') as string;
+        {/* Preferences Section - Always visible */}
+        <section>
+          <h2 className="text-xl font-semibold mb-4">{t('settings.preferences')}</h2>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('settings.appearance')}</CardTitle>
+              <CardDescription>{t('settings.appearanceDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <Label>{t('settings.language')}</Label>
+                  <Select value={language} onValueChange={handleLanguageChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {languages.map(lang => (
+                        <SelectItem key={lang.code} value={lang.code}>
+                          {lang.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                    if (!name.trim()) {
-                      toast({
-                        title: t('settings.validationError'),
-                        description: t('common.shop.nameRequired'),
-                        variant: "destructive",
-                      });
-                      return;
-                    }
+                <div>
+                  <Label>{t('settings.currency')}</Label>
+                  <Select value={currency.code} onValueChange={handleCurrencyChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currencies.map(curr => (
+                        <SelectItem key={curr.code} value={curr.code}>
+                          {curr.symbol} - {curr.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
 
-                    createShopMutation.mutate({ name, address });
-                  }}
-                  className="space-y-4"
-                >
+        {/* Account Section - Always visible */}
+        <section>
+          <h2 className="text-xl font-semibold mb-4">{t('settings.account')}</h2>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('settings.security')}</CardTitle>
+              <CardDescription>{t('settings.securityDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <Label className="text-sm font-medium">{t('settings.username')}</Label>
+                  <p className="text-sm text-muted-foreground mt-1">{user?.username}</p>
+                </div>
+
+                <form onSubmit={handlePasswordChange} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">{t('common.shop.name')}</Label>
+                    <Label htmlFor="currentPassword">{t('settings.currentPassword')}</Label>
                     <Input
-                      id="name"
-                      name="name"
+                      id="currentPassword"
+                      name="currentPassword"
+                      type="password"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="address">{t('common.shop.address')}</Label>
+                    <Label htmlFor="newPassword">{t('settings.newPassword')}</Label>
                     <Input
-                      id="address"
-                      name="address"
+                      id="newPassword"
+                      name="newPassword"
+                      type="password"
+                      required
                     />
                   </div>
-                  <Button
-                    type="submit"
-                    disabled={createShopMutation.isPending}
-                    className="w-full"
-                  >
-                    {createShopMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Plus className="h-4 w-4 mr-2" />
-                    )}
-                    {t('common.shop.create')}
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">{t('settings.confirmPassword')}</Label>
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type="password"
+                      required
+                    />
+                  </div>
+                  <Button type="submit" disabled={changePasswordMutation.isPending}>
+                    {changePasswordMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : null}
+                    {t('settings.changePassword')}
                   </Button>
                 </form>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
 
-                {/* Shop List */}
-                <div className="space-y-2">
-                  <h3 className="font-medium">{t('common.shops')}</h3>
-                  <div className="space-y-2">
+        {/* Shop Management Section - Only visible to admins */}
+        {user?.isAdmin && (
+          <section>
+            <h2 className="text-xl font-semibold mb-4">{t('settings.shopManagement')}</h2>
+            <div className="grid gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('settings.createShop')}</CardTitle>
+                  <CardDescription>{t('settings.createShopDescription')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form
+                    id="createShopForm"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      const name = formData.get('name') as string;
+                      const address = formData.get('address') as string;
+
+                      if (!name.trim()) {
+                        toast({
+                          title: t('settings.validationError'),
+                          description: t('common.shop.nameRequired'),
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+
+                      createShopMutation.mutate({ name, address });
+                    }}
+                    className="space-y-4"
+                  >
+                    <div className="space-y-2">
+                      <Label htmlFor="name">{t('common.shop.name')}</Label>
+                      <Input
+                        id="name"
+                        name="name"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="address">{t('common.shop.address')}</Label>
+                      <Input
+                        id="address"
+                        name="address"
+                      />
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={createShopMutation.isPending}
+                      className="w-full"
+                    >
+                      {createShopMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Plus className="h-4 w-4 mr-2" />
+                      )}
+                      {t('common.shop.create')}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('settings.existingShops')}</CardTitle>
+                  <CardDescription>{t('settings.existingShopsDescription')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
                     {shops?.map(shop => (
                       <div
                         key={shop.id}
-                        className="flex items-center justify-between p-2 rounded-md bg-muted"
+                        className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
                       >
                         <div>
-                          <span className="font-medium">{shop.name}</span>
+                          <h3 className="font-medium">{shop.name}</h3>
                           {shop.address && (
-                            <p className="text-sm text-muted-foreground">{shop.address}</p>
+                            <p className="text-sm text-muted-foreground mt-1">{shop.address}</p>
                           )}
                         </div>
                         <Button
@@ -353,170 +457,181 @@ export default function Settings() {
                       </div>
                     ))}
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Separator />
-          </>
-        )}
-
-        {/* Account Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('settings.account')}</CardTitle>
-            <CardDescription>{t('settings.accountDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-1">
-              <Label>{t('settings.username')}</Label>
-              <p className="text-sm text-muted-foreground">{user?.username}</p>
+                </CardContent>
+              </Card>
             </div>
-
-            <form onSubmit={handlePasswordChange} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="currentPassword">{t('settings.currentPassword')}</Label>
-                <Input
-                  id="currentPassword"
-                  name="currentPassword"
-                  type="password"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">{t('settings.newPassword')}</Label>
-                <Input
-                  id="newPassword"
-                  name="newPassword"
-                  type="password"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">{t('settings.confirmPassword')}</Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                />
-              </div>
-              <Button type="submit" disabled={changePasswordMutation.isPending}>
-                {t('settings.changePassword')}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+          </section>
+        )}
 
         {/* User Management Section - Only visible to admins */}
         {user?.isAdmin && (
-          <>
-            <Separator />
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('settings.userManagement')}</CardTitle>
-                <CardDescription>{t('settings.userManagementDescription')}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Create User Form */}
-                <form
-                  id="createUserForm"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    const username = formData.get('username') as string;
-                    const password = formData.get('password') as string;
+          <section>
+            <h2 className="text-xl font-semibold mb-4">{t('settings.userManagement')}</h2>
+            <div className="grid gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('settings.createUser')}</CardTitle>
+                  <CardDescription>{t('settings.createUserDescription')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form
+                    id="createUserForm"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      const username = formData.get('username') as string;
+                      const password = formData.get('password') as string;
 
-                    try {
-                      const parsed = insertUserSchema.parse({ username, password });
-                      createUserMutation.mutate(parsed);
-                    } catch (error) {
-                      if (error instanceof Error) {
-                        toast({
-                          title: t('settings.validationError'),
-                          description: error.message,
-                          variant: "destructive",
-                        });
+                      try {
+                        const parsed = insertUserSchema.parse({ username, password });
+                        createUserMutation.mutate(parsed);
+                      } catch (error) {
+                        if (error instanceof Error) {
+                          toast({
+                            title: t('settings.validationError'),
+                            description: error.message,
+                            variant: "destructive",
+                          });
+                        }
                       }
-                    }
-                  }}
-                  className="space-y-4"
-                >
-                  <div className="space-y-2">
-                    <Label htmlFor="username">{t('settings.newUsername')}</Label>
-                    <Input
-                      id="username"
-                      name="username"
-                      required
-                      minLength={3}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">{t('settings.newPassword')}</Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      required
-                      minLength={6}
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    disabled={createUserMutation.isPending}
-                    className="w-full"
+                    }}
+                    className="space-y-4"
                   >
-                    {createUserMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Plus className="h-4 w-4 mr-2" />
-                    )}
-                    {t('settings.createUser')}
-                  </Button>
-                </form>
+                    <div className="space-y-2">
+                      <Label htmlFor="username">{t('settings.newUsername')}</Label>
+                      <Input
+                        id="username"
+                        name="username"
+                        required
+                        minLength={3}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">{t('settings.newPassword')}</Label>
+                      <Input
+                        id="password"
+                        name="password"
+                        type="password"
+                        required
+                        minLength={6}
+                      />
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={createUserMutation.isPending}
+                      className="w-full"
+                    >
+                      {createUserMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Plus className="h-4 w-4 mr-2" />
+                      )}
+                      {t('settings.createUser')}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
 
-                {/* User List */}
-                <div className="space-y-2">
-                  <h3 className="font-medium">{t('settings.userList')}</h3>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('settings.existingUsers')}</CardTitle>
+                  <CardDescription>{t('settings.existingUsersDescription')}</CardDescription>
+                </CardHeader>
+                <CardContent>
                   {usersLoading ? (
                     <div className="flex justify-center py-4">
                       <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                       {users?.map(user => (
                         <div
                           key={user.id}
-                          className="flex items-center justify-between p-2 rounded-md bg-muted"
+                          className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
                         >
-                          <span className="font-medium">{user.username}</span>
-                          <div className="flex items-center gap-2">
+                          <div>
+                            <span className="font-medium">{user.username}</span>
                             {user.isAdmin && (
-                              <span className="text-sm text-muted-foreground">
+                              <span className="ml-2 text-sm text-muted-foreground">
                                 {t('settings.adminUser')}
                               </span>
                             )}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setEditingUser({ id: user.id, username: user.username })}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
                           </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingUser({ id: user.id, username: user.username })}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
                         </div>
                       ))}
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+        )}
+
+        {/* System Test Section - Only visible to admins */}
+        {user?.isAdmin && (
+          <section>
+            <h2 className="text-xl font-semibold mb-4">{t('settings.systemTest')}</h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('settings.systemTest')}</CardTitle>
+                <CardDescription>{t('settings.systemTestDescription')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Button
+                    onClick={async () => {
+                      try {
+                        toast({
+                          title: t('settings.testStarted'),
+                          description: t('settings.testInProgress'),
+                        });
+
+                        const response = await apiRequest('POST', '/api/system-test');
+                        const results = await response.json();
+
+                        if (results.success) {
+                          toast({
+                            title: t('settings.testSuccess'),
+                            description: results.message,
+                          });
+                        } else {
+                          toast({
+                            title: t('settings.testFailed'),
+                            description: results.error,
+                            variant: "destructive",
+                          });
+                        }
+                      } catch (error) {
+                        console.error('System test error:', error);
+                        toast({
+                          title: t('settings.testFailed'),
+                          description: error instanceof Error ? error.message : 'Unknown error',
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    className="w-full"
+                  >
+                    <TestTube className="h-4 w-4 mr-2" />
+                    {t('settings.runSystemTest')}
+                  </Button>
+                  <p className="text-sm text-muted-foreground">
+                    {t('settings.systemTestNote')}
+                  </p>
                 </div>
               </CardContent>
             </Card>
-          </>
+          </section>
         )}
 
-        <Separator />
-
-        {/* Edit User Dialog */}
+        {/* Keep the dialogs at the end */}
         <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
           <DialogContent>
             <DialogHeader>
@@ -593,7 +708,6 @@ export default function Settings() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Shop Dialog */}
         <Dialog open={!!editingShop} onOpenChange={(open) => !open && setEditingShop(null)}>
           <DialogContent>
             <DialogHeader>
@@ -667,105 +781,6 @@ export default function Settings() {
             </form>
           </DialogContent>
         </Dialog>
-
-        {/* Preferences Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('settings.preferences')}</CardTitle>
-            <CardDescription>{t('settings.preferencesDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>{t('settings.language')}</Label>
-              <Select value={language} onValueChange={handleLanguageChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select language" />
-                </SelectTrigger>
-                <SelectContent>
-                  {languages.map(lang => (
-                    <SelectItem key={lang.code} value={lang.code}>
-                      {lang.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>{t('settings.currency')}</Label>
-              <Select value={currency.code} onValueChange={handleCurrencyChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent>
-                  {currencies.map(curr => (
-                    <SelectItem key={curr.code} value={curr.code}>
-                      {curr.symbol} - {curr.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Separator />
-
-        {/* System Test Section - Only visible to admins */}
-        {user?.isAdmin && (
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('settings.systemTest')}</CardTitle>
-              <CardDescription>{t('settings.systemTestDescription')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <Button
-                  onClick={async () => {
-                    try {
-                      toast({
-                        title: t('settings.testStarted'),
-                        description: t('settings.testInProgress'),
-                      });
-
-                      // Run system test
-                      const response = await apiRequest('POST', '/api/system-test');
-                      const results = await response.json();
-
-                      // Show results
-                      if (results.success) {
-                        toast({
-                          title: t('settings.testSuccess'),
-                          description: results.message,
-                        });
-                      } else {
-                        toast({
-                          title: t('settings.testFailed'),
-                          description: results.error,
-                          variant: "destructive",
-                        });
-                      }
-                    } catch (error) {
-                      console.error('System test error:', error);
-                      toast({
-                        title: t('settings.testFailed'),
-                        description: error instanceof Error ? error.message : 'Unknown error',
-                        variant: "destructive",
-                      });
-                    }
-                  }}
-                  className="w-full"
-                >
-                  <TestTube className="h-4 w-4 mr-2" />
-                  {t('settings.runSystemTest')}
-                </Button>
-                <p className="text-sm text-muted-foreground">
-                  {t('settings.systemTestNote')}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </motion.div>
     </div>
   );
