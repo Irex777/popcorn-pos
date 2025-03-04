@@ -211,12 +211,16 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).json({ error: "Shop ID is required" });
       }
 
+      console.log('Creating payment intent with:', { amount, currency, shopId });
+
       const paymentIntent = await createPaymentIntent({
-        amount: Math.round(parseFloat(amount) * 100), // Convert to cents
+        amount: Math.round(amount), // Amount should already be in smallest currency unit
         currency: currency.toLowerCase()
       });
 
-      res.json({ clientSecret: paymentIntent.client_secret });
+      console.log('Payment intent created:', paymentIntent);
+
+      res.json(paymentIntent);
     } catch (error) {
       console.error('Error creating payment intent:', error);
       res.status(500).json({ 
