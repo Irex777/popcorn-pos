@@ -8,7 +8,7 @@ import { formatCurrency } from "@/lib/settings";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { stripePromise, createPaymentIntent } from "@/lib/stripe";
+import { stripePromise } from "@/lib/stripe";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { LoadingAnimation } from "@/components/ui/loading-animation";
 import { useTranslation } from "react-i18next";
@@ -162,7 +162,23 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
       try {
         const amountInSmallestUnit = Math.round(total * 100);
         console.log('Initializing payment with currency:', currency.code, 'amount:', amountInSmallestUnit);
-        const data = await createPaymentIntent(amountInSmallestUnit, currency.code);
+
+        const response = await fetch('/api/create-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: amountInSmallestUnit,
+            currency: currency.code,
+            shopId: currentShop?.id
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to create payment intent');
+        }
+
+        const data = await response.json();
         console.log('Payment intent created:', data);
         setClientSecret(data.clientSecret);
       } catch (error: any) {

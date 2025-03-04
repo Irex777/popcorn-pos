@@ -201,10 +201,14 @@ export function registerRoutes(app: Express): Server {
   // Payment endpoint
   app.post("/api/create-payment-intent", requireShopAccess, async (req, res) => {
     try {
-      const { amount, currency } = req.body;
+      const { amount, currency, shopId } = req.body;
 
       if (!amount || !currency) {
         return res.status(400).json({ error: "Amount and currency are required" });
+      }
+
+      if (!shopId) {
+        return res.status(400).json({ error: "Shop ID is required" });
       }
 
       const paymentIntent = await createPaymentIntent({
