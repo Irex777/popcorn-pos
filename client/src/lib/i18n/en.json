@@ -1,0 +1,12 @@
+{
+  "settings": {
+    "systemTest": "System Test",
+    "systemTestDescription": "Run a comprehensive test of all system functionalities",
+    "testStarted": "System Test Started",
+    "testInProgress": "Testing system functionality. This may take a few moments...",
+    "testSuccess": "System Test Complete",
+    "testFailed": "System Test Failed",
+    "runSystemTest": "Run System Test",
+    "systemTestNote": "This will create test data and verify all system functionality. All test data will be automatically cleaned up afterward."
+  }
+}

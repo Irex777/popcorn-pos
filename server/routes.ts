@@ -5,6 +5,7 @@ import { insertOrderSchema, insertOrderItemSchema, updateProductStockSchema, ins
 import { z } from "zod";
 import { setupWebSocket, startAnalyticsUpdates } from "./websocket";
 import { createPaymentIntent } from './stripe';
+import { categories, products, orders, type Order, type Product, type Category } from "@shared/schema";
 
 // Middleware to check if user is admin
 const requireAdmin = (req: any, res: any, next: any) => {
@@ -147,7 +148,7 @@ export function registerRoutes(app: Express): Server {
       res.status(201).json({ ...order, items });
     } catch (error) {
       console.error('Order creation error:', error);
-      res.status(400).json({ 
+      res.status(400).json({
         error: error instanceof Error ? error.message : "Invalid order data",
         details: error instanceof Error ? error.stack : undefined
       });
@@ -233,6 +234,102 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error('Error fetching historical analytics:', error);
       res.status(500).json({ error: 'Failed to fetch historical data' });
+    }
+  });
+
+  // System test endpoint (admin only)
+  app.post("/api/system-test", requireAdmin, async (req, res) => {
+    let testShopId: number | null = null;
+    let testCategoryId: number | null = null;
+    let testProductId: number | null = null;
+    let testOrderId: number | null = null;
+
+    try {
+      // Step 1: Create test shop
+      const testShop = await storage.createShop({
+        name: "Test Shop",
+        createdById: req.user.id
+      });
+      testShopId = testShop.id;
+      console.log('✓ Test shop created');
+
+      // Step 2: Create test category
+      const testCategory = await storage.createCategory({
+        name: "Test Category",
+        description: "Test Description",
+        color: "#000000",
+        shopId: testShopId
+      });
+      testCategoryId = testCategory.id;
+      console.log('✓ Test category created');
+
+      // Step 3: Create test product
+      const testProduct = await storage.createProduct({
+        name: "Test Product",
+        description: "Test Description",
+        price: "9.99",
+        stock: 100,
+        categoryId: testCategoryId,
+        shopId: testShopId
+      });
+      testProductId = testProduct.id;
+      console.log('✓ Test product created');
+
+      // Step 4: Create test order
+      const testOrder = await storage.createOrder(
+        {
+          total: "9.99",
+          status: "completed",
+          shopId: testShopId
+        },
+        [{
+          productId: testProductId,
+          quantity: 1,
+          price: "9.99"
+        }]
+      );
+      testOrderId = testOrder.id;
+      console.log('✓ Test order created');
+
+      // Step 5: Test reading data
+      const shopExists = await storage.getShop(testShopId);
+      const categoryExists = await storage.getCategories(testShopId);
+      const productExists = await storage.getProducts(testShopId);
+      const orderExists = await storage.getOrders(testShopId);
+
+      if (!shopExists || !categoryExists.length || !productExists.length || !orderExists.length) {
+        throw new Error("Data verification failed");
+      }
+      console.log('✓ Data verification successful');
+
+      // Step 6: Clean up test data
+      if (testOrderId) await storage.deleteOrderById(testOrderId, testShopId);
+      if (testProductId) await storage.deleteProduct(testProductId, testShopId);
+      if (testCategoryId) await storage.deleteCategory(testCategoryId, testShopId);
+      if (testShopId) await storage.deleteShop(testShopId);
+      console.log('✓ Test data cleanup successful');
+
+      res.json({
+        success: true,
+        message: "All system tests passed successfully! Created and verified: shop, category, product, and order. All test data has been cleaned up."
+      });
+    } catch (error) {
+      console.error('System test error:', error);
+
+      // Attempt to clean up any remaining test data
+      try {
+        if (testOrderId) await storage.deleteOrderById(testOrderId, testShopId!);
+        if (testProductId) await storage.deleteProduct(testProductId, testShopId!);
+        if (testCategoryId) await storage.deleteCategory(testCategoryId, testShopId!);
+        if (testShopId) await storage.deleteShop(testShopId);
+      } catch (cleanupError) {
+        console.error('Cleanup error:', cleanupError);
+      }
+
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error occurred during system test"
+      });
     }
   });
 

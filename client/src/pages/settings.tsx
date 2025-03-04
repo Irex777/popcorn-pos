@@ -4,8 +4,8 @@ import { useAtom } from "jotai";
 import { motion } from "framer-motion";
 import { languages, languageAtom, currencies, currencyAtom } from "@/lib/settings";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
-import { Plus, Loader2, Pencil } from "lucide-react";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { Plus, Loader2, Pencil, TestTube } from "lucide-react";
 import i18n from "@/lib/i18n";
 import {
   Select,
@@ -251,7 +251,7 @@ export default function Settings() {
 
   return (
     <div className="space-y-6">
-      <motion.h2 
+      <motion.h2
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-xl font-bold"
@@ -259,7 +259,7 @@ export default function Settings() {
         {t('settings.title')}
       </motion.h2>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="space-y-6"
@@ -312,8 +312,8 @@ export default function Settings() {
                       name="address"
                     />
                   </div>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     disabled={createShopMutation.isPending}
                     className="w-full"
                   >
@@ -459,8 +459,8 @@ export default function Settings() {
                       minLength={6}
                     />
                   </div>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     disabled={createUserMutation.isPending}
                     className="w-full"
                   >
@@ -618,8 +618,8 @@ export default function Settings() {
                   return;
                 }
 
-                editShopMutation.mutate({ 
-                  id: editingShop.id, 
+                editShopMutation.mutate({
+                  id: editingShop.id,
                   name: name.trim(),
                   address: address.trim() || undefined
                 });
@@ -706,6 +706,64 @@ export default function Settings() {
             </div>
           </CardContent>
         </Card>
+
+        <Separator />
+
+        {/* System Test Section - Only visible to admins */}
+        {user?.isAdmin && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('settings.systemTest')}</CardTitle>
+              <CardDescription>{t('settings.systemTestDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Button
+                  onClick={async () => {
+                    try {
+                      toast({
+                        title: t('settings.testStarted'),
+                        description: t('settings.testInProgress'),
+                      });
+
+                      // Run system test
+                      const response = await apiRequest('POST', '/api/system-test');
+                      const results = await response.json();
+
+                      // Show results
+                      if (results.success) {
+                        toast({
+                          title: t('settings.testSuccess'),
+                          description: results.message,
+                        });
+                      } else {
+                        toast({
+                          title: t('settings.testFailed'),
+                          description: results.error,
+                          variant: "destructive",
+                        });
+                      }
+                    } catch (error) {
+                      console.error('System test error:', error);
+                      toast({
+                        title: t('settings.testFailed'),
+                        description: error instanceof Error ? error.message : 'Unknown error',
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  className="w-full"
+                >
+                  <TestTube className="h-4 w-4 mr-2" />
+                  {t('settings.runSystemTest')}
+                </Button>
+                <p className="text-sm text-muted-foreground">
+                  {t('settings.systemTestNote')}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </motion.div>
     </div>
   );
