@@ -12,6 +12,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useShop } from "@/lib/shop-context";
 
 interface EditProductDialogProps {
   product: Product;
@@ -23,10 +24,12 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
+  const { currentShop } = useShop();
 
-  // Fetch categories
+  // Fetch categories for the current shop
   const { data: categories } = useQuery<Category[]>({
-    queryKey: ['/api/categories']
+    queryKey: [`/api/shops/${currentShop?.id}/categories`],
+    enabled: !!currentShop
   });
 
   const form = useForm({
@@ -35,17 +38,23 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
       name: product.name,
       price: product.price.toString(),
       categoryId: product.categoryId,
-      imageUrl: product.imageUrl,
-      stock: product.stock
+      imageUrl: product.imageUrl || "",
+      stock: product.stock,
+      shopId: currentShop?.id
     }
   });
 
   const updateProductMutation = useMutation({
     mutationFn: async (data: any) => {
+      if (!currentShop) throw new Error("No shop selected");
+
       const response = await apiRequest(
         'PATCH',
-        `/api/products/${product.id}`,
-        data
+        `/api/shops/${currentShop.id}/products/${product.id}`,
+        {
+          ...data,
+          shopId: currentShop.id
+        }
       );
       if (!response.ok) {
         const error = await response.json();
@@ -54,7 +63,7 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/shops/${currentShop?.id}/products`] });
       toast({
         title: t('inventory.productUpdated'),
         description: t('inventory.productUpdateSuccess')
@@ -72,9 +81,11 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
 
   const deleteProductMutation = useMutation({
     mutationFn: async () => {
+      if (!currentShop) throw new Error("No shop selected");
+
       const response = await apiRequest(
         'DELETE',
-        `/api/products/${product.id}`
+        `/api/shops/${currentShop.id}/products/${product.id}`
       );
       if (!response.ok) {
         const error = await response.json();
@@ -83,7 +94,7 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/shops/${currentShop?.id}/products`] });
       toast({
         title: t('inventory.productDeleted'),
         description: t('inventory.productDeleteSuccess')
@@ -104,6 +115,10 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
       deleteProductMutation.mutate();
     }
   };
+
+  if (!currentShop) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -225,10 +240,9 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
                 disabled={updateProductMutation.isPending}
               >
                 {updateProductMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  t('common.save')
-                )}
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : null}
+                {t('common.save')}
               </Button>
             </div>
           </form>
