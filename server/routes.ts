@@ -39,14 +39,30 @@ export function registerRoutes(app: Express): Server {
   // Shop management routes (admin only)
   app.post("/api/shops", requireAdmin, async (req, res) => {
     try {
-      const shopData = insertShopSchema.parse({
-        ...req.body,
+      // Validate required name field
+      if (!req.body.name?.trim()) {
+        return res.status(400).json({ error: "Shop name is required" });
+      }
+
+      // Create shop data with authenticated user's ID
+      const shopData = {
+        name: req.body.name.trim(),
+        address: req.body.address?.trim() || null,
         createdById: req.user.id
-      });
+      };
+
+      // Create the shop
       const shop = await storage.createShop(shopData);
+      if (!shop) {
+        throw new Error("Failed to create shop");
+      }
+
       res.status(201).json(shop);
     } catch (error) {
-      res.status(400).json({ error: "Invalid shop data" });
+      console.error('Shop creation error:', error);
+      res.status(400).json({ 
+        error: error instanceof Error ? error.message : "Invalid shop data" 
+      });
     }
   });
 

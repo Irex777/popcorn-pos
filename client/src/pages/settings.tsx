@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { insertUserSchema, insertShopSchema, type User } from "@shared/schema";
+import { insertUserSchema, type User } from "@shared/schema";
 import {
   Dialog,
   DialogContent,
@@ -53,7 +53,10 @@ export default function Settings() {
       const response = await fetch('/api/shops', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          name: data.name.trim(),
+          address: data.address?.trim() || null
+        }),
       });
 
       if (!response.ok) {
@@ -75,6 +78,7 @@ export default function Settings() {
       if (form) form.reset();
     },
     onError: (error: Error) => {
+      console.error('Shop creation error:', error);
       toast({
         title: t('common.error'),
         description: error.message,
@@ -282,18 +286,16 @@ export default function Settings() {
                     const name = formData.get('name') as string;
                     const address = formData.get('address') as string;
 
-                    try {
-                      const parsed = insertShopSchema.parse({ name, address });
-                      createShopMutation.mutate(parsed);
-                    } catch (error) {
-                      if (error instanceof Error) {
-                        toast({
-                          title: t('settings.validationError'),
-                          description: error.message,
-                          variant: "destructive",
-                        });
-                      }
+                    if (!name.trim()) {
+                      toast({
+                        title: t('settings.validationError'),
+                        description: t('common.shop.nameRequired'),
+                        variant: "destructive",
+                      });
+                      return;
                     }
+
+                    createShopMutation.mutate({ name, address });
                   }}
                   className="space-y-4"
                 >
