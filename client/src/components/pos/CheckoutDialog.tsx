@@ -156,42 +156,48 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
   });
 
   const initializeCardPayment = async () => {
-    if (open && total > 0) {
-      setIsLoading(true);
-      setStripeError(undefined);
-      try {
-        const amountInSmallestUnit = Math.round(total * 100);
-        console.log('Initializing payment with currency:', currency.code, 'amount:', amountInSmallestUnit);
+    if (!open || total <= 0 || !currentShop) return;
 
-        const response = await fetch('/api/create-payment-intent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            amount: amountInSmallestUnit,
-            currency: currency.code,
-            shopId: currentShop?.id
-          })
-        });
+    setIsLoading(true);
+    setStripeError(undefined);
 
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to create payment intent');
-        }
+    try {
+      const amountInSmallestUnit = Math.round(total * 100);
+      console.log('Initializing payment with currency:', currency.code, 'amount:', amountInSmallestUnit, 'shopId:', currentShop.id);
 
-        const data = await response.json();
-        console.log('Payment intent created:', data);
-        setClientSecret(data.clientSecret);
-      } catch (error: any) {
-        console.error('Error creating payment intent:', error);
-        setStripeError(error.message || t('checkout.initializationFailed'));
-        toast({
-          title: t('checkout.error'),
-          description: t('checkout.paymentInitializationFailed'),
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
+      const response = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: amountInSmallestUnit,
+          currency: currency.code,
+          shopId: currentShop.id
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create payment intent');
       }
+
+      const data = await response.json();
+      console.log('Payment intent response:', data);
+
+      if (!data.clientSecret) {
+        throw new Error('No client secret received from the server');
+      }
+
+      setClientSecret(data.clientSecret);
+    } catch (error: any) {
+      console.error('Error creating payment intent:', error);
+      setStripeError(error.message || t('checkout.initializationFailed'));
+      toast({
+        title: t('checkout.error'),
+        description: t('checkout.paymentInitializationFailed'),
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -202,7 +208,20 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
       setClientSecret(undefined);
       setStripeError(undefined);
     }
-  }, [paymentMethod, open, total, currency.code]);
+  }, [paymentMethod, open, total, currency.code, currentShop?.id]);
+
+  if (!currentShop) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('checkout.error')}</DialogTitle>
+            <DialogDescription>{t('checkout.noShopSelected')}</DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -268,6 +287,15 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
                       clientSecret,
                       appearance: {
                         theme: 'stripe',
+                        variables: {
+                          colorPrimary: 'var(--primary)',
+                          colorBackground: 'var(--background)',
+                          colorText: 'var(--foreground)',
+                          colorDanger: 'var(--destructive)',
+                          fontFamily: 'var(--font-sans)',
+                          borderRadius: 'var(--radius)',
+                          spacingUnit: '4px'
+                        }
                       }
                     }}
                   >

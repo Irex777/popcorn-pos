@@ -48,7 +48,15 @@ export async function createPaymentIntent({ amount, currency }: PaymentIntentPar
     });
 
     console.log('Payment intent created:', paymentIntent.id);
-    return { clientSecret: paymentIntent.client_secret };
+
+    if (!paymentIntent.client_secret) {
+      throw new Error('Failed to generate client secret');
+    }
+
+    return { 
+      clientSecret: paymentIntent.client_secret,
+      id: paymentIntent.id
+    };
   } catch (error: any) {
     console.error('Error creating payment intent:', error);
     // If it's a Stripe error, get the specific error message
