@@ -198,6 +198,30 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Payment endpoint
+  app.post("/api/create-payment-intent", requireShopAccess, async (req, res) => {
+    try {
+      const { amount, currency } = req.body;
+
+      if (!amount || !currency) {
+        return res.status(400).json({ error: "Amount and currency are required" });
+      }
+
+      const paymentIntent = await createPaymentIntent({
+        amount: Math.round(parseFloat(amount) * 100), // Convert to cents
+        currency: currency.toLowerCase()
+      });
+
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error) {
+      console.error('Error creating payment intent:', error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Failed to create payment intent" 
+      });
+    }
+  });
+
+
   // Analytics endpoints
   app.get("/api/shops/:shopId/analytics/real-time", requireShopAccess, async (req, res) => {
     try {

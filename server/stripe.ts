@@ -14,7 +14,12 @@ const MINIMUM_AMOUNTS: Record<string, number> = {
   // Add other currencies as needed
 };
 
-export async function createPaymentIntent(amount: number, currency: string) {
+interface PaymentIntentParams {
+  amount: number;
+  currency: string;
+}
+
+export async function createPaymentIntent({ amount, currency }: PaymentIntentParams) {
   try {
     if (typeof currency !== 'string') {
       throw new Error('Currency must be a string');
@@ -34,7 +39,7 @@ export async function createPaymentIntent(amount: number, currency: string) {
     console.log('Creating payment intent:', { amount, currency: lowerCaseCurrency });
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount,
+      amount,
       currency: lowerCaseCurrency,
       payment_method_types: ['card'],
       metadata: {
