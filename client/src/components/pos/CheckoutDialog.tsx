@@ -46,6 +46,11 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
     setIsProcessing(true);
 
     try {
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        throw submitError;
+      }
+
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
@@ -55,11 +60,19 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
       });
 
       if (error) {
-        toast({
-          title: t('checkout.paymentFailed'),
-          description: error.message,
-          variant: "destructive"
-        });
+        if (error.type === 'card_error' || error.type === 'validation_error') {
+          toast({
+            title: t('checkout.paymentFailed'),
+            description: error.message,
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: t('checkout.paymentFailed'),
+            description: t('checkout.unexpectedError'),
+            variant: "destructive"
+          });
+        }
       } else {
         onSuccess();
         toast({
@@ -67,11 +80,11 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
           description: t('checkout.orderProcessed')
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Payment error:', error);
       toast({
         title: t('checkout.paymentFailed'),
-        description: t('checkout.unexpectedError'),
+        description: error.message || t('checkout.unexpectedError'),
         variant: "destructive"
       });
     } finally {
@@ -81,7 +94,15 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <PaymentElement />
+      <PaymentElement
+        options={{
+          layout: "tabs",
+          wallets: {
+            applePay: 'auto',
+            googlePay: 'auto'
+          }
+        }}
+      />
       <Button
         type="submit"
         className="w-full mt-4"
@@ -319,6 +340,12 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
                           borderRadius: 'var(--radius)',
                           spacingUnit: '4px'
                         }
+                      },
+                      paymentMethodCreation: 'manual',
+                      payment_method_types: ['card', 'apple_pay', 'google_pay'],
+                      paymentMethodConfiguration: {
+                        applePay: 'auto',
+                        googlePay: 'auto'
                       }
                     }}
                   >
