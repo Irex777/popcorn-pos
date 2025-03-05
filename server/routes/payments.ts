@@ -20,7 +20,12 @@ export async function createPaymentIntent(req: Request, res: Response) {
       },
       metadata: {
         shopId
-      }
+      },
+      payment_method_options: {
+        card: {
+          request_three_d_secure: 'automatic',
+        },
+      },
     });
 
     console.log('Payment intent created:', paymentIntent.id);

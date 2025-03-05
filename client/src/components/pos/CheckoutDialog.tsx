@@ -30,47 +30,43 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
         country: 'CZ',
         currency: currency.code.toLowerCase(),
         total: {
-          label: 'Total',
+          label: 'Popcorn POS',
           amount: Math.round(total * 100),
         },
         requestPayerName: true,
         requestPayerEmail: true,
+        requestShipping: false,
       });
 
-      // Check if Payment Request is available
+      // Check the availability of the Payment Request API first
       pr.canMakePayment().then(result => {
-        if (result) {
+        if (result && result.applePay) {
           setPaymentRequest(pr);
         }
       });
 
-      pr.on('paymentmethod', async (e) => {
+      // Handle the payment completion
+      pr.on('paymentmethod', async (ev) => {
         setIsProcessing(true);
         try {
           const { error } = await stripe.confirmPayment({
             elements,
             confirmParams: {
               return_url: `${window.location.origin}/payment-complete`,
-              payment_method: e.paymentMethod.id,
+              payment_method: ev.paymentMethod.id,
             },
             redirect: 'if_required',
           });
 
           if (error) {
-            if (error.type === 'card_error' || error.type === 'validation_error') {
-              toast({
-                title: t('checkout.paymentFailed'),
-                description: error.message,
-                variant: "destructive"
-              });
-            } else {
-              toast({
-                title: t('checkout.paymentFailed'),
-                description: t('checkout.unexpectedError'),
-                variant: "destructive"
-              });
-            }
+            ev.complete('fail');
+            toast({
+              title: t('checkout.paymentFailed'),
+              description: error.message,
+              variant: "destructive"
+            });
           } else {
+            ev.complete('success');
             onSuccess();
             toast({
               title: t('checkout.paymentSuccessful'),
@@ -79,6 +75,7 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
           }
         } catch (error: any) {
           console.error('Payment error:', error);
+          ev.complete('fail');
           toast({
             title: t('checkout.paymentFailed'),
             description: error.message || t('checkout.unexpectedError'),
@@ -91,67 +88,6 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
     }
   }, [stripe, currency.code, total]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!stripe || !elements) {
-      toast({
-        title: t('checkout.error'),
-        description: t('checkout.paymentSystemNotReady'),
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsProcessing(true);
-
-    try {
-      const { error: submitError } = await elements.submit();
-      if (submitError) {
-        throw submitError;
-      }
-
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/payment-complete`,
-        },
-        redirect: 'if_required',
-      });
-
-      if (error) {
-        if (error.type === 'card_error' || error.type === 'validation_error') {
-          toast({
-            title: t('checkout.paymentFailed'),
-            description: error.message,
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: t('checkout.paymentFailed'),
-            description: t('checkout.unexpectedError'),
-            variant: "destructive"
-          });
-        }
-      } else {
-        onSuccess();
-        toast({
-          title: t('checkout.paymentSuccessful'),
-          description: t('checkout.orderProcessed')
-        });
-      }
-    } catch (error: any) {
-      console.error('Payment error:', error);
-      toast({
-        title: t('checkout.paymentFailed'),
-        description: error.message || t('checkout.unexpectedError'),
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   return (
     <div className="space-y-4">
       {paymentRequest && (
@@ -162,7 +98,7 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
               paymentRequestButton: {
                 type: 'default',
                 theme: 'dark',
-                height: '40px',
+                height: '48px',
               },
             },
           }}
@@ -175,8 +111,7 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
             billingDetails: {
               name: 'Auto-filled Name',
             }
-          },
-          paymentMethodOrder: ['apple_pay', 'google_pay', 'card']
+          }
         }}
       />
       <Button
@@ -342,6 +277,67 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
       </Dialog>
     );
   }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      toast({
+        title: t('checkout.error'),
+        description: t('checkout.paymentSystemNotReady'),
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        throw submitError;
+      }
+
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/payment-complete`,
+        },
+        redirect: 'if_required',
+      });
+
+      if (error) {
+        if (error.type === 'card_error' || error.type === 'validation_error') {
+          toast({
+            title: t('checkout.paymentFailed'),
+            description: error.message,
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: t('checkout.paymentFailed'),
+            description: t('checkout.unexpectedError'),
+            variant: "destructive"
+          });
+        }
+      } else {
+        onSuccess();
+        toast({
+          title: t('checkout.paymentSuccessful'),
+          description: t('checkout.orderProcessed')
+        });
+      }
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      toast({
+        title: t('checkout.paymentFailed'),
+        description: error.message || t('checkout.unexpectedError'),
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
