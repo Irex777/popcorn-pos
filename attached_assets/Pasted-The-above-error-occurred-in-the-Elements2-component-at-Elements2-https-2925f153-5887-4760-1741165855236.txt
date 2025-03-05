@@ -1,0 +1,53 @@
+The above error occurred in the <Elements2> component:
+
+    at Elements2 (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stripe_react-stripe-js.js?v=8e4dda31:284:28)
+    at div
+    at div
+    at div
+    at div
+    at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CPFL7ZFD.js?v=8e4dda31:41:13
+    at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2KBELDHW.js?v=8e4dda31:59:7
+    at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DKHUMOWT.js?v=8e4dda31:52:11
+    at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DKHUMOWT.js?v=8e4dda31:33:11
+    at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CPFL7ZFD.js?v=8e4dda31:41:13
+    at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-FU2MYH4E.js?v=8e4dda31:58:5
+    at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-dialog.js?v=8e4dda31:230:13
+    at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-dialog.js?v=8e4dda31:153:58
+    at Presence (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-54B2F5GZ.js?v=8e4dda31:24:11)
+    at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-dialog.js?v=8e4dda31:144:64
+    at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DKHUMOWT.js?v=8e4dda31:52:11
+    at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-DKHUMOWT.js?v=8e4dda31:33:11
+    at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CPFL7ZFD.js?v=8e4dda31:41:13
+    at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-2KBELDHW.js?v=8e4dda31:258:22
+    at Presence (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-54B2F5GZ.js?v=8e4dda31:24:11)
+    at Provider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-L7FCK3EQ.js?v=8e4dda31:48:15)
+    at DialogPortal (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-dialog.js?v=8e4dda31:107:11)
+    at _c3 (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/ui/dialog.tsx:51:12)
+    at Provider (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-L7FCK3EQ.js?v=8e4dda31:48:15)
+    at Dialog (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-dialog.js?v=8e4dda31:48:5)
+    at CheckoutDialog (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/pos/CheckoutDialog.tsx:149:42)
+    at div
+    at CartPanel (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/pos/CartPanel.tsx:46:17)
+    at div
+    at div
+    at div
+    at POS
+    at Route (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8e4dda31:323:16)
+    at ProtectedRoute (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/auth/ProtectedRoute.tsx:23:3)
+    at Switch (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8e4dda31:379:17)
+    at main
+    at div
+    at DashboardLayout (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/src/components/layouts/DashboardLayout.tsx:30:43)
+    at Route (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=8e4dda31:323:16)
+    at Switch…
+Invalid value for elements(): payment_method_types.1 should be one of the following strings: billie, bizum, capchase_pay, kriya, mondu, ng_wallet, samsung_pay, satispay, sequra, scalapay, vipps, amazon_pay, alipay, alma, affirm, afterpay_clearpay, au_becs_debit, acss_debit, bacs_debit, bancontact, blik, boleto, card, cashapp, crypto, customer_balance, eps, fpx, giropay, gopay, grabpay, ideal, klarna, konbini, mb_way, mobilepay, multibanco, ng_bank, ng_bank_transfer, ng_card, ng_market, ng_ussd, nz_bank_account, oxxo, p24, pay_by_bank, paypal, payto, qris, rechnung, sepa_debit, sofort, south_korea_market, kr_card, kr_market, kakao_pay, naver_pay, payco, shopeepay, swish, three_d_secure, twint, upi, us_bank_account, wechat_pay, paynow, pix, promptpay, revolut_pay, sunbit, netbanking, id_bank_transfer, link, link_card_brand, demo_pay, zip. You specified: apple_pay.
+at se (https://js.stripe.com/v3:1:213755)
+at ue (https://js.stripe.com/v3:1:213834)
+at new t (https://js.stripe.com/v3:1:413134)
+at e.<anonymous> (https://js.stripe.com/v3:1:513386)
+at e.<anonymous> (https://js.stripe.com/v3:1:96864)
+at e.o (https://js.stripe.com/v3:1:563556)
+at https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stripe_react-stripe-js.js?v=8e4dda31:301:28
+at basicStateReducer (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=8e4dda31:11703:49)
+at updateReducer (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=8e4dda31:11794:30)
+at updateState (https://2925f153-5887-4760-9966-b453226602e5-00-zhixc0i995eo.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=8e4dda31:12021:18)

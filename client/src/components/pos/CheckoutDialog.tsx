@@ -97,6 +97,7 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
       <PaymentElement
         options={{
           layout: "tabs",
+          // Enable automatic wallet detection
           wallets: {
             applePay: 'auto',
             googlePay: 'auto'
@@ -341,12 +342,10 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
                           spacingUnit: '4px'
                         }
                       },
-                      paymentMethodCreation: 'manual',
-                      payment_method_types: ['card', 'apple_pay', 'google_pay'],
-                      paymentMethodConfiguration: {
-                        applePay: 'auto',
-                        googlePay: 'auto'
-                      }
+                      // Only specify 'card' as the payment method type
+                      payment_method_types: ['card'],
+                      // Enable automatic payment method configuration
+                      paymentMethodCreation: 'automatic'
                     }}
                   >
                     <CheckoutForm
