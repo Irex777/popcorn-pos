@@ -69,7 +69,7 @@ const resources = {
         "accountCreated": "Your account has been created",
         "loginFailed": "Login Failed",
         "registerFailed": "Registration Failed",
-        "welcomeMessage": "Welcome to Boutique POS",
+        "welcomeMessage": "Welcome to Popcorn POS",
         "createAccount": "Create a new account"
       },
       "settings": {
@@ -145,7 +145,7 @@ const resources = {
       },
       "onboarding": {
         "pos": {
-          "welcome": "Welcome to Boutique POS! This is your main point of sale screen where you can process orders quickly and efficiently.",
+          "welcome": "Welcome to Popcorn POS! This is your main point of sale screen where you can process orders quickly and efficiently.",
           "categories": "Filter products by categories to find items faster.",
           "products": "Click on products to add them to the cart. The grid updates in real-time with stock information.",
           "cart": "Your shopping cart shows the current order. Adjust quantities or swipe items to remove them."
@@ -269,7 +269,7 @@ const resources = {
         "accountCreated": "Su cuenta ha sido creada",
         "loginFailed": "Error de Inicio de Sesión",
         "registerFailed": "Error de Registro",
-        "welcomeMessage": "Bienvenido a Boutique POS",
+        "welcomeMessage": "Bienvenido a Popcorn POS",
         "createAccount": "Crear una nueva cuenta"
       },
       "settings": {
@@ -345,7 +345,7 @@ const resources = {
       },
       "onboarding": {
         "pos": {
-          "welcome": "¡Bienvenido a Boutique POS! Esta es tu pantalla principal de punto de venta donde puedes procesar pedidos de forma rápida y eficiente.",
+          "welcome": "¡Bienvenido a Popcorn POS! Esta es tu pantalla principal de punto de venta donde puedes procesar pedidos de forma rápida y eficiente.",
           "categories": "Filtra productos por categorías para encontrar artículos más rápido.",
           "products": "Haz clic en los productos para añadirlos al carrito. La cuadrícula se actualiza en tiempo real con información de stock.",
           "cart": "Tu carrito de compras muestra el pedido actual. Ajusta cantidades o desliza elementos para eliminarlos."
@@ -469,7 +469,7 @@ const resources = {
         "accountCreated": "Ihr Konto wurde erstellt",
         "loginFailed": "Anmeldung Fehlgeschlagen",
         "registerFailed": "Registrierung Fehlgeschlagen",
-        "welcomeMessage": "Willkommen bei Boutique POS",
+        "welcomeMessage": "Willkommen bei Popcorn POS",
         "createAccount": "Neues Konto erstellen"
       },
       "settings": {
@@ -545,7 +545,7 @@ const resources = {
       },
       "onboarding": {
         "pos": {
-          "welcome": "Willkommen bei Boutique POS! Dies ist Ihr Hauptbildschirm für den Point of Sale, auf dem Sie Bestellungen schnell und effizient bearbeiten können.",
+          "welcome": "Willkommen bei Popcorn POS! Dies ist Ihr Hauptbildschirm für den Point of Sale, auf dem Sie Bestellungen schnell und effizient bearbeiten können.",
           "categories": "Filtern Sie Produkte nach Kategorien, um Artikel schneller zu finden.",
           "products": "Klicken Sie auf Produkte, um sie zum Warenkorb hinzuzufügen. Das Raster wird in Echtzeit mit Lagerinformationen aktualisiert.",
           "cart": "Ihr Warenkorb zeigt die aktuelle Bestellung an. Passen Sie Mengen an oder streichen Sie Artikel, um sie zu entfernen."
@@ -669,7 +669,7 @@ const resources = {
         "accountCreated": "Váš účet byl vytvořen",
         "loginFailed": "Přihlášení Selhalo",
         "registerFailed": "Registrace Selhala",
-        "welcomeMessage": "Vítejte v Boutique POS",
+        "welcomeMessage": "Vítejte v Popcorn POS",
         "createAccount": "Vytvořit nový účet"
       },
       "settings": {
@@ -738,14 +738,14 @@ const resources = {
         "nextDay": "Příštích 24 Hodin",
         "nextWeek": "Příštích 7 Dní",
         "confidenceInterval": "Interval Spolehlivosti",
-        "predictedValue": "Předpokládané Prodeje",
+        "predictedValue": "Předpokládanné Prodeje",
         "currentHourSales": "Prodeje v Aktuální Hodině",
         "activeCustomers": "Aktivní Zákazníci",
         "averageOrderValue": "Průměrná Hodnota Objednávky",
       },
       "onboarding": {
         "pos": {
-          "welcome": "Vítejte v Boutique POS! Toto je vaše hlavní obrazovka prodejního místa, kde můžete rychle a efektivně zpracovávat objednávky.",
+          "welcome": "Vítejte v Popcorn POS! Toto je vaše hlavní obrazovka pro prodej, kde můžete rychle a efektivně zpracovávat objednávky.",
           "categories": "Filtrujte produkty podle kategorií, abyste rychleji našli položky.",
           "products": "Kliknutím na produkty je přidáte do košíku. Mřížka se aktualizuje v reálném čase s informacemi o skladu.",
           "cart": "Váš nákupní košík zobrazuje aktuální objednávku. Upravte množství nebo přejeďte prstem přes položky, abyste je odstranili."

@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             animate={{ opacity: 1, y: 0 }}
             className="text-xl md:text-2xl font-bold"
           >
-            Boutique POS
+            Popcorn POS
           </motion.h1>
 
           {/* Mobile Menu */}

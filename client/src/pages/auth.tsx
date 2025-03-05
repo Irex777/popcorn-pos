@@ -84,7 +84,7 @@ export default function AuthPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold tracking-tight">
-            Boutique POS
+            Popcorn POS
           </h1>
           <p className="text-sm text-muted-foreground mt-2">
             {t('auth.welcomeMessage')}
