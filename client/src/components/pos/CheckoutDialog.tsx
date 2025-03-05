@@ -9,27 +9,87 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { stripePromise } from "@/lib/stripe";
-import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { Elements, PaymentElement, useStripe, useElements, PaymentRequestButtonElement } from "@stripe/react-stripe-js";
 import { LoadingAnimation } from "@/components/ui/loading-animation";
 import { useTranslation } from "react-i18next";
 import { CreditCard, Banknote } from "lucide-react";
 import { useShop } from "@/lib/shop-context";
 
-interface CheckoutDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  total: number;
-}
-
-type PaymentMethod = 'card' | 'cash';
-
 function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => void }) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentRequest, setPaymentRequest] = useState(null);
   const { toast } = useToast();
   const [currency] = useAtom(currencyAtom);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (stripe) {
+      const pr = stripe.paymentRequest({
+        country: 'CZ',
+        currency: currency.code.toLowerCase(),
+        total: {
+          label: 'Total',
+          amount: Math.round(total * 100),
+        },
+        requestPayerName: true,
+        requestPayerEmail: true,
+      });
+
+      // Check if Payment Request is available
+      pr.canMakePayment().then(result => {
+        if (result) {
+          setPaymentRequest(pr);
+        }
+      });
+
+      pr.on('paymentmethod', async (e) => {
+        setIsProcessing(true);
+        try {
+          const { error } = await stripe.confirmPayment({
+            elements,
+            confirmParams: {
+              return_url: `${window.location.origin}/payment-complete`,
+              payment_method: e.paymentMethod.id,
+            },
+            redirect: 'if_required',
+          });
+
+          if (error) {
+            if (error.type === 'card_error' || error.type === 'validation_error') {
+              toast({
+                title: t('checkout.paymentFailed'),
+                description: error.message,
+                variant: "destructive"
+              });
+            } else {
+              toast({
+                title: t('checkout.paymentFailed'),
+                description: t('checkout.unexpectedError'),
+                variant: "destructive"
+              });
+            }
+          } else {
+            onSuccess();
+            toast({
+              title: t('checkout.paymentSuccessful'),
+              description: t('checkout.orderProcessed')
+            });
+          }
+        } catch (error: any) {
+          console.error('Payment error:', error);
+          toast({
+            title: t('checkout.paymentFailed'),
+            description: error.message || t('checkout.unexpectedError'),
+            variant: "destructive"
+          });
+        } finally {
+          setIsProcessing(false);
+        }
+      });
+    }
+  }, [stripe, currency.code, total]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,25 +153,35 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="space-y-4">
+      {paymentRequest && (
+        <PaymentRequestButtonElement 
+          options={{
+            paymentRequest,
+            style: {
+              paymentRequestButton: {
+                type: 'default',
+                theme: 'dark',
+                height: '40px',
+              },
+            },
+          }}
+        />
+      )}
       <PaymentElement
         options={{
-          layout: "tabs",
-          // Enable automatic wallet detection
-          wallets: {
-            applePay: 'auto',
-            googlePay: 'auto'
-          }
+          layout: "tabs"
         }}
       />
       <Button
         type="submit"
         className="w-full mt-4"
         disabled={!stripe || !elements || isProcessing}
+        onClick={handleSubmit}
       >
         {isProcessing ? t('checkout.processing') : `${t('checkout.pay')} ${formatCurrency(total, currency)}`}
       </Button>
-    </form>
+    </div>
   );
 }
 
@@ -375,3 +445,11 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
     </Dialog>
   );
 }
+
+interface CheckoutDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  total: number;
+}
+
+type PaymentMethod = 'card' | 'cash';
