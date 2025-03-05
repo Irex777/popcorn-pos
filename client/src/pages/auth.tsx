@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,7 +25,6 @@ import { languages } from "@/lib/settings";
 import i18n from "@/lib/i18n";
 
 export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true);
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -42,14 +40,11 @@ export default function AuthPage() {
   const mutation = useMutation({
     mutationFn: async (data: InsertUser) => {
       try {
-        const response = await fetch(
-          `/api/${isLogin ? "login" : "register"}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-          }
-        );
+        const response = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
 
         const result = await response.json();
         if (!response.ok) {
@@ -67,13 +62,13 @@ export default function AuthPage() {
     onSuccess: () => {
       navigate("/");
       toast({
-        title: isLogin ? t('auth.loginSuccess') : t('auth.registerSuccess'),
-        description: isLogin ? t('auth.welcomeBack') : t('auth.accountCreated'),
+        title: t('auth.loginSuccess'),
+        description: t('auth.welcomeBack'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: isLogin ? t('auth.loginFailed') : t('auth.registerFailed'),
+        title: t('auth.loginFailed'),
         description: error.message,
         variant: "destructive",
       });
@@ -92,7 +87,7 @@ export default function AuthPage() {
             Boutique POS
           </h1>
           <p className="text-sm text-muted-foreground mt-2">
-            {isLogin ? t('auth.welcomeMessage') : t('auth.createAccount')}
+            {t('auth.welcomeMessage')}
           </p>
         </div>
 
@@ -118,10 +113,10 @@ export default function AuthPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-xl">
-              {isLogin ? t('auth.login') : t('auth.register')}
+              {t('auth.login')}
             </CardTitle>
             <CardDescription>
-              {isLogin ? t('auth.loginDescription') : t('auth.registerDescription')}
+              {t('auth.loginDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -154,15 +149,7 @@ export default function AuthPage() {
                 className="w-full"
                 disabled={mutation.isPending}
               >
-                {isLogin ? t('auth.login') : t('auth.register')}
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full"
-                onClick={() => setIsLogin(!isLogin)}
-              >
-                {isLogin ? t('auth.needAccount') : t('auth.haveAccount')}
+                {t('auth.login')}
               </Button>
             </form>
           </CardContent>
