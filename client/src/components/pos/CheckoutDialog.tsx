@@ -156,7 +156,17 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
   });
 
   const initializeCardPayment = async () => {
-    if (!open || total <= 0 || !currentShop) return;
+    if (!open || total <= 0 || !currentShop) {
+      if (total <= 0) {
+        toast({
+          title: t('checkout.error'),
+          description: t('checkout.zeroAmountCard'),
+          variant: "destructive"
+        });
+        setPaymentMethod('cash'); 
+      }
+      return;
+    }
 
     setIsLoading(true);
     setStripeError(undefined);
@@ -240,6 +250,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
                 variant={paymentMethod === 'card' ? 'default' : 'outline'}
                 className="flex-1 gap-2"
                 onClick={() => setPaymentMethod('card')}
+                disabled={total <= 0}
               >
                 <CreditCard className="h-4 w-4" />
                 {t('checkout.card')}
