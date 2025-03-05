@@ -160,7 +160,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
       if (total <= 0) {
         toast({
           title: t('checkout.error'),
-          description: t('checkout.zeroAmountCard'),
+          description: "Card payments are not available for zero amount orders. Please add items to your cart.",
           variant: "destructive"
         });
         setPaymentMethod('cash'); 
