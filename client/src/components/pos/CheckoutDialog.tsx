@@ -342,10 +342,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
                           spacingUnit: '4px'
                         }
                       },
-                      // Only specify 'card' as the payment method type
-                      payment_method_types: ['card'],
-                      // Enable automatic payment method configuration
-                      paymentMethodCreation: 'automatic'
+                      paymentMethodCreation: 'manual'
                     }}
                   >
                     <CheckoutForm
