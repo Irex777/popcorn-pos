@@ -162,7 +162,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
     if (cart.length > 0 && total <= 0) {
       toast({
         title: t('checkout.error'),
-        description: "Card payments are not available for zero amount orders. Please check item prices.",
+        description: "Card payments are not available for orders with zero total amount. Please check item prices.",
         variant: "destructive"
       });
       setPaymentMethod('cash');
@@ -190,12 +190,16 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
         const error = await response.json();
         // Check if it's a minimum amount error
         if (error.error && error.error.includes("Amount must be at least")) {
-          setStripeError(error.error);
+          toast({
+            title: t('checkout.minimumAmount'),
+            description: `${error.error}. Please use cash payment for smaller amounts.`,
+            variant: "destructive"
+          });
           setPaymentMethod('cash');
+          return;
         } else {
           throw new Error(error.error || 'Failed to create payment intent');
         }
-        return;
       }
 
       const data = await response.json();
