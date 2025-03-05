@@ -19,17 +19,16 @@ export async function createPaymentIntent(req: Request, res: Response) {
         enabled: true,
         allow_redirects: 'always'
       },
+      // Enable payment methods including terminal payments
       payment_method_types: ['card'],
+      capture_method: 'automatic',
+      setup_future_usage: 'off_session',
       metadata: {
         shopId
       }
     });
 
     console.log('Payment intent created:', paymentIntent.id);
-    console.log('Payment intent created:', {
-      clientSecret: paymentIntent.client_secret,
-      id: paymentIntent.id
-    });
 
     res.json({
       clientSecret: paymentIntent.client_secret,

@@ -155,7 +155,7 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
   return (
     <div className="space-y-4">
       {paymentRequest && (
-        <PaymentRequestButtonElement 
+        <PaymentRequestButtonElement
           options={{
             paymentRequest,
             style: {
@@ -170,7 +170,13 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
       )}
       <PaymentElement
         options={{
-          layout: "tabs"
+          layout: "tabs",
+          defaultValues: {
+            billingDetails: {
+              name: 'Auto-filled Name',
+            }
+          },
+          paymentMethodOrder: ['apple_pay', 'google_pay', 'card']
         }}
       />
       <Button
@@ -412,7 +418,8 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
                           spacingUnit: '4px'
                         }
                       },
-                      paymentMethodCreation: 'manual'
+                      paymentMethodCreation: 'manual',
+                      loader: 'auto'
                     }}
                   >
                     <CheckoutForm
