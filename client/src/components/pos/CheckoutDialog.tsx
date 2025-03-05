@@ -156,15 +156,16 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
   });
 
   const initializeCardPayment = async () => {
-    if (!open || total <= 0 || !currentShop) {
-      if (total <= 0) {
-        toast({
-          title: t('checkout.error'),
-          description: "Card payments are not available for zero amount orders. Please add items to your cart.",
-          variant: "destructive"
-        });
-        setPaymentMethod('cash'); 
-      }
+    if (!open || !currentShop) return;
+
+    // If cart has items but total is below minimum, show appropriate message
+    if (cart.length > 0 && total <= 0) {
+      toast({
+        title: t('checkout.error'),
+        description: "Card payments are not available for zero amount orders. Please check item prices.",
+        variant: "destructive"
+      });
+      setPaymentMethod('cash');
       return;
     }
 
@@ -187,7 +188,14 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to create payment intent');
+        // Check if it's a minimum amount error
+        if (error.error && error.error.includes("Amount must be at least")) {
+          setStripeError(error.error);
+          setPaymentMethod('cash');
+        } else {
+          throw new Error(error.error || 'Failed to create payment intent');
+        }
+        return;
       }
 
       const data = await response.json();
@@ -203,7 +211,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
       setStripeError(error.message || t('checkout.initializationFailed'));
       toast({
         title: t('checkout.error'),
-        description: t('checkout.paymentInitializationFailed'),
+        description: error.message || t('checkout.paymentInitializationFailed'),
         variant: "destructive"
       });
     } finally {
