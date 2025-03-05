@@ -418,7 +418,6 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
                           spacingUnit: '4px'
                         }
                       },
-                      paymentMethodCreation: 'manual',
                       loader: 'auto'
                     }}
                   >

@@ -17,12 +17,7 @@ export async function createPaymentIntent(req: Request, res: Response) {
       currency: currency.toLowerCase(),
       automatic_payment_methods: {
         enabled: true,
-        allow_redirects: 'always'
       },
-      // Enable payment methods including terminal payments
-      payment_method_types: ['card'],
-      capture_method: 'automatic',
-      setup_future_usage: 'off_session',
       metadata: {
         shopId
       }
