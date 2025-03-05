@@ -28,7 +28,11 @@ export async function createPaymentIntent(req: Request, res: Response) {
       },
     });
 
-    console.log('Payment intent created:', paymentIntent.id);
+    console.log('Payment intent created:', {
+      id: paymentIntent.id,
+      paymentMethods: paymentIntent.payment_method_types,
+      status: paymentIntent.status
+    });
 
     res.json({
       clientSecret: paymentIntent.client_secret,

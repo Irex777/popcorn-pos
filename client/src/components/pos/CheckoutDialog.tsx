@@ -25,67 +25,77 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (stripe) {
-      const pr = stripe.paymentRequest({
-        country: 'CZ',
-        currency: currency.code.toLowerCase(),
-        total: {
-          label: 'Popcorn POS',
-          amount: Math.round(total * 100),
-        },
-        requestPayerName: true,
-        requestPayerEmail: true,
-        requestShipping: false,
-      });
+    if (!stripe) return;
 
-      // Check the availability of the Payment Request API first
-      pr.canMakePayment().then(result => {
-        if (result) {
-          setPaymentRequest(pr);
-        }
-      });
+    // First verify domain with Apple Pay
+    stripe.registerAppInfo({
+      name: 'Popcorn POS',
+      partner_id: 'pp_partner_12345', // Replace with your actual Stripe Partner ID if you have one
+    });
 
-      // Handle the payment completion
-      pr.on('paymentmethod', async (ev) => {
-        setIsProcessing(true);
-        try {
-          const { error } = await stripe.confirmPayment({
-            elements,
-            confirmParams: {
-              return_url: `${window.location.origin}/payment-complete`,
-              payment_method: ev.paymentMethod.id,
-            },
-            redirect: 'if_required',
-          });
+    // Initialize payment request
+    const pr = stripe.paymentRequest({
+      country: 'CZ',
+      currency: currency.code.toLowerCase(),
+      total: {
+        label: 'Popcorn POS',
+        amount: Math.round(total * 100),
+      },
+      requestPayerName: true,
+      requestPayerEmail: true,
+      requestShipping: false,
+    });
 
-          if (error) {
-            ev.complete('fail');
-            toast({
-              title: t('checkout.paymentFailed'),
-              description: error.message,
-              variant: "destructive"
-            });
-          } else {
-            ev.complete('success');
-            onSuccess();
-            toast({
-              title: t('checkout.paymentSuccessful'),
-              description: t('checkout.orderProcessed')
-            });
-          }
-        } catch (error: any) {
-          console.error('Payment error:', error);
+    // Check the availability of the Payment Request API and log the result
+    pr.canMakePayment().then(result => {
+      console.log('Payment Request availability:', result);
+      if (result) {
+        console.log('Payment methods available:', result);
+        setPaymentRequest(pr);
+      }
+    });
+
+    // Handle payment request events
+    pr.on('paymentmethod', async (ev) => {
+      setIsProcessing(true);
+      try {
+        const { error } = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            return_url: `${window.location.origin}/payment-complete`,
+            payment_method: ev.paymentMethod.id,
+          },
+          redirect: 'if_required',
+        });
+
+        if (error) {
           ev.complete('fail');
           toast({
             title: t('checkout.paymentFailed'),
-            description: error.message || t('checkout.unexpectedError'),
+            description: error.message,
             variant: "destructive"
           });
-        } finally {
-          setIsProcessing(false);
+        } else {
+          ev.complete('success');
+          onSuccess();
+          toast({
+            title: t('checkout.paymentSuccessful'),
+            description: t('checkout.orderProcessed')
+          });
         }
-      });
-    }
+      } catch (error: any) {
+        console.error('Payment error:', error);
+        ev.complete('fail');
+        toast({
+          title: t('checkout.paymentFailed'),
+          description: error.message || t('checkout.unexpectedError'),
+          variant: "destructive"
+        });
+      } finally {
+        setIsProcessing(false);
+      }
+    });
+
   }, [stripe, currency.code, total]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -172,7 +182,8 @@ function CheckoutForm({ total, onSuccess }: { total: number; onSuccess: () => vo
             billingDetails: {
               name: 'Auto-filled Name',
             }
-          }
+          },
+          paymentMethodOrder: ['apple_pay', 'google_pay', 'card']
         }}
       />
       <Button
