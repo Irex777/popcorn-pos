@@ -11,14 +11,39 @@ export const shops = pgTable("shops", {
   createdById: integer("created_by_id").references(() => users.id).notNull(),
 });
 
+// Stripe settings
+export const stripeSettings = pgTable("stripe_settings", {
+  id: serial("id").primaryKey(),
+  shopId: integer("shop_id").references(() => shops.id).notNull().unique(),
+  publishableKey: text("publishable_key"),
+  secretKey: text("secret_key"),
+  enabled: boolean("enabled").notNull().default(false),
+});
+
+export const insertStripeSettingsSchema = createInsertSchema(stripeSettings)
+  .omit({ id: true })
+  .extend({
+    publishableKey: z.string().optional(),
+    secretKey: z.string().optional(),
+  });
+
+export type StripeSettings = typeof stripeSettings.$inferSelect;
+export type InsertStripeSettings = z.infer<typeof insertStripeSettingsSchema>;
+
 export const insertShopSchema = createInsertSchema(shops)
   .extend({
     name: z.string().min(1, "Shop name is required"),
-    address: z.string().optional(),
+    address: z.string().nullable(),
   })
   .omit({ id: true, createdAt: true });
 
 // User model and schema
+// User-Shop relations
+export const userShops = pgTable("user_shops", {
+  userId: integer("user_id").references(() => users.id).notNull(),
+  shopId: integer("shop_id").references(() => shops.id).notNull(),
+});
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -27,6 +52,10 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Add types for user shops
+export type UserShop = typeof userShops.$inferSelect;
+export type InsertUserShop = typeof userShops.$inferInsert;
+
 export const insertUserSchema = createInsertSchema(users)
   .extend({
     username: z.string().min(3, "Username must be at least 3 characters"),
@@ -34,8 +63,8 @@ export const insertUserSchema = createInsertSchema(users)
   })
   .omit({ id: true, createdAt: true, isAdmin: true });
 
-// Export user types
-export type User = typeof users.$inferSelect;
+// Export user types with shopIds
+export type User = typeof users.$inferSelect & { shopIds?: number[] };
 export type InsertUser = z.infer<typeof insertUserSchema>;
 
 // Add shopId to categories

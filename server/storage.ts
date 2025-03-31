@@ -1,4 +1,4 @@
-import { type Product, type Order, type OrderItem, type InsertProduct, type InsertOrder, type InsertOrderItem, type UpdateProductStock, type Category, type InsertCategory, type User, type InsertUser, type Shop, type InsertShop, users, shops } from "@shared/schema";
+import { type Product, type Order, type OrderItem, type InsertProduct, type InsertOrder, type InsertOrderItem, type UpdateProductStock, type Category, type InsertCategory, type User, type InsertUser, type Shop, type InsertShop, type StripeSettings, users, shops, stripeSettings, userShops } from "@shared/schema";
 import { db } from "./db";
 import { products, orders, orderItems, categories } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
@@ -9,11 +9,12 @@ const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
   // Users
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
+  getUser(id: number): Promise<(User & { shopIds?: number[] }) | undefined>;
+  getUserByUsername(username: string): Promise<(User & { shopIds?: number[] }) | undefined>;
   createUser(user: InsertUser & { isAdmin?: boolean }): Promise<User>;
-  updateUserPassword(id: number, password: string): Promise<User | undefined>;
+  updateUserPassword(id: number, password: string): Promise<User>;
   updateUser(id: number, updates: { username?: string; password?: string }): Promise<User>;
+  updateUserShops(userId: number, shopIds: number[]): Promise<void>;
   getAllUsers(): Promise<User[]>;
 
   // Shops
@@ -47,11 +48,45 @@ export interface IStorage {
   deleteOrderItems(orderId: number): Promise<void>;
   deleteOrderById(orderId: number, shopId: number): Promise<Order | undefined>;
 
+  // Stripe settings
+  getStripeSettings(shopId: number): Promise<StripeSettings | undefined>;
+  updateStripeSettings(settings: { shopId: number; publishableKey: string | null; secretKey: string | null; enabled: boolean }): Promise<StripeSettings>;
+
   // Session store
   sessionStore: session.Store;
 }
 
 export class DatabaseStorage implements IStorage {
+  async getStripeSettings(shopId: number): Promise<StripeSettings | undefined> {
+    const [settings] = await db
+      .select()
+      .from(stripeSettings)
+      .where(eq(stripeSettings.shopId, shopId));
+    return settings;
+  }
+
+  async updateStripeSettings(settings: { shopId: number; publishableKey: string | null; secretKey: string | null; enabled: boolean }): Promise<StripeSettings> {
+    const [existing] = await db
+      .select()
+      .from(stripeSettings)
+      .where(eq(stripeSettings.shopId, settings.shopId));
+
+    if (existing) {
+      const [updated] = await db
+        .update(stripeSettings)
+        .set(settings)
+        .where(eq(stripeSettings.shopId, settings.shopId))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db
+        .insert(stripeSettings)
+        .values(settings)
+        .returning();
+      return created;
+    }
+  }
+
   sessionStore: session.Store;
 
   constructor() {
@@ -101,7 +136,7 @@ export class DatabaseStorage implements IStorage {
     return deletedShop;
   }
 
-  // Update existing methods to be shop-specific
+  // Shop-specific methods
   async getCategories(shopId: number): Promise<Category[]> {
     return await db
       .select()
@@ -110,10 +145,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getProducts(shopId: number): Promise<Product[]> {
-    return await db
-      .select()
+    const results = await db.select({
+      id: products.id,
+      name: products.name,
+      price: products.price,
+      categoryId: products.categoryId,
+      imageUrl: products.imageUrl,
+      stock: products.stock,
+      shopId: products.shopId,
+    })
       .from(products)
       .where(eq(products.shopId, shopId));
+
+    return results;
   }
 
   async getOrders(shopId: number): Promise<Order[]> {
@@ -129,17 +173,57 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(users);
   }
 
-  async getUser(id: number): Promise<User | undefined> {
+  async getUser(id: number): Promise<(User & { shopIds?: number[] }) | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    if (!user) return undefined;
+
+    if (!user.isAdmin) {
+      // Get user's assigned shops
+      const userShopRecords = await db
+        .select({ shopId: userShops.shopId })
+        .from(userShops)
+        .where(eq(userShops.userId, id));
+      
+      return {
+        ...user,
+        shopIds: userShopRecords.map(record => record.shopId)
+      };
+    }
+
+    // For admin users, get all shop IDs
+    const allShops = await db.select({ id: shops.id }).from(shops);
+    return {
+      ...user,
+      shopIds: allShops.map(shop => shop.id)
+    };
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
+  async getUserByUsername(username: string): Promise<(User & { shopIds?: number[] }) | undefined> {
     const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
+    if (!user) return undefined;
+
+    if (!user.isAdmin) {
+      // Get user's assigned shops
+      const userShopRecords = await db
+        .select({ shopId: userShops.shopId })
+        .from(userShops)
+        .where(eq(userShops.userId, user.id));
+      
+      return {
+        ...user,
+        shopIds: userShopRecords.map(record => record.shopId)
+      };
+    }
+
+    // For admin users, get all shop IDs
+    const allShops = await db.select({ id: shops.id }).from(shops);
+    return {
+      ...user,
+      shopIds: allShops.map(shop => shop.id)
+    };
   }
 
-  async createUser(insertUser: InsertUser & { isAdmin?: boolean }): Promise<User> {
+  async createUser(insertUser: InsertUser & { isAdmin?: boolean; shopIds?: number[] }): Promise<User> {
     const [user] = await db
       .insert(users)
       .values({
@@ -147,25 +231,82 @@ export class DatabaseStorage implements IStorage {
         isAdmin: insertUser.isAdmin || false,
       })
       .returning();
-    return user;
+
+    // If specific shops are provided, assign those
+    if (insertUser.shopIds?.length) {
+      await db.insert(userShops).values(
+        insertUser.shopIds.map(shopId => ({
+          userId: user.id,
+          shopId: shopId
+        }))
+      );
+    }
+    // For non-admin users without specified shops, assign to the first shop
+    else if (!user.isAdmin) {
+      const [firstShop] = await db.select().from(shops).limit(1);
+      if (firstShop) {
+        await db.insert(userShops).values({
+          userId: user.id,
+          shopId: firstShop.id
+        });
+      }
+    }
+
+    // Return full user with shops
+    return await this.getUser(user.id) as User;
   }
 
-  async updateUserPassword(id: number, password: string): Promise<User | undefined> {
+  async updateUserPassword(id: number, password: string): Promise<User> {
+    if (!password) {
+      throw new Error("Password is required for password update");
+    }
     const [user] = await db
       .update(users)
       .set({ password })
       .where(eq(users.id, id))
       .returning();
+    if (!user) {
+      throw new Error("User not found");
+    }
     return user;
   }
 
   async updateUser(id: number, updates: { username?: string; password?: string }): Promise<User> {
+    // Filter out undefined values to avoid empty updates
+    const validUpdates: { username?: string; password?: string } = {};
+    if (updates.username !== undefined) validUpdates.username = updates.username;
+    if (updates.password !== undefined) validUpdates.password = updates.password;
+
+    // If there are no valid updates, get the existing user
+    if (Object.keys(validUpdates).length === 0) {
+      const [user] = await db.select().from(users).where(eq(users.id, id));
+      if (!user) throw new Error("User not found");
+      return user;
+    }
+
     const [user] = await db
       .update(users)
-      .set(updates)
+      .set(validUpdates)
       .where(eq(users.id, id))
       .returning();
     return user;
+  }
+
+  async updateUserShops(userId: number, shopIds: number[]): Promise<void> {
+    // Delete existing shop assignments
+    await db
+      .delete(userShops)
+      .where(eq(userShops.userId, userId));
+
+    // Insert new shop assignments if any
+    if (shopIds.length > 0) {
+      await db
+        .insert(userShops)
+        .values(shopIds.map(shopId => ({
+          userId,
+          shopId
+        })));
+    }
   }
 
   async getCategory(id: number): Promise<Category | undefined> {
@@ -188,29 +329,28 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteCategory(id: number): Promise<Category | undefined> {
-    const [category] = await db
-      .delete(categories)
-      .where(eq(categories.id, id))
-      .returning();
-    return category;
-  }
+    try {
+      // First check if category has any products
+      const relatedProducts = await db
+        .select()
+        .from(products)
+        .where(eq(products.categoryId, id));
 
-  async getProducts(shopId: number): Promise<Product[]> {
-    const results = await db.select({
-      id: products.id,
-      name: products.name,
-      price: products.price,
-      categoryId: products.categoryId,
-      imageUrl: products.imageUrl,
-      stock: products.stock,
-      shopId: products.shopId,
-    })
-      .from(products)
-      .where(eq(products.shopId, shopId));
+      if (relatedProducts.length > 0) {
+        throw new Error("Cannot delete category that has products");
+      }
 
-    return results.map(product => ({
-      ...product,
-    }));
+      // If no products exist, delete the category
+      const [category] = await db
+        .delete(categories)
+        .where(eq(categories.id, id))
+        .returning();
+
+      return category;
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      throw error;
+    }
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
@@ -223,7 +363,7 @@ export class DatabaseStorage implements IStorage {
       // Format the product data
       const formattedProduct = {
         name: insertProduct.name,
-        price: typeof insertProduct.price === 'string' ? insertProduct.price : insertProduct.price.toFixed(2),
+        price: insertProduct.price,
         categoryId: Number(insertProduct.categoryId),
         imageUrl: insertProduct.imageUrl || '', // Always ensure a string, never null
         stock: Number(insertProduct.stock),
@@ -277,11 +417,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteProduct(id: number): Promise<Product | undefined> {
-    const [product] = await db
-      .delete(products)
-      .where(eq(products.id, id))
-      .returning();
-    return product;
+    try {
+      // First check if product exists in any orders
+      const relatedOrderItems = await db
+        .select()
+        .from(orderItems)
+        .where(eq(orderItems.productId, id));
+
+      if (relatedOrderItems.length > 0) {
+        // Delete all related order items first
+        await db
+          .delete(orderItems)
+          .where(eq(orderItems.productId, id));
+      }
+
+      // Now we can safely delete the product
+      const [product] = await db
+        .delete(products)
+        .where(eq(products.id, id))
+        .returning();
+
+      return product;
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
   }
 
   // Orders implementation
@@ -311,14 +471,6 @@ export class DatabaseStorage implements IStorage {
     return order;
   }
 
-  async getOrders(shopId: number): Promise<Order[]> {
-    return await db
-      .select()
-      .from(orders)
-      .where(eq(orders.shopId, shopId))
-      .orderBy(orders.createdAt);
-  }
-
   async getOrderItems(orderId: number): Promise<OrderItem[]> {
     return await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
   }
@@ -339,7 +491,11 @@ export class DatabaseStorage implements IStorage {
       return undefined;
     }
 
-    // Delete the order
+    // First delete order items due to foreign key constraint
+    await db.delete(orderItems)
+      .where(eq(orderItems.orderId, orderId));
+
+    // Then delete the order
     const [deletedOrder] = await db
       .delete(orders)
       .where(sql`${orders.id} = ${orderId} AND ${orders.shopId} = ${shopId}`)

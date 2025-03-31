@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertUserSchema, type InsertUser } from "@shared/schema";
-import { useMutation } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/use-auth"; // Import useAuth
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,7 @@ export default function AuthPage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { t } = useTranslation();
+  const { loginMutation } = useAuth(); // Get loginMutation from useAuth
 
   const form = useForm<InsertUser>({
     resolver: zodResolver(insertUserSchema),
@@ -37,46 +38,21 @@ export default function AuthPage() {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: async (data: InsertUser) => {
-      try {
-        const response = await fetch("/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-
-        const result = await response.json();
-        if (!response.ok) {
-          throw new Error(result.error || 'Authentication failed');
-        }
-
-        return result;
-      } catch (error) {
-        if (error instanceof Error) {
-          throw error;
-        }
-        throw new Error('Authentication failed');
-      }
-    },
-    onSuccess: () => {
-      navigate("/");
-      toast({
-        title: t('auth.loginSuccess'),
-        description: t('auth.welcomeBack'),
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: t('auth.loginFailed'),
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+  // Remove the local mutation definition
 
   const onSubmit = (data: InsertUser) => {
-    mutation.mutate(data);
+    // Use the loginMutation from useAuth
+    loginMutation.mutate(data, {
+      onSuccess: () => {
+        // Add navigation and toast on success here, as the hook's onSuccess only updates cache
+        navigate("/");
+        toast({
+          title: t('auth.loginSuccess'),
+          description: t('auth.welcomeBack'),
+        });
+      },
+      // onError is handled globally by the loginMutation in useAuth
+    });
   };
 
   return (
@@ -98,7 +74,7 @@ export default function AuthPage() {
             onValueChange={(value) => i18n.changeLanguage(value)}
           >
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select language" />
+              <SelectValue placeholder={t('auth.selectLanguage')} />
             </SelectTrigger>
             <SelectContent>
               {languages.map(lang => (
@@ -147,7 +123,7 @@ export default function AuthPage() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={mutation.isPending}
+                disabled={loginMutation.isPending} // Use loginMutation state
               >
                 {t('auth.login')}
               </Button>

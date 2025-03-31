@@ -3,14 +3,62 @@ import { Server } from 'http';
 import { storage } from './storage';
 
 let wss: WebSocketServer;
+let isInitialized = false;
 
 export function setupWebSocket(server: Server) {
+  if (isInitialized) {
+    console.log('WebSocket server already initialized');
+    return true;
+  }
+
   try {
-    wss = new WebSocketServer({ server, path: '/ws' });
+    wss = new WebSocketServer({
+      server, // Attach to HTTP server
+      path: '/ws',
+      verifyClient: async (info: any, callback: any) => {
+        try {
+          // Extract user session
+          const cookie = info.req.headers.cookie;
+          if (!cookie) {
+            console.log('WS: No cookie provided');
+            callback(false, 401, 'Unauthorized');
+            return;
+          }
+
+          // Extract sessionId from cookie
+          const sessionMatch = cookie.match(/connect\.sid=([^;]+)/);
+          if (!sessionMatch) {
+            console.log('WS: No session cookie found');
+            callback(false, 401, 'Unauthorized');
+            return;
+          }
+
+          // For now, accept all authenticated connections
+          // In a production environment, you'd want to validate the session
+          callback(true);
+        } catch (error) {
+          console.error('WS verification error:', error);
+          callback(false, 500, 'Internal Server Error');
+        }
+      }
+    });
+
     console.log('WebSocket server initialized');
 
-    wss.on('connection', (ws) => {
+    wss.on('connection', (ws, request) => {
       console.log('Client connected to WebSocket');
+      
+      // Store connection time for debugging
+      (ws as any).connectionTime = new Date();
+      (ws as any).lastPingTime = new Date();
+
+      // Set up ping-pong to keep connection alive
+      const pingInterval = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.ping();
+          (ws as any).lastPingTime = new Date();
+        }
+      }, 30000);
 
       ws.on('error', (error) => {
         console.error('WebSocket client error:', error);
@@ -18,14 +66,33 @@ export function setupWebSocket(server: Server) {
 
       ws.on('close', () => {
         console.log('Client disconnected from WebSocket');
+        clearInterval(pingInterval);
+      });
+
+      ws.on('pong', () => {
+        (ws as any).lastPongTime = new Date();
       });
     });
+
+    // Monitor connections periodically
+    setInterval(() => {
+      wss.clients.forEach((client: any) => {
+        const connectionDuration = Date.now() - client.connectionTime.getTime();
+        const lastPingAge = Date.now() - client.lastPingTime.getTime();
+        console.log(`WS Client stats - Connected: ${connectionDuration}ms, Last ping: ${lastPingAge}ms`);
+      });
+    }, 60000);
 
     wss.on('error', (error) => {
       console.error('WebSocket server error:', error);
     });
+
+    isInitialized = true;
+    return true;
+
   } catch (error) {
     console.error('Failed to initialize WebSocket server:', error);
+    return false;
   }
 }
 
@@ -59,9 +126,9 @@ function calculateStats(numbers: number[]) {
 }
 
 // Function to generate predictions based on historical data
-export async function generatePredictions() {
+export async function generatePredictions(shopId: number) {
   try {
-    const orders = await storage.getOrders();
+    const orders = await storage.getOrders(shopId);
     const hourlyData: { [hour: string]: number[] } = {};
 
     // Group orders by hour
@@ -106,7 +173,12 @@ export async function generatePredictions() {
 }
 
 // Start periodic analytics updates
-export function startAnalyticsUpdates() {
+export function startAnalyticsUpdates(shopId?: number) {
+  if (!shopId) {
+    console.log('No shopId provided, skipping analytics updates');
+    return;
+  }
+
   console.log('Starting analytics updates...');
   // Update analytics every minute
   const interval = setInterval(async () => {
@@ -116,8 +188,8 @@ export function startAnalyticsUpdates() {
         return;
       }
 
-      const predictions = await generatePredictions();
-      const orders = await storage.getOrders();
+      const predictions = await generatePredictions(shopId);
+      const orders = await storage.getOrders(shopId);
 
       // Calculate real-time metrics
       const currentHour = new Date().getHours();

@@ -25,11 +25,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logoutMutation } = useAuth();
 
   const menuItems = [
-    { href: "/", label: t('common.pos') },
-    { href: "/history", label: t('common.history') },
-    { href: "/inventory", label: t('common.inventory') },
-    { href: "/categories", label: t('common.categories') },
-    { href: "/analytics", label: t('analytics.title') },
+    { href: "/", label: t('analytics.navigation.pos') },
+    { href: "/history", label: t('analytics.navigation.history') },
+    { href: "/inventory", label: t('analytics.navigation.inventory') },
+    { href: "/categories", label: t('analytics.navigation.categories') },
+    { href: "/analytics", label: t('analytics.navigation.analytics') },
   ];
 
   const handleLogout = () => {
@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       onSuccess: () => {
         window.location.href = '/auth';
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         toast({
           title: t('common.error'),
           description: error.message,
@@ -61,7 +61,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           {/* Mobile Menu */}
           <div className="flex md:hidden items-center gap-2">
-            <ShopSelector />
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -99,7 +98,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     className="flex items-center gap-2 px-4 py-3 rounded-md text-base font-medium w-full text-left text-foreground/60 hover:text-foreground"
                   >
                     <Settings className="h-5 w-5" />
-                    {t('common.settings')}
+                    {t('analytics.navigation.settings')}
                   </button>
                   <button
                     onClick={() => {

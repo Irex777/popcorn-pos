@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { type Order } from "@shared/schema";
-import { format } from "date-fns";
+import { format, startOfWeek, endOfWeek, isWithinInterval, parseISO } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, ChevronUp, Download, Search, Trash2 } from "lucide-react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useAtom } from "jotai";
@@ -15,6 +15,8 @@ import { useShop } from "@/lib/shop-context";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import jsPDF from "jspdf";
+import autoTable from 'jspdf-autotable';
 
 interface OrderWithId extends Order {
   id: number;
@@ -30,7 +32,10 @@ export default function History() {
   const { t } = useTranslation();
   const [currency] = useAtom(currencyAtom);
   const [expandedOrders, setExpandedOrders] = useState<number[]>([]);
-  const [timeframe, setTimeframe] = useState<'day' | 'month'>('day');
+  const [timeframe, setTimeframe] = useState<'day' | 'week' | 'month'>('day');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const { currentShop } = useShop();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -78,6 +83,39 @@ export default function History() {
     );
   };
 
+  const generatePDF = (order: OrderWithId) => {
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.text('Receipt', 105, 20, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.text(`Order #${order.id}`, 20, 40);
+    doc.text(`Date: ${format(new Date(order.createdAt!), 'MMMM d, yyyy h:mm a')}`, 20, 50);
+    doc.text(`Status: ${t(`history.status.${order.status.toLowerCase()}`)}`, 20, 60);
+    
+    // Items table
+    const tableData = order.items.map(item => [
+      item.quantity,
+      item.product?.name || t('history.unknownProduct'),
+      formatCurrency(Number(item.price), currency)
+    ]);
+    
+    autoTable(doc, {
+      startY: 70,
+      head: [['Qty', 'Item', 'Price']],
+      body: tableData,
+    });
+    
+    // Total
+    const finalY = (doc as any).lastAutoTable.finalY || 70;
+    doc.text(`Total: ${formatCurrency(Number(order.total), currency)}`, 20, finalY + 20);
+    
+    // Save PDF
+    doc.save(`order-${order.id}-receipt.pdf`);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'completed':
@@ -112,14 +150,42 @@ export default function History() {
     }));
   };
 
+  const filteredOrders = useMemo(() => {
+    if (!orders) return [];
+    
+    return orders.filter(order => {
+      const matchesSearch = searchTerm === '' || 
+        order.id.toString().includes(searchTerm) ||
+        order.items.some(item => 
+          item.product?.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+      const orderDate = new Date(order.createdAt!);
+      const matchesDateRange = (!startDate || !endDate) || 
+        isWithinInterval(orderDate, { start: startDate, end: endDate });
+
+      return matchesSearch && matchesDateRange;
+    });
+  }, [orders, searchTerm, startDate, endDate]);
+
   const groupOrdersByDate = (orders: OrderWithId[] = []) => {
     const groups = new Map<string, OrderWithId[]>();
 
     orders.forEach(order => {
       const orderDate = new Date(order.createdAt!);
-      const key = timeframe === 'day'
-        ? format(orderDate, 'yyyy-MM-dd')
-        : format(orderDate, 'yyyy-MM');
+      let key;
+      
+      switch (timeframe) {
+        case 'week':
+          const weekStart = startOfWeek(orderDate);
+          key = format(weekStart, 'yyyy-MM-dd');
+          break;
+        case 'month':
+          key = format(orderDate, 'yyyy-MM');
+          break;
+        default:
+          key = format(orderDate, 'yyyy-MM-dd');
+      }
 
       if (!groups.has(key)) {
         groups.set(key, []);
@@ -154,32 +220,67 @@ export default function History() {
     );
   }
 
-  const groupedOrders = groupOrdersByDate(orders);
+  const groupedOrders = groupOrdersByDate(filteredOrders);
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">{t('common.history')}</h2>
-        <div className="flex items-center gap-4">
-          <div className="flex gap-2">
-            <Button
-              variant={timeframe === 'day' ? 'default' : 'outline'}
-              onClick={() => setTimeframe('day')}
-            >
-              {t('history.daily')}
-            </Button>
-            <Button
-              variant={timeframe === 'month' ? 'default' : 'outline'}
-              onClick={() => setTimeframe('month')}
-            >
-              {t('history.monthly')}
-            </Button>
+      <div className="space-y-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-xl font-bold">{t('common.history')}</h2>
+          <div className="flex flex-wrap gap-4">
+            <div className="flex gap-2">
+              <Button
+                variant={timeframe === 'day' ? 'default' : 'outline'}
+                onClick={() => setTimeframe('day')}
+              >
+                {t('history.daily')}
+              </Button>
+              <Button
+                variant={timeframe === 'week' ? 'default' : 'outline'}
+                onClick={() => setTimeframe('week')}
+              >
+                {t('history.weekly')}
+              </Button>
+              <Button
+                variant={timeframe === 'month' ? 'default' : 'outline'}
+                onClick={() => setTimeframe('month')}
+              >
+                {t('history.monthly')}
+              </Button>
+            </div>
+            <ExportButtons
+              data={prepareExportData()}
+              filename="order-history"
+              title={t('common.history')}
+            />
           </div>
-          <ExportButtons
-            data={prepareExportData()}
-            filename="order-history"
-            title={t('common.history')}
-          />
+        </div>
+
+        <div className="flex flex-col gap-4 sm:flex-row">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
+            <input
+              type="text"
+              placeholder={t('history.searchPlaceholder')}
+              className="w-full rounded-md border pl-9 pr-4 py-2"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="date"
+              className="rounded-md border px-4 py-2"
+              value={startDate ? format(startDate, 'yyyy-MM-dd') : ''}
+              onChange={(e) => setStartDate(e.target.value ? parseISO(e.target.value) : null)}
+            />
+            <input
+              type="date"
+              className="rounded-md border px-4 py-2"
+              value={endDate ? format(endDate, 'yyyy-MM-dd') : ''}
+              onChange={(e) => setEndDate(e.target.value ? parseISO(e.target.value) : null)}
+            />
+          </div>
         </div>
       </div>
 
@@ -195,6 +296,8 @@ export default function History() {
                 <h3 className="font-medium">
                   {timeframe === 'day'
                     ? format(new Date(date), 'MMMM d, yyyy')
+                    : timeframe === 'week'
+                    ? `Week of ${format(new Date(date), 'MMMM d, yyyy')}`
                     : format(new Date(date), 'MMMM yyyy')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
@@ -235,6 +338,16 @@ export default function History() {
                           {t(`history.status.${order.status.toLowerCase()}`)}
                         </Badge>
                         <p className="font-medium">{formatCurrency(Number(order.total), currency)}</p>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            generatePDF(order);
+                          }}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
                         {user?.isAdmin && (
                           <Button
                             variant="ghost"

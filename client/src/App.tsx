@@ -1,3 +1,4 @@
+import React from "react";
 import { Switch, Route } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -10,6 +11,8 @@ import Settings from "@/pages/settings";
 import Categories from "@/pages/categories";
 import Analytics from "@/pages/analytics";
 import AuthPage from "@/pages/auth";
+import PaymentSuccess from "@/pages/payment-success";
+import PaymentCancel from "@/pages/payment-cancel";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Provider as JotaiProvider } from 'jotai';
 import { I18nextProvider } from 'react-i18next';
@@ -18,11 +21,14 @@ import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ShopProvider } from "@/lib/shop-context";
+import { ThemeProvider } from "@/lib/ThemeProvider";
 
 function Router() {
   return (
     <Switch>
       <Route path="/auth" component={AuthPage} />
+      <Route path="/payment/success" component={PaymentSuccess} />
+      <Route path="/payment/cancel" component={PaymentCancel} />
       <Route>
         <DashboardLayout>
           <Switch>
@@ -43,8 +49,9 @@ function Router() {
 function App() {
   return (
     <JotaiProvider>
-      <I18nextProvider i18n={i18n}>
-        <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <I18nextProvider i18n={i18n}>
+          <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <ShopProvider>
               <OnboardingProvider>
@@ -53,8 +60,9 @@ function App() {
               </OnboardingProvider>
             </ShopProvider>
           </AuthProvider>
-        </QueryClientProvider>
-      </I18nextProvider>
+          </QueryClientProvider>
+        </I18nextProvider>
+      </ThemeProvider>
     </JotaiProvider>
   );
 }

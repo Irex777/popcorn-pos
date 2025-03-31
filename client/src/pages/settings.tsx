@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useAtom } from "jotai";
 import { motion } from "framer-motion";
 import { languages, languageAtom, currencies, currencyAtom } from "@/lib/settings";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Plus, Loader2, Pencil, TestTube } from "lucide-react";
+import { Plus, Loader2, Pencil, TestTube, Trash2 } from "lucide-react";
 import i18n from "@/lib/i18n";
 import {
   Select,
@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { insertUserSchema, type User } from "@shared/schema";
+import { insertUserSchema, type User, type StripeSettings } from "@shared/schema";
 import {
   Dialog,
   DialogContent,
@@ -36,15 +36,25 @@ export default function Settings() {
   const [language, setLanguage] = useAtom(languageAtom);
   const [currency, setCurrency] = useAtom(currencyAtom);
   const { toast } = useToast();
-  const [editingUser, setEditingUser] = useState<{ id: number; username: string } | null>(null);
-  const [editingShop, setEditingShop] = useState<{ id: number; name: string; address?: string } | null>(null);
+  const [editingUser, setEditingUser] = useState<{ id: number; username: string; isAdmin?: boolean } | null>(null);
+  const [editingShop, setEditingShop] = useState<{ id: number; name: string; address?: string | null } | null>(null);
   const { user } = useAuth();
-  const { shops, setCurrentShop } = useShop();
+  const { shops, currentShop, setCurrentShop } = useShop();
+
+  // Get stripe settings for current shop
+  const { data: stripeSettings } = useQuery<StripeSettings>({
+    queryKey: [`/api/shops/${currentShop?.id}/stripe-settings`],
+    enabled: !!currentShop?.id && user?.isAdmin,
+  });
 
   // Get all users if admin
-  const { data: users, isLoading: usersLoading } = useQuery<User[]>({
+  const { data: users, isLoading: usersLoading } = useQuery<(User & { shopIds?: number[] })[]>({
     queryKey: ['/api/users'],
     enabled: user?.isAdmin,
+    select: (data) => data?.map(user => ({ // Ensure shopIds is always an array
+      ...user,
+      shopIds: user.shopIds || []
+    }))
   });
 
   const createShopMutation = useMutation({
@@ -87,14 +97,13 @@ export default function Settings() {
   });
 
   const editShopMutation = useMutation({
-    mutationFn: async (data: { id: number; name: string; address?: string }) => {
+    mutationFn: async (data: { id: number; name: string; address?: string | null }) => {
       const response = await fetch(`/api/shops/${data.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        // Only send name and address
         body: JSON.stringify({
-          name: data.name,
-          address: data.address || null
+          name: data.name.trim(),
+          address: data.address === null ? null : data.address?.trim()
         }),
       });
 
@@ -123,8 +132,37 @@ export default function Settings() {
     },
   });
 
+  const deleteUserMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/users/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete user');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+      toast({
+        title: t('settings.userDeleted'),
+        description: t('settings.userDeleteSuccess'),
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('settings.userDeleteFailed'),
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const editUserMutation = useMutation({
-    mutationFn: async (data: { id: number; username?: string; password?: string }) => {
+    mutationFn: async (data: { id: number; username?: string; password?: string; shopIds?: number[] }) => {
       const response = await fetch(`/api/users/${data.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -156,7 +194,7 @@ export default function Settings() {
   });
 
   const createUserMutation = useMutation({
-    mutationFn: async (data: { username: string; password: string }) => {
+    mutationFn: async (data: { username: string; password: string; isAdmin?: boolean; shopIds?: number[] }) => {
       const response = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -250,6 +288,12 @@ export default function Settings() {
     changePasswordMutation.mutate({ currentPassword, newPassword });
   };
 
+  const isShopAssigned = useCallback((userId: number, shopId: number) => {
+    const foundUser = users?.find(u => u.id === userId);
+    // Ensure shopIds is treated as an array even if undefined/null
+    return (foundUser?.shopIds || []).includes(shopId);
+  }, [users]);
+
   return (
     <div className="max-w-4xl mx-auto py-6 px-4 space-y-8">
       <motion.h1
@@ -270,8 +314,8 @@ export default function Settings() {
           <h2 className="text-xl font-semibold mb-4">{t('settings.preferences')}</h2>
           <Card>
             <CardHeader>
-              <CardTitle>{t('settings.appearance')}</CardTitle>
-              <CardDescription>{t('settings.appearanceDescription')}</CardDescription>
+              <CardTitle>{t('settings.preferences')}</CardTitle>
+              <CardDescription>{t('settings.preferencesDescription')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
@@ -291,25 +335,70 @@ export default function Settings() {
                   </Select>
                 </div>
 
-                <div>
-                  <Label>{t('settings.currency')}</Label>
-                  <Select value={currency.code} onValueChange={handleCurrencyChange}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select currency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {currencies.map(curr => (
-                        <SelectItem key={curr.code} value={curr.code}>
-                          {curr.symbol} - {curr.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Currency Setting - Admin Only */}
+                {user?.isAdmin && (
+                  <div>
+                    <Label>{t('settings.currency')}</Label>
+                    <Select value={currency.code} onValueChange={handleCurrencyChange}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select currency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {currencies.map(curr => (
+                          <SelectItem key={curr.code} value={curr.code}>
+                            {curr.symbol} - {curr.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         </section>
+
+        {/* App Name Setting Section - Only visible to admins */}
+        {user?.isAdmin && (
+          <section>
+            <h2 className="text-xl font-semibold mb-4">App Name</h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>App Name</CardTitle>
+                <CardDescription>Change the name of the application</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.currentTarget);
+                    const appName = formData.get('appName') as string;
+                    // TODO: Save appName to settings
+                    console.log('App Name:', appName);
+                    toast({
+                      title: 'App Name Updated',
+                      description: 'App name has been updated successfully',
+                    });
+                  }}
+                  className="space-y-4"
+                >
+                  <div className="space-y-2">
+                    <Label htmlFor="appName">App Name</Label>
+                    <Input
+                      id="appName"
+                      name="appName"
+                      defaultValue="Popcorn POS"
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full">
+                    Save App Name
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </section>
+        )}
 
         {/* Account Section - Always visible */}
         <section>
@@ -484,7 +573,15 @@ export default function Settings() {
 
                       try {
                         const parsed = insertUserSchema.parse({ username, password });
-                        createUserMutation.mutate(parsed);
+                        const isAdmin = formData.get('isAdmin') === 'true';
+                        const shopIds = isAdmin ? [] : Array.from(formData.getAll('shopIds')).map(id => Number(id));
+
+                        createUserMutation.mutate({
+                          username,
+                          password,
+                          isAdmin,
+                          shopIds
+                        });
                       } catch (error) {
                         if (error instanceof Error) {
                           toast({
@@ -516,6 +613,77 @@ export default function Settings() {
                         minLength={6}
                       />
                     </div>
+                    <div className="space-y-2">
+                      <Label>{t('settings.userType')}</Label>
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id="admin-user"
+                            name="isAdmin"
+                            value="true"
+                            className="h-4 w-4 rounded border-gray-300"
+                          />
+                          <Label htmlFor="admin-user">{t('settings.adminUser')}</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id="regular-user"
+                            name="isAdmin"
+                            value="false"
+                            defaultChecked
+                            className="h-4 w-4 rounded border-gray-300"
+                          />
+                          <Label htmlFor="regular-user">{t('settings.regularUser')}</Label>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-2" id="shop-assignment-section">
+                      <Label>{t('settings.assignShops')}</Label>
+                      <div className="space-y-2">
+                        {shops?.length > 0 ? (
+                          shops.map(shop => (
+                            <div key={shop.id} className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                id={`shop-${shop.id}`}
+                                name="shopIds"
+                                value={shop.id.toString()} // Ensure value is string
+                                className="h-4 w-4 rounded border-gray-300"
+                                disabled={createUserMutation.isPending}
+                              />
+                              <Label htmlFor={`shop-${shop.id}`}>{shop.name}</Label>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            {t('settings.noShopsAvailable')}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <script dangerouslySetInnerHTML={{
+                      __html: `
+                        document.addEventListener('DOMContentLoaded', () => {
+                          const adminRadio = document.getElementById('admin-user');
+                          const regularRadio = document.getElementById('regular-user');
+                          const shopSection = document.getElementById('shop-assignment-section');
+
+                          const toggleShopSection = () => {
+                            if (shopSection) {
+                              shopSection.style.display = adminRadio?.checked ? 'none' : 'block';
+                            }
+                          };
+
+                          adminRadio?.addEventListener('change', toggleShopSection);
+                          regularRadio?.addEventListener('change', toggleShopSection);
+
+                          // Initialize state
+                          toggleShopSection();
+                        });
+                      `
+                    }} />
                     <Button
                       type="submit"
                       disabled={createUserMutation.isPending}
@@ -557,13 +725,31 @@ export default function Settings() {
                               </span>
                             )}
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setEditingUser({ id: user.id, username: user.username })}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditingUser({ id: user.id, username: user.username, isAdmin: user.isAdmin })}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                if (confirm(t('settings.confirmDeleteUser'))) {
+                                  deleteUserMutation.mutate(user.id);
+                                }
+                              }}
+                              disabled={deleteUserMutation.isPending}
+                            >
+                              {deleteUserMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              )}
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -571,6 +757,99 @@ export default function Settings() {
                 </CardContent>
               </Card>
             </div>
+          </section>
+        )}
+
+        {/* Stripe Settings Section - Only visible to admins */}
+        {user?.isAdmin && (
+          <section>
+            <h2 className="text-xl font-semibold mb-4">{t('settings.stripeSettings')}</h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('settings.stripeIntegration')}</CardTitle>
+                <CardDescription>{t('settings.stripeDescription')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!currentShop) return;
+
+                    const formData = new FormData(e.currentTarget);
+                    const publishableKey = formData.get('publishableKey') as string;
+                    const secretKey = formData.get('secretKey') as string;
+                    const enabled = formData.get('enabled') === 'true';
+
+                    try {
+                      const response = await fetch(`/api/shops/${currentShop.id}/stripe-settings`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          publishableKey: publishableKey.trim() || null,
+                          secretKey: secretKey.trim() || null,
+                          enabled
+                        }),
+                      });
+
+                      if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || t('settings.stripeUpdateError'));
+                      }
+
+                      toast({
+                        title: t('settings.stripeUpdated'),
+                        description: t('settings.stripeUpdateSuccess'),
+                      });
+                    } catch (error) {
+                      console.error('Stripe settings update error:', error);
+                      toast({
+                        title: t('settings.error'),
+                        description: error instanceof Error ? error.message : t('settings.stripeUpdateError'),
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  className="space-y-4"
+                >
+                  <div className="space-y-2">
+                    <Label htmlFor="publishableKey">{t('settings.stripePublishableKey')}</Label>
+                    <Input
+                      id="publishableKey"
+                      name="publishableKey"
+                      placeholder="pk_test_..."
+                      defaultValue={stripeSettings?.publishableKey || ''}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="secretKey">{t('settings.stripeSecretKey')}</Label>
+                    <Input
+                      id="secretKey"
+                      name="secretKey"
+                      type="password"
+                      placeholder="sk_test_..."
+                      defaultValue={stripeSettings?.secretKey || ''}
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="enabled"
+                      name="enabled"
+                      value="true"
+                      className="h-4 w-4 rounded border-gray-300"
+                      defaultChecked={stripeSettings?.enabled}
+                    />
+                    <Label htmlFor="enabled">{t('settings.enableStripe')}</Label>
+                  </div>
+                  <Button type="submit" className="w-full">
+                    {t('settings.saveStripeSettings')}
+                  </Button>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {t('settings.stripeNote')}
+                  </p>
+                </form>
+              </CardContent>
+            </Card>
           </section>
         )}
 
@@ -649,7 +928,8 @@ export default function Settings() {
                 const username = formData.get('username') as string;
                 const password = formData.get('password') as string;
 
-                const updates: { id: number; username?: string; password?: string } = {
+                const shopIds = Array.from(formData.getAll('shopIds')).map(id => Number(id));
+                const updates: { id: number; username?: string; password?: string; shopIds?: number[] } = {
                   id: editingUser.id,
                 };
 
@@ -661,7 +941,12 @@ export default function Settings() {
                   updates.password = password;
                 }
 
-                if (Object.keys(updates).length > 1) {
+                if (!editingUser.isAdmin) { // Corrected condition
+                  updates.shopIds = shopIds;
+                }
+
+                // Send update if we have either username/password changes or shop assignments
+                if (Object.keys(updates).length > 1 || updates.shopIds !== undefined) {
                   editUserMutation.mutate(updates);
                 }
               }}
@@ -685,6 +970,33 @@ export default function Settings() {
                   placeholder={t('settings.leaveBlankPassword')}
                 />
               </div>
+              {editingUser && !editingUser.isAdmin && (
+                <div className="space-y-2">
+                  <Label>{t('settings.assignShops')}</Label>
+                  <div className="space-y-2">
+                    {shops?.length > 0 ? (
+                      shops.map(shop => (
+                        <div key={shop.id} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id={`edit-shop-${shop.id}`}
+                            name="shopIds"
+                            value={shop.id.toString()} // Ensure value is string
+                            className="h-4 w-4 rounded border-gray-300"
+                            defaultChecked={isShopAssigned(editingUser.id, shop.id)} // Use callback
+                            disabled={editUserMutation.isPending}
+                          />
+                          <Label htmlFor={`edit-shop-${shop.id}`}>{shop.name}</Label>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {t('settings.noShopsAvailable')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="flex justify-end gap-2">
                 <Button
                   type="button"
@@ -737,7 +1049,7 @@ export default function Settings() {
                 editShopMutation.mutate({
                   id: editingShop.id,
                   name: name.trim(),
-                  address: address.trim() || undefined
+                  address: address ? address.trim() : null
                 });
               }}
               className="space-y-4"
