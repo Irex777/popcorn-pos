@@ -158,7 +158,10 @@
     "productDeleteSuccess": "Product was successfully deleted",
     "confirmDelete": "Are you sure you want to delete this product?",
     "stock": "Current Stock",
-    "units": "units"
+    "units": "units",
+    "productCost": "Product Cost",
+    "costLabel": "Cost",
+    "profitLabel": "Profit"
   },
   "analytics": {
     "title": "Analytics",

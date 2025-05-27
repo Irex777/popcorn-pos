@@ -37,6 +37,7 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
     defaultValues: {
       name: product.name,
       price: product.price.toString(),
+      cost: product.cost ? product.cost.toString() : "0",
       categoryId: product.categoryId,
       imageUrl: product.imageUrl || "",
       stock: product.stock,
@@ -53,6 +54,8 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
         `/api/shops/${currentShop.id}/products/${product.id}`,
         {
           ...data,
+          price: Number(data.price).toFixed(2),
+          cost: Number(data.cost).toFixed(2),
           shopId: currentShop.id
         }
       );
@@ -136,6 +139,24 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
                   <FormLabel>{t('inventory.productName')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="cost"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('inventory.productCost')}</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      step="0.01" 
+                      {...field}
+                      onChange={e => field.onChange(e.target.value)} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

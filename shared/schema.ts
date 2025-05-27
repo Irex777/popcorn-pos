@@ -81,6 +81,7 @@ export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  cost: decimal("cost", { precision: 10, scale: 2 }).notNull().default("0.00"),
   categoryId: integer("category_id").references(() => categories.id).notNull(),
   imageUrl: text("image_url").notNull().default(''),
   stock: integer("stock").notNull().default(0),
@@ -115,6 +116,7 @@ export const insertProductSchema = createInsertSchema(products)
   .extend({
     name: z.string().min(1, "Name is required"),
     price: z.string().or(z.number()).transform(val => Number(val).toFixed(2)),
+    cost: z.string().or(z.number()).transform(val => Number(val).toFixed(2)),
     categoryId: z.number().int().positive("Category is required"),
     imageUrl: z.string().default(''),
     stock: z.number().int().min(0, "Stock cannot be negative"),

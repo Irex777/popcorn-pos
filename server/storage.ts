@@ -149,6 +149,7 @@ export class DatabaseStorage implements IStorage {
       id: products.id,
       name: products.name,
       price: products.price,
+      cost: products.cost,
       categoryId: products.categoryId,
       imageUrl: products.imageUrl,
       stock: products.stock,
@@ -364,6 +365,7 @@ export class DatabaseStorage implements IStorage {
       const formattedProduct = {
         name: insertProduct.name,
         price: insertProduct.price,
+        cost: insertProduct.cost,
         categoryId: Number(insertProduct.categoryId),
         imageUrl: insertProduct.imageUrl || '', // Always ensure a string, never null
         stock: Number(insertProduct.stock),

@@ -189,6 +189,16 @@ export default function Inventory() {
                   <Badge variant="outline" className="bg-primary/10 text-primary">
                     {formatCurrency(Number(product.price), currency)}
                   </Badge>
+                  {typeof product.cost !== 'undefined' && (
+                    <Badge variant="outline" className="bg-secondary/10 text-secondary-foreground ml-2"> 
+                        {t('inventory.costLabel')}: {formatCurrency(Number(product.cost), currency)}
+                    </Badge>
+                  )}
+                  {typeof product.price !== 'undefined' && typeof product.cost !== 'undefined' && (
+                    <Badge variant="outline" className="bg-green-100 text-green-700 dark:bg-green-700 dark:text-green-100 ml-2">
+                      {t('inventory.profitLabel')}: {formatCurrency(Number(product.price) - Number(product.cost), currency)}
+                    </Badge>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"

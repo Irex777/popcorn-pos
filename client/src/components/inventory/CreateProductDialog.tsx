@@ -35,6 +35,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
     defaultValues: {
       name: "",
       price: "0",
+      cost: "0",
       categoryId: undefined,
       imageUrl: "",
       stock: 0,
@@ -53,6 +54,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
         ...data,
         name: data.name.trim(),
         price: Number(data.price).toFixed(2),
+        cost: Number(data.cost).toFixed(2),
         categoryId: Number(data.categoryId),
         imageUrl: data.imageUrl?.trim() || '',
         stock: Number(data.stock),
@@ -113,6 +115,24 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
                   <FormLabel>{t('inventory.productName')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="cost"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('inventory.productCost')}</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      step="0.01" 
+                      {...field}
+                      onChange={e => field.onChange(e.target.value)} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
