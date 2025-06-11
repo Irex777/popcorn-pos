@@ -127,11 +127,11 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
                 <FormItem>
                   <FormLabel>{t('inventory.productCost')}</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="number" 
-                      step="0.01" 
+                    <Input
+                      type="number"
+                      step="0.01"
                       {...field}
-                      onChange={e => field.onChange(e.target.value)} 
+                      onChange={e => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />

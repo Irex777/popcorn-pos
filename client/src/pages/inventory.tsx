@@ -190,7 +190,7 @@ export default function Inventory() {
                     {formatCurrency(Number(product.price), currency)}
                   </Badge>
                   {typeof product.cost !== 'undefined' && (
-                    <Badge variant="outline" className="bg-secondary/10 text-secondary-foreground ml-2"> 
+                    <Badge variant="outline" className="bg-secondary/10 text-secondary-foreground ml-2">
                         {t('inventory.costLabel')}: {formatCurrency(Number(product.cost), currency)}
                     </Badge>
                   )}

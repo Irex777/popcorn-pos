@@ -14,7 +14,7 @@ async function runProductCostTests() {
   let createdProduct: Product | undefined;
 
   // Default admin user ID for createdById, consistent with system-test
-  const adminUserId = 0; 
+  const adminUserId = 0;
 
   try {
     console.log("Starting product cost tests...");
@@ -28,14 +28,14 @@ async function runProductCostTests() {
     logTest("Setup: Test category created", !!testCategory);
 
     // Test 1: Create Product with Cost
-    const productData: InsertProduct = { 
-      name: "Test Product Cost", 
-      price: "20.00", 
-      cost: "10.00", 
-      categoryId: testCategory.id, 
-      stock: 50, 
-      shopId: testShop.id, 
-      imageUrl: "" 
+    const productData: InsertProduct = {
+      name: "Test Product Cost",
+      price: "20.00",
+      cost: "10.00",
+      categoryId: testCategory.id,
+      stock: 50,
+      shopId: testShop.id,
+      imageUrl: ""
     };
     createdProduct = await storage.createProduct(productData);
     logTest("Create Product: Product created with cost", createdProduct && createdProduct.cost === "10.00");
@@ -80,23 +80,23 @@ async function runProductCostTests() {
     // However, the prompt asked to start with storage methods. Let's stick to that for now.
 
     if (createdProduct && createdProduct.id) {
-      try { 
-        await storage.deleteProduct(createdProduct.id); 
-        logTest("Cleanup: Product deleted via storage", true); 
-      } catch (e) { 
-        logTest("Cleanup: Failed to delete product via storage", false); 
-        console.error(e); 
+      try {
+        await storage.deleteProduct(createdProduct.id);
+        logTest("Cleanup: Product deleted via storage", true);
+      } catch (e) {
+        logTest("Cleanup: Failed to delete product via storage", false);
+        console.error(e);
         // Fallback direct deletion if storage fails (e.g. due to order_items FK)
         // await db.delete(productsTable).where(eq(productsTable.id, createdProduct.id));
         // logTest("Cleanup: Product deleted directly from DB", true);
       }
     }
     if (testCategory && testCategory.id) {
-      try { 
-        await storage.deleteCategory(testCategory.id); 
-        logTest("Cleanup: Category deleted via storage", true); 
-      } catch (e) { 
-        logTest("Cleanup: Failed to delete category via storage", false); 
+      try {
+        await storage.deleteCategory(testCategory.id);
+        logTest("Cleanup: Category deleted via storage", true);
+      } catch (e) {
+        logTest("Cleanup: Failed to delete category via storage", false);
         console.error(e);
         // Fallback direct deletion
         // await db.delete(categoriesTable).where(eq(categoriesTable.id, testCategory.id));
@@ -104,12 +104,12 @@ async function runProductCostTests() {
       }
     }
     if (testShop && testShop.id) {
-      try { 
-        await storage.deleteShop(testShop.id); 
-        logTest("Cleanup: Shop deleted via storage", true); 
-      } catch (e) { 
-        logTest("Cleanup: Failed to delete shop via storage", false); 
-        console.error(e); 
+      try {
+        await storage.deleteShop(testShop.id);
+        logTest("Cleanup: Shop deleted via storage", true);
+      } catch (e) {
+        logTest("Cleanup: Failed to delete shop via storage", false);
+        console.error(e);
         // Fallback direct deletion
         // await db.delete(shopsTable).where(eq(shopsTable.id, testShop.id));
         // logTest("Cleanup: Shop deleted directly from DB", true);
