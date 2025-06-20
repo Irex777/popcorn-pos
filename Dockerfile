@@ -8,14 +8,17 @@ WORKDIR /app
 # Copy package files first for better Docker layer caching
 COPY package*.json ./
 
-# Install only production dependencies
-RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
+# Install ALL dependencies (including dev deps needed for build)
+RUN npm ci --no-audit --no-fund && npm cache clean --force
 
 # Copy source code
 COPY . .
 
 # Build the application
 RUN npm run build
+
+# Remove dev dependencies after build to reduce image size
+RUN npm prune --omit=dev
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
