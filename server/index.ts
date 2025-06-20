@@ -16,7 +16,7 @@ app.set('env', process.env.NODE_ENV || 'development');
 // Configure CORS before any middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? process.env.CLIENT_URL 
+    ? (process.env.CLIENT_URL || process.env.PUBLIC_URL || false)
     : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:3002'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

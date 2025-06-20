@@ -47,6 +47,11 @@ const requireShopAccess = async (req: any, res: any, next: any) => {
 };
 
 export function registerRoutes(app: Express): Server {
+  // Health check endpoint for Docker
+  app.get("/api/health", (req, res) => {
+    res.status(200).json({ status: "healthy", timestamp: new Date().toISOString() });
+  });
+
   // Shop management routes (admin only)
   app.post("/api/shops", requireAdmin, async (req, res) => {
     try {
