@@ -1,0 +1,41 @@
+# Coolify Configuration
+# This file provides specific instructions for deploying on Coolify
+
+version: '1.0'
+
+# Build Configuration
+build:
+  dockerfile: Dockerfile
+  context: .
+
+# Port Configuration  
+port: 3002
+
+# Health Check Configuration
+healthcheck:
+  path: /api/health
+  interval: 30s
+  timeout: 10s
+  retries: 3
+
+# Environment Variables Required
+environment:
+  required:
+    - NODE_ENV
+    - DATABASE_URL
+    - SESSION_SECRET
+    - PUBLIC_URL
+  optional:
+    - STRIPE_SECRET_KEY
+    - CLIENT_URL
+    - NEON_DISABLE_WEBSOCKETS
+
+# Resource Requirements
+resources:
+  memory: 512MB
+  cpu: 0.5
+
+# Persistent Storage (if needed for uploads/logs)
+volumes:
+  - path: /app/attached_assets
+    size: 1GB
