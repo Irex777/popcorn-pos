@@ -8,6 +8,15 @@ import { hashPassword } from "./auth";
 import { setupAuth } from "./auth";
 import { setupWebSocket, startAnalyticsUpdates } from "./websocket";
 
+// Add startup logging
+console.log('🚀 Starting Popcorn POS server...');
+console.log('📋 Environment check:');
+console.log('  - NODE_ENV:', process.env.NODE_ENV);
+console.log('  - PORT:', process.env.PORT);
+console.log('  - DATABASE_URL:', process.env.DATABASE_URL ? '✅ Set' : '❌ Missing');
+console.log('  - SESSION_SECRET:', process.env.SESSION_SECRET ? '✅ Set' : '❌ Missing');
+console.log('  - PUBLIC_URL:', process.env.PUBLIC_URL || 'Not set');
+
 const app = express();
 
 // Disable express default error handling HTML pages
@@ -71,43 +80,48 @@ async function createDefaultAdmin() {
         isAdmin: true, // Make the default user an admin
       };
       await storage.createUser(defaultAdmin);
-      log("Default admin account created");
+      log("✅ Default admin account created (admin/admin123)");
     } else {
-      log("Users already exist, skipping default admin creation");
+      log("✅ Users already exist, skipping default admin creation");
     }
   } catch (error) {
-    console.error("Error creating default admin:", error);
+    console.error("❌ Error creating default admin:", error);
+    throw error; // Re-throw to prevent server from starting with DB issues
   }
 }
 
 (async () => {
-  const server = await registerRoutes(app);
+  try {
+    console.log('🔧 Registering routes...');
+    const server = await registerRoutes(app);
 
-  // API 404 handler - only for /api routes
-  app.use('/api/*', (_req: Request, res: Response) => {
-    res.status(404).json({ error: "API endpoint not found" });
-  });
+    // API 404 handler - only for /api routes
+    app.use('/api/*', (_req: Request, res: Response) => {
+      res.status(404).json({ error: "API endpoint not found" });
+    });
 
-  // Global error handler - ensure JSON responses
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('Error:', err);
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-    res.status(status).json({ error: message });
-  });
+    // Global error handler - ensure JSON responses
+    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+      console.error('Error:', err);
+      const status = err.status || err.statusCode || 500;
+      const message = err.message || "Internal Server Error";
+      res.status(status).json({ error: message });
+    });
 
-  // Create default admin account before starting server
-  await createDefaultAdmin();
+    // Create default admin account before starting server
+    console.log('👤 Setting up default admin...');
+    await createDefaultAdmin();
 
-  if (app.get("env") === "development") {
-    log("Starting in development mode with Vite middleware");
-    await setupVite(app, server);
-  } else {
-    log("Starting in production mode with static file serving");
-    serveStatic(app);
-  }
+    console.log('📁 Setting up file serving...');
+    if (app.get("env") === "development") {
+      log("Starting in development mode with Vite middleware");
+      await setupVite(app, server);
+    } else {
+      log("Starting in production mode with static file serving");
+      serveStatic(app);
+    }
 
-  const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+    const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
   
   let wsInitialized = false;
   
@@ -143,5 +157,11 @@ async function createDefaultAdmin() {
     });
   };
   
+  console.log('🚀 Starting server...');
   startServer();
+  
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
 })();
