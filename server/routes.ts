@@ -53,9 +53,9 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Debug endpoint to check environment and status
-  app.get("/api/debug", (req, res) => {
+  app.get("/api/debug", async (req, res) => {
     try {
-      const debugInfo = {
+      const debugInfo: any = {
         timestamp: new Date().toISOString(),
         status: "running",
         environment: {
@@ -69,8 +69,26 @@ export function registerRoutes(app: Express): Server {
         uptime: process.uptime(),
         memory: process.memoryUsage(),
         platform: process.platform,
-        nodeVersion: process.version
+        nodeVersion: process.version,
+        database: {
+          status: 'unknown'
+        }
       };
+
+      // Test database connection
+      try {
+        const users = await storage.getAllUsers();
+        debugInfo.database = {
+          status: 'connected ✅',
+          userCount: users.length
+        };
+      } catch (dbError) {
+        debugInfo.database = {
+          status: 'error ❌',
+          error: dbError instanceof Error ? dbError.message : String(dbError)
+        };
+      }
+
       res.status(200).json(debugInfo);
     } catch (error) {
       res.status(500).json({ 

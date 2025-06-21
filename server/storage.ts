@@ -7,6 +7,8 @@ import createMemoryStore from "memorystore";
 
 const MemoryStore = createMemoryStore(session);
 
+console.log('🔄 Storage module loaded successfully');
+
 export interface IStorage {
   // Users
   getUser(id: number): Promise<(User & { shopIds?: number[] }) | undefined>;
@@ -170,7 +172,16 @@ export class DatabaseStorage implements IStorage {
 
   // Keep other existing methods but add shopId validation where appropriate
   async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users);
+    try {
+      console.log('🔄 Executing getAllUsers query...');
+      const result = await db.select().from(users);
+      console.log('✅ getAllUsers query successful, returned', result.length, 'users');
+      return result;
+    } catch (error) {
+      console.error('💥 getAllUsers query failed:', error);
+      console.error('Error details:', error instanceof Error ? error.stack : String(error));
+      throw error;
+    }
   }
 
   async getUser(id: number): Promise<(User & { shopIds?: number[] }) | undefined> {

@@ -103,20 +103,52 @@ app.use((req, res, next) => {
 async function createDefaultAdmin() {
   try {
     log("Starting default admin creation check...");
-    const users = await storage.getAllUsers();
+    
+    // Test database connection first
+    console.log('🔄 Testing database connection...');
+    
+    // Try to get users with detailed error handling
+    let users;
+    try {
+      users = await storage.getAllUsers();
+      console.log('✅ Database query successful, found', users.length, 'users');
+    } catch (dbError) {
+      console.error('💥 Database query failed:', dbError);
+      console.error('Database error stack:', dbError instanceof Error ? dbError.stack : String(dbError));
+      throw new Error(`Database connection failed: ${dbError instanceof Error ? dbError.message : String(dbError)}`);
+    }
+    
     if (users.length === 0) {
+      console.log('🔄 No users found, creating default admin...');
+      
+      let hashedPassword;
+      try {
+        hashedPassword = await hashPassword("admin123");
+        console.log('✅ Password hashed successfully');
+      } catch (hashError) {
+        console.error('💥 Password hashing failed:', hashError);
+        throw new Error(`Password hashing failed: ${hashError instanceof Error ? hashError.message : String(hashError)}`);
+      }
+      
       const defaultAdmin = {
         username: "admin",
-        password: await hashPassword("admin123"),
+        password: hashedPassword,
         isAdmin: true, // Make the default user an admin
       };
-      await storage.createUser(defaultAdmin);
-      log("✅ Default admin account created (admin/admin123)");
+      
+      try {
+        await storage.createUser(defaultAdmin);
+        console.log("✅ Default admin account created (admin/admin123)");
+      } catch (createError) {
+        console.error('💥 User creation failed:', createError);
+        throw new Error(`User creation failed: ${createError instanceof Error ? createError.message : String(createError)}`);
+      }
     } else {
       log("✅ Users already exist, skipping default admin creation");
     }
   } catch (error) {
     console.error("❌ Error creating default admin:", error);
+    console.error("Full error stack:", error instanceof Error ? error.stack : String(error));
     throw error; // Re-throw to prevent server from starting with DB issues
   }
 }
