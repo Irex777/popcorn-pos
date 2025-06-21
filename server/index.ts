@@ -171,9 +171,14 @@ async function createDefaultAdmin() {
       res.status(status).json({ error: message });
     });
 
-    // Create default admin account before starting server
+    // Create default admin account before starting server (skip if DB unavailable)
     console.log('👤 Setting up default admin...');
-    await createDefaultAdmin();
+    try {
+      await createDefaultAdmin();
+    } catch (error) {
+      console.error('⚠️ Warning: Could not create default admin, continuing anyway:', error instanceof Error ? error.message : String(error));
+      console.log('🚀 Server will start without database initialization');
+    }
 
     console.log('📁 Setting up file serving...');
     if (app.get("env") === "development") {
