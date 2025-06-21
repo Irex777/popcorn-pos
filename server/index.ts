@@ -1,3 +1,15 @@
+// Catch all uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('💥 UNCAUGHT EXCEPTION:', error);
+  console.error('Stack:', error.stack);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('💥 UNHANDLED REJECTION at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import cors from 'cors';
