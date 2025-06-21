@@ -17,6 +17,25 @@ console.log('  - DATABASE_URL:', process.env.DATABASE_URL ? '✅ Set' : '❌ Mis
 console.log('  - SESSION_SECRET:', process.env.SESSION_SECRET ? '✅ Set' : '❌ Missing');
 console.log('  - PUBLIC_URL:', process.env.PUBLIC_URL || 'Not set');
 
+// Write startup info to file for debugging
+import { writeFileSync } from 'fs';
+try {
+  const debugInfo = {
+    timestamp: new Date().toISOString(),
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: process.env.PORT,
+      DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'MISSING',
+      SESSION_SECRET: process.env.SESSION_SECRET ? 'SET' : 'MISSING',
+      PUBLIC_URL: process.env.PUBLIC_URL
+    }
+  };
+  writeFileSync('/tmp/startup-debug.json', JSON.stringify(debugInfo, null, 2));
+  console.log('📄 Debug info written to /tmp/startup-debug.json');
+} catch (e) {
+  console.log('Failed to write debug file:', e instanceof Error ? e.message : String(e));
+}
+
 const app = express();
 
 // Disable express default error handling HTML pages

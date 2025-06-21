@@ -52,6 +52,34 @@ export function registerRoutes(app: Express): Server {
     res.status(200).json({ status: "healthy", timestamp: new Date().toISOString() });
   });
 
+  // Debug endpoint to check environment and status
+  app.get("/api/debug", (req, res) => {
+    try {
+      const debugInfo = {
+        timestamp: new Date().toISOString(),
+        status: "running",
+        environment: {
+          NODE_ENV: process.env.NODE_ENV,
+          PORT: process.env.PORT,
+          DATABASE_URL: process.env.DATABASE_URL ? 'SET ✅' : 'MISSING ❌',
+          SESSION_SECRET: process.env.SESSION_SECRET ? 'SET ✅' : 'MISSING ❌',
+          PUBLIC_URL: process.env.PUBLIC_URL || 'NOT SET',
+          NEON_DISABLE_WEBSOCKETS: process.env.NEON_DISABLE_WEBSOCKETS
+        },
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+        platform: process.platform,
+        nodeVersion: process.version
+      };
+      res.status(200).json(debugInfo);
+    } catch (error) {
+      res.status(500).json({ 
+        error: 'Debug endpoint failed', 
+        message: error instanceof Error ? error.message : String(error) 
+      });
+    }
+  });
+
   // Shop management routes (admin only)
   app.post("/api/shops", requireAdmin, async (req, res) => {
     try {
