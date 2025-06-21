@@ -6,7 +6,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3002
-      - DATABASE_URL=postgresql://popcorn_user:PoPcorn@234@postgres:5432/popcorn_pos
+      - DATABASE_URL=postgresql://popcorn_user:PoPcorn@234@postgres:5432/popcorn_pos?sslmode=disable
       - SESSION_SECRET=${SESSION_SECRET:-your-super-secure-session-secret-key-minimum-32-characters}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
       - PUBLIC_URL=${PUBLIC_URL:-http://localhost:3002}
