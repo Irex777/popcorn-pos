@@ -21,8 +21,8 @@ export const pool = new Pool({
   connectionTimeoutMillis: 10000, // Increased timeout
   statement_timeout: 10000,
   query_timeout: 10000,
-  // SSL configuration for production
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  // SSL configuration - disable for internal Docker connections
+  ssl: false,
 });
 
 // Add error handling for the pool
