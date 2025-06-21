@@ -12,15 +12,14 @@ services:
       - PUBLIC_URL=${PUBLIC_URL:-http://localhost:3002}
       - NEON_DISABLE_WEBSOCKETS=true
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3002/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
 
   postgres:
     image: postgres:15-alpine
@@ -28,16 +27,18 @@ services:
       POSTGRES_DB: popcorn_pos
       POSTGRES_USER: popcorn_user
       POSTGRES_PASSWORD: PoPcorn@234
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U popcorn_user -d popcorn_pos"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "pg_isready -U popcorn_user"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
 
 volumes:
   postgres_data:
