@@ -104,7 +104,17 @@ async function createDefaultAdmin() {
   try {
     log("Starting default admin creation check...");
     
-    // Test database connection first
+    // Initialize database tables first
+    console.log('🔄 Initializing database tables...');
+    try {
+      await storage.initializeDatabase();
+      console.log('✅ Database tables initialized successfully');
+    } catch (initError) {
+      console.error('💥 Database initialization failed:', initError);
+      throw new Error(`Database initialization failed: ${initError instanceof Error ? initError.message : String(initError)}`);
+    }
+    
+    // Test database connection
     console.log('🔄 Testing database connection...');
     
     // Try to get users with detailed error handling

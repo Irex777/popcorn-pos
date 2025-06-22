@@ -10,6 +10,9 @@ const MemoryStore = createMemoryStore(session);
 console.log('🔄 Storage module loaded successfully');
 
 export interface IStorage {
+  // Database initialization
+  initializeDatabase(): Promise<void>;
+  
   // Users
   getUser(id: number): Promise<(User & { shopIds?: number[] }) | undefined>;
   getUserByUsername(username: string): Promise<(User & { shopIds?: number[] }) | undefined>;
@@ -59,6 +62,109 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  // Database initialization method
+  async initializeDatabase(): Promise<void> {
+    try {
+      console.log('🔄 Initializing database tables...');
+      
+      // Use raw SQL to create tables since Drizzle migrate might not work in this context
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS users (
+          id SERIAL PRIMARY KEY,
+          username TEXT NOT NULL UNIQUE,
+          password TEXT NOT NULL,
+          is_admin BOOLEAN NOT NULL DEFAULT false,
+          created_at TIMESTAMP DEFAULT NOW()
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS shops (
+          id SERIAL PRIMARY KEY,
+          name TEXT NOT NULL,
+          address TEXT,
+          created_at TIMESTAMP DEFAULT NOW(),
+          created_by_id INTEGER REFERENCES users(id) NOT NULL
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS user_shops (
+          user_id INTEGER REFERENCES users(id) NOT NULL,
+          shop_id INTEGER REFERENCES shops(id) NOT NULL,
+          PRIMARY KEY (user_id, shop_id)
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS categories (
+          id SERIAL PRIMARY KEY,
+          name TEXT NOT NULL,
+          description TEXT,
+          color TEXT NOT NULL DEFAULT '#94A3B8',
+          shop_id INTEGER REFERENCES shops(id) NOT NULL
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS products (
+          id SERIAL PRIMARY KEY,
+          name TEXT NOT NULL,
+          price DECIMAL(10,2) NOT NULL,
+          category_id INTEGER REFERENCES categories(id) NOT NULL,
+          image_url TEXT NOT NULL DEFAULT '',
+          stock INTEGER NOT NULL DEFAULT 0,
+          shop_id INTEGER REFERENCES shops(id) NOT NULL
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS orders (
+          id SERIAL PRIMARY KEY,
+          total DECIMAL(10,2) NOT NULL,
+          status TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT NOW(),
+          user_id INTEGER REFERENCES users(id),
+          shop_id INTEGER REFERENCES shops(id) NOT NULL
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS order_items (
+          id SERIAL PRIMARY KEY,
+          order_id INTEGER REFERENCES orders(id) NOT NULL,
+          product_id INTEGER REFERENCES products(id) NOT NULL,
+          quantity INTEGER NOT NULL,
+          price DECIMAL(10,2) NOT NULL
+        );
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS stripe_settings (
+          id SERIAL PRIMARY KEY,
+          shop_id INTEGER REFERENCES shops(id) NOT NULL UNIQUE,
+          publishable_key TEXT,
+          secret_key TEXT,
+          enabled BOOLEAN NOT NULL DEFAULT false
+        );
+      `);
+
+      // Create indexes for performance
+      await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_user_shops_user_id ON user_shops(user_id);`);
+      await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_user_shops_shop_id ON user_shops(shop_id);`);
+      await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_products_category_id ON products(category_id);`);
+      await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_products_shop_id ON products(shop_id);`);
+      await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);`);
+      await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_orders_shop_id ON orders(shop_id);`);
+      await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);`);
+
+      console.log('✅ Database tables initialized successfully');
+    } catch (error) {
+      console.error('❌ Database initialization failed:', error);
+      throw error;
+    }
+  }
+
   async getStripeSettings(shopId: number): Promise<StripeSettings | undefined> {
     const [settings] = await db
       .select()
