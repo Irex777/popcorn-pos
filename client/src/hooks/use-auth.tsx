@@ -68,6 +68,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.setQueryData(["/api/user"], user);
       // Refetch user data to ensure we have the latest
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      // Prefetch user preferences after successful login
+      queryClient.prefetchQuery({
+        queryKey: ['/api/user/preferences'],
+        queryFn: async () => {
+          const response = await apiRequest('GET', '/api/user/preferences');
+          if (!response.ok) {
+            if (response.status === 404) {
+              return { language: 'cs', currency: 'CZK' };
+            }
+            throw new Error('Failed to fetch user preferences');
+          }
+          return response.json();
+        },
+      });
     },
     onError: (error: Error) => {
       toast({
@@ -84,7 +98,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
-    wsClient.setAuthenticated(false);
+      // Clear user preferences cache on logout
+      queryClient.removeQueries({ queryKey: ['/api/user/preferences'] });
+      wsClient.setAuthenticated(false);
     },
     onError: (error: Error) => {
       toast({

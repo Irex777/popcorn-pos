@@ -20,6 +20,8 @@ export interface IStorage {
   updateUserPassword(id: number, password: string): Promise<User>;
   updateUser(id: number, updates: { username?: string; password?: string }): Promise<User>;
   updateUserShops(userId: number, shopIds: number[]): Promise<void>;
+  updateUserPreferences(id: number, preferences: { language?: string; currency?: string }): Promise<User>;
+  getUserPreferences(id: number): Promise<{ language: string; currency: string } | null>;
   getAllUsers(): Promise<User[]>;
 
   // Shops
@@ -74,6 +76,8 @@ export class DatabaseStorage implements IStorage {
           username TEXT NOT NULL UNIQUE,
           password TEXT NOT NULL,
           is_admin BOOLEAN NOT NULL DEFAULT false,
+          language TEXT NOT NULL DEFAULT 'cs',
+          currency TEXT NOT NULL DEFAULT 'CZK',
           created_at TIMESTAMP DEFAULT NOW()
         );
       `);
@@ -157,6 +161,15 @@ export class DatabaseStorage implements IStorage {
       await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);`);
       await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_orders_shop_id ON orders(shop_id);`);
       await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);`);
+
+      // Add preferences columns to existing users table if they don't exist
+      try {
+        await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS language TEXT DEFAULT 'cs';`);
+        await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS currency TEXT DEFAULT 'CZK';`);
+        console.log('✅ User preferences columns added/verified');
+      } catch (migrationError) {
+        console.log('ℹ️  User preferences columns may already exist:', migrationError);
+      }
 
       console.log('✅ Database tables initialized successfully');
     } catch (error) {
@@ -419,11 +432,28 @@ export class DatabaseStorage implements IStorage {
     if (shopIds.length > 0) {
       await db
         .insert(userShops)
-        .values(shopIds.map(shopId => ({
-          userId,
-          shopId
-        })));
+        .values(shopIds.map(shopId => ({ userId, shopId })));
     }
+  }
+
+  async updateUserPreferences(id: number, preferences: { language?: string; currency?: string }): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set(preferences)
+      .where(eq(users.id, id))
+      .returning();
+    if (!user) {
+      throw new Error("User not found");
+    }
+    return user;
+  }
+
+  async getUserPreferences(id: number): Promise<{ language: string; currency: string } | null> {
+    const [user] = await db
+      .select({ language: users.language, currency: users.currency })
+      .from(users)
+      .where(eq(users.id, id));
+    return user || null;
   }
 
   async getCategory(id: number): Promise<Category | undefined> {

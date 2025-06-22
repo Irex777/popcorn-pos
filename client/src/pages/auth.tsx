@@ -21,7 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { languages } from "@/lib/settings";
+import { languages, languageAtom } from "@/lib/settings";
+import { useAtom } from "jotai";
 import i18n from "@/lib/i18n";
 
 export default function AuthPage() {
@@ -29,6 +30,7 @@ export default function AuthPage() {
   const { toast } = useToast();
   const { t } = useTranslation();
   const { loginMutation } = useAuth(); // Get loginMutation from useAuth
+  const [language, setLanguage] = useAtom(languageAtom);
 
   const form = useForm<InsertUser>({
     resolver: zodResolver(insertUserSchema),
@@ -70,8 +72,11 @@ export default function AuthPage() {
         {/* Language Selector */}
         <div className="w-full flex justify-end">
           <Select
-            defaultValue={i18n.language}
-            onValueChange={(value) => i18n.changeLanguage(value)}
+            value={language}
+            onValueChange={(value) => {
+              setLanguage(value);
+              i18n.changeLanguage(value);
+            }}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder={t('auth.selectLanguage')} />

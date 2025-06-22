@@ -335,4 +335,46 @@ export function setupAuth(app: Express): void {
     }
     return res.status(201).json(createdUserWithShops);
   }));
+
+  // User preferences endpoints
+  app.get("/api/user/preferences", asyncHandler(async (req, res) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const preferences = await storage.getUserPreferences(req.user.id);
+      if (!preferences) {
+        return res.status(404).json({ error: "User preferences not found" });
+      }
+      res.json(preferences);
+    } catch (error) {
+      console.error('Error fetching user preferences:', error);
+      res.status(500).json({ error: 'Failed to fetch preferences' });
+    }
+  }));
+
+  app.patch("/api/user/preferences", asyncHandler(async (req, res) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const { language, currency } = req.body;
+    
+    if (!language && !currency) {
+      return res.status(400).json({ error: "Language or currency is required" });
+    }
+
+    try {
+      const updates: { language?: string; currency?: string } = {};
+      if (language) updates.language = language;
+      if (currency) updates.currency = currency;
+
+      await storage.updateUserPreferences(req.user.id, updates);
+      res.json({ message: "Preferences updated successfully" });
+    } catch (error) {
+      console.error('Error updating user preferences:', error);
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to update preferences' });
+    }
+  }));
 }

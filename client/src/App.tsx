@@ -22,6 +22,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ShopProvider } from "@/lib/shop-context";
 import { ThemeProvider } from "@/lib/ThemeProvider";
+import { LanguageSynchronizer } from "@/components/LanguageSynchronizer";
 
 function Router() {
   return (
@@ -51,6 +52,7 @@ function App() {
     <JotaiProvider>
       <ThemeProvider>
         <I18nextProvider i18n={i18n}>
+          <LanguageSynchronizer />
           <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <ShopProvider>

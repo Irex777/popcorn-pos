@@ -43,6 +43,8 @@ async function initializeDatabase() {
         username TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
         is_admin BOOLEAN NOT NULL DEFAULT false,
+        language TEXT NOT NULL DEFAULT 'cs',
+        currency TEXT NOT NULL DEFAULT 'CZK',
         created_at TIMESTAMP DEFAULT NOW()
       );
 

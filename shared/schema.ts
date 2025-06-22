@@ -49,6 +49,8 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   isAdmin: boolean("is_admin").notNull().default(false),
+  language: text("language").notNull().default('cs'),
+  currency: text("currency").notNull().default('CZK'),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -62,6 +64,14 @@ export const insertUserSchema = createInsertSchema(users)
     password: z.string().min(6, "Password must be at least 6 characters"),
   })
   .omit({ id: true, createdAt: true, isAdmin: true });
+
+// User preferences schema
+export const userPreferencesSchema = z.object({
+  language: z.string().min(1, "Language is required"),
+  currency: z.string().min(1, "Currency is required"),
+});
+
+export type UserPreferences = z.infer<typeof userPreferencesSchema>;
 
 // Export user types with shopIds
 export type User = typeof users.$inferSelect & { shopIds?: number[] };

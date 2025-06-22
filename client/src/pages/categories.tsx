@@ -68,16 +68,16 @@ function CategoryDialog({ category, open, onOpenChange }: CategoryDialogProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/shops/${currentShop?.id}/categories`] });
       toast({
-        title: category ? t("Category updated") : t("Category created"),
-        description: category ? t("Category has been updated successfully.") : t("New category has been added successfully.")
+        title: category ? t("categories.updated") : t("categories.created"),
+        description: category ? t("categories.updateSuccess") : t("categories.createSuccess")
       });
       onOpenChange(false);
       form.reset();
     },
     onError: () => {
       toast({
-        title: t("Error"),
-        description: category ? t("Failed to update category.") : t("Failed to create category."),
+        title: t("common.error"),
+        description: category ? t("categories.updateError") : t("categories.createError"),
         variant: "destructive"
       });
     }
@@ -89,7 +89,7 @@ function CategoryDialog({ category, open, onOpenChange }: CategoryDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{category ? t("Edit Category") : t("Create New Category")}</DialogTitle>
+          <DialogTitle>{category ? t("categories.editCategory") : t("categories.createNewCategory")}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(data => mutation.mutate(data))} className="space-y-4">
@@ -98,7 +98,7 @@ function CategoryDialog({ category, open, onOpenChange }: CategoryDialogProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t('categories.name')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -111,7 +111,7 @@ function CategoryDialog({ category, open, onOpenChange }: CategoryDialogProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{t('categories.description')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -124,7 +124,7 @@ function CategoryDialog({ category, open, onOpenChange }: CategoryDialogProps) {
               name="color"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Color</FormLabel>
+                  <FormLabel>{t('categories.color')}</FormLabel>
                   <FormControl>
                     <div className="flex gap-2">
                       <Input type="color" {...field} className="w-12 h-10 p-1" />
@@ -140,7 +140,7 @@ function CategoryDialog({ category, open, onOpenChange }: CategoryDialogProps) {
               className="w-full"
               disabled={mutation.isPending}
             >
-              {mutation.isPending ? (category ? t("Updating...") : t("Creating...")) : (category ? t("Update Category") : t("Create Category"))}
+              {mutation.isPending ? (category ? t("categories.updating") : t("categories.creating")) : (category ? t("categories.updateCategory") : t("categories.createCategory"))}
             </Button>
           </form>
         </Form>
@@ -173,14 +173,14 @@ export default function Categories() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/shops/${currentShop?.id}/categories`] });
       toast({
-        title: t("Category deleted"),
-        description: t("Category has been deleted successfully.")
+        title: t("categories.deleted"),
+        description: t("categories.deleteSuccess")
       });
     },
     onError: () => {
       toast({
-        title: t("Error"),
-        description: t("Failed to delete category."),
+        title: t("common.error"),
+        description: t("categories.deleteError"),
         variant: "destructive"
       });
     }
@@ -207,10 +207,10 @@ export default function Categories() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">{t('Categories')}</h2>
+        <h2 className="text-xl font-bold">{t('categories.title')}</h2>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          {t('Add Category')}
+          {t('categories.addCategory')}
         </Button>
       </div>
 
@@ -253,7 +253,7 @@ export default function Categories() {
                   variant="ghost"
                   size="icon"
                   onClick={() => {
-                    if (confirm(t("Are you sure you want to delete this category?"))) {
+                    if (confirm(t("categories.confirmDelete"))) {
                       deleteMutation.mutate(category.id);
                     }
                   }}

@@ -211,7 +211,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
             <div className="flex gap-2">
               {stripeError && (
                 <Alert variant="destructive" className="mb-4">
-                  <AlertTitle>Payment Configuration Error</AlertTitle>
+                  <AlertTitle>{t('checkout.paymentConfigError')}</AlertTitle>
                   <AlertDescription>
                     {stripeError}
                   </AlertDescription>

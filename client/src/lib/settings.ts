@@ -8,30 +8,30 @@ export type Currency = {
 };
 
 export const currencies: Currency[] = [
+  { code: 'CZK', symbol: 'Kč', name: 'Czech Koruna' },
   { code: 'USD', symbol: '$', name: 'US Dollar' },
   { code: 'EUR', symbol: '€', name: 'Euro' },
   { code: 'GBP', symbol: '£', name: 'British Pound' },
   { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
-  { code: 'CZK', symbol: 'Kč', name: 'Czech Koruna' },
   { code: 'PLN', symbol: 'zł', name: 'Polish Złoty' }
 ];
 
 export const languages = [
+  { code: 'cs', name: 'Čeština' },
   { code: 'en', name: 'English' },
   { code: 'es', name: 'Español' },
   { code: 'fr', name: 'Français' },
-  { code: 'de', name: 'Deutsch' },
-  { code: 'cs', name: 'Čeština' }
+  { code: 'de', name: 'Deutsch' }
 ];
 
 export const currencyAtom = atomWithStorage<Currency>(
   'settings.currency',
-  currencies[0]
+  currencies.find(c => c.code === 'CZK') || currencies[0]
 );
 
 export const languageAtom = atomWithStorage<string>(
   'settings.language',
-  'en'
+  'cs'
 );
 
 export function formatCurrency(amount: number, currency: Currency): string {

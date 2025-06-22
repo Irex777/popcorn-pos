@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAtom } from "jotai";
 import { motion } from "framer-motion";
@@ -30,16 +30,16 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useShop } from "@/lib/shop-context";
+import { useUserPreferences } from "@/hooks/use-preferences";
 
 export default function Settings() {
   const { t } = useTranslation();
-  const [language, setLanguage] = useAtom(languageAtom);
-  const [currency, setCurrency] = useAtom(currencyAtom);
   const { toast } = useToast();
   const [editingUser, setEditingUser] = useState<{ id: number; username: string; isAdmin?: boolean } | null>(null);
   const [editingShop, setEditingShop] = useState<{ id: number; name: string; address?: string | null } | null>(null);
   const { user } = useAuth();
   const { shops, currentShop, setCurrentShop } = useShop();
+  const { language, currency, updateLanguage, updateCurrency, isUpdating } = useUserPreferences();
 
   // Get stripe settings for current shop
   const { data: stripeSettings } = useQuery<StripeSettings>({
@@ -140,7 +140,7 @@ export default function Settings() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to delete user');
+        throw new Error(error.error || t('common.errors.failedToDeleteUser'));
       }
 
       return response.json();
@@ -171,7 +171,7 @@ export default function Settings() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to update user');
+        throw new Error(error.error || t('common.errors.failedToUpdateUser'));
       }
 
       return response.json();
@@ -203,7 +203,7 @@ export default function Settings() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to create user');
+        throw new Error(error.error || t('common.errors.failedToCreateUser'));
       }
 
       return response.json();
@@ -237,7 +237,7 @@ export default function Settings() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to change password');
+        throw new Error(error.error || t('common.errors.failedToChangePassword'));
       }
 
       return response.json();
@@ -258,15 +258,11 @@ export default function Settings() {
   });
 
   const handleLanguageChange = (value: string) => {
-    setLanguage(value);
-    i18n.changeLanguage(value);
+    updateLanguage(value);
   };
 
   const handleCurrencyChange = (value: string) => {
-    const selectedCurrency = currencies.find(c => c.code === value);
-    if (selectedCurrency) {
-      setCurrency(selectedCurrency);
-    }
+    updateCurrency(value);
   };
 
   const handlePasswordChange = (e: React.FormEvent<HTMLFormElement>) => {
@@ -323,7 +319,7 @@ export default function Settings() {
                   <Label>{t('settings.language')}</Label>
                   <Select value={language} onValueChange={handleLanguageChange}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select language" />
+                      <SelectValue placeholder={t('auth.selectLanguage')} />
                     </SelectTrigger>
                     <SelectContent>
                       {languages.map(lang => (
@@ -341,7 +337,7 @@ export default function Settings() {
                     <Label>{t('settings.currency')}</Label>
                     <Select value={currency.code} onValueChange={handleCurrencyChange}>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select currency" />
+                        <SelectValue placeholder={t('settings.currency')} />
                       </SelectTrigger>
                       <SelectContent>
                         {currencies.map(curr => (
@@ -361,11 +357,11 @@ export default function Settings() {
         {/* App Name Setting Section - Only visible to admins */}
         {user?.isAdmin && (
           <section>
-            <h2 className="text-xl font-semibold mb-4">App Name</h2>
+            <h2 className="text-xl font-semibold mb-4">{t('common.appName')}</h2>
             <Card>
               <CardHeader>
-                <CardTitle>App Name</CardTitle>
-                <CardDescription>Change the name of the application</CardDescription>
+                <CardTitle>{t('common.appName')}</CardTitle>
+                <CardDescription>{t('settings.appNameDescription')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <form
@@ -383,7 +379,7 @@ export default function Settings() {
                   className="space-y-4"
                 >
                   <div className="space-y-2">
-                    <Label htmlFor="appName">App Name</Label>
+                    <Label htmlFor="appName">{t('common.appName')}</Label>
                     <Input
                       id="appName"
                       name="appName"
@@ -392,7 +388,7 @@ export default function Settings() {
                     />
                   </div>
                   <Button type="submit" className="w-full">
-                    Save App Name
+                    {t('settings.saveAppName')}
                   </Button>
                 </form>
               </CardContent>
