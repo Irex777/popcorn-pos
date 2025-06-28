@@ -256,6 +256,18 @@ export function setupAuth(app: Express): void {
 
   app.get("/api/user", (req, res) => {
     console.log("GET /api/user: Checking authentication status.");
+    
+    // Demo mode bypass for testing
+    if (process.env.DEMO_MODE === 'true') {
+      console.log('GET /api/user: Demo mode active, returning demo user.');
+      return res.json({
+        id: 1,
+        username: "demo",
+        isAdmin: true,
+        shopIds: [1],
+      });
+    }
+    
     if (!req.isAuthenticated() || !req.user) {
       console.log('GET /api/user: Not authenticated.');
       return res.status(401).json({ error: "Not authenticated" });
