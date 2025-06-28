@@ -263,6 +263,80 @@ app.get("/api/shops", async (req, res) => {
     }
   });
 
+  app.delete("/api/shops/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const confirmationName = req.body.confirmationName;
+
+      // Check if shop exists
+      const existingShop = await storage.getShop(id);
+      if (!existingShop) {
+        return res.status(404).json({ error: "Shop not found" });
+      }
+
+      // Check if shop has any data that would be deleted
+      const shopCategories = await storage.getCategories(id);
+      const shopOrders = await storage.getOrders(id);
+      const shopProducts = await storage.getProducts(id);
+      const hasData = shopCategories.length > 0 || shopOrders.length > 0 || shopProducts.length > 0;
+
+      if (hasData) {
+        // Shop has data - require confirmation
+        if (!confirmationName) {
+          const productCount = shopProducts.length;
+          return res.status(400).json({
+            error: "Shop contains data that will be permanently deleted",
+            requiresConfirmation: true,
+            shopName: existingShop.name,
+            dataToBeDeleted: {
+              categories: shopCategories.length,
+              products: productCount,
+              orders: shopOrders.length
+            },
+            message: `This shop contains ${shopCategories.length} categories, ${productCount} products, and ${shopOrders.length} orders. All data will be permanently deleted. Type the shop name "${existingShop.name}" to confirm deletion.`
+          });
+        }
+
+        // Verify confirmation name matches exactly
+        if (confirmationName !== existingShop.name) {
+          return res.status(400).json({ 
+            error: "Shop name confirmation does not match",
+            message: `Please type the exact shop name "${existingShop.name}" to confirm deletion.`
+          });
+        }
+
+        // Confirmed - proceed with cascade deletion
+        const deletedShop = await storage.deleteShop(id, true);
+        if (!deletedShop) {
+          return res.status(500).json({ error: "Failed to delete shop" });
+        }
+
+        res.json({ 
+          success: true, 
+          message: "Shop and all related data have been permanently deleted", 
+          shop: deletedShop,
+          cascadeDelete: true
+        });
+      } else {
+        // Shop is empty - safe to delete without confirmation
+        const deletedShop = await storage.deleteShop(id, false);
+        if (!deletedShop) {
+          return res.status(500).json({ error: "Failed to delete shop" });
+        }
+
+        res.json({ 
+          success: true, 
+          message: "Empty shop deleted successfully", 
+          shop: deletedShop,
+          cascadeDelete: false
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting shop:', error);
+      res.status(500).json({ error: 'Failed to delete shop' });
+    }
+  });
+
   // Categories routes
   app.get("/api/shops/:shopId/categories", requireShopAccess, async (req, res) => {
     const categories = await storage.getCategories(parseInt(req.params.shopId));
@@ -652,26 +726,42 @@ app.get("/api/shops", async (req, res) => {
       }
       console.log('✓ Data verification successful');
 
-      // Step 6: Clean up test data
-      if (testOrderId) await storage.deleteOrderById(testOrderId, testShopId!);
-      if (testProductId) await storage.deleteProduct(testProductId);
-      if (testCategoryId) await storage.deleteCategory(testCategoryId);
-      if (testShopId) await storage.deleteShop(testShopId);
-      console.log('✓ Test data cleanup successful');
+      // Step 6: Test shop deletion functionality
+      console.log('✓ Testing shop deletion...');
+      
+      // Test force delete (should succeed and clean up all data)
+      const deletedShop = await storage.deleteShop(testShopId!, true);
+      if (!deletedShop) {
+        throw new Error("Force delete failed");
+      }
+      console.log('✓ Force delete successfully removed shop and all data');
+      
+      // Verify all data was deleted
+      const remainingCategories = await storage.getCategories(testShopId!);
+      const remainingProducts = await storage.getProducts(testShopId!);
+      const remainingOrders = await storage.getOrders(testShopId!);
+      
+      if (remainingCategories.length > 0 || remainingProducts.length > 0 || remainingOrders.length > 0) {
+        throw new Error("Force delete did not clean up all data");
+      }
+      console.log('✓ Verified all shop data was properly cleaned up');
 
       res.json({
         success: true,
-        message: "All system tests passed successfully! Created and verified: shop, category, product, and order. All test data has been cleaned up."
+        message: "All system tests passed successfully! Created and verified: shop, category, product, order, and shop deletion with cascade cleanup. All test data has been cleaned up."
       });
     } catch (error) {
       console.error('System test error:', error);
 
       // Attempt to clean up any remaining test data
       try {
-        if (testOrderId) await storage.deleteOrderById(testOrderId, testShopId!);
-        if (testProductId) await storage.deleteProduct(testProductId);
-        if (testCategoryId) await storage.deleteCategory(testCategoryId);
-        if (testShopId) await storage.deleteShop(testShopId);
+        // Use force delete to clean up everything if shop still exists
+        if (testShopId) {
+          const existingShop = await storage.getShop(testShopId);
+          if (existingShop) {
+            await storage.deleteShop(testShopId, true);
+          }
+        }
       } catch (cleanupError) {
         console.error('Cleanup error:', cleanupError);
       }

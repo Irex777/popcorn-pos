@@ -37,6 +37,8 @@ export default function Settings() {
   const { toast } = useToast();
   const [editingUser, setEditingUser] = useState<{ id: number; username: string; isAdmin?: boolean } | null>(null);
   const [editingShop, setEditingShop] = useState<{ id: number; name: string; address?: string | null } | null>(null);
+  const [deletingShop, setDeletingShop] = useState<{ id: number; name: string; requiresConfirmation?: boolean; dataToBeDeleted?: any } | null>(null);
+  const [confirmationName, setConfirmationName] = useState('');
   const { user } = useAuth();
   const { shops, currentShop, setCurrentShop } = useShop();
   const { language, currency, updateLanguage, updateCurrency, isUpdating } = useUserPreferences();
@@ -129,6 +131,62 @@ export default function Settings() {
         description: error.message,
         variant: "destructive",
       });
+    },
+  });
+
+  const deleteShopMutation = useMutation({
+    mutationFn: async ({ id, confirmationName }: { id: number; confirmationName?: string }) => {
+      const response = await fetch(`/api/shops/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmationName }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        
+        // If confirmation is required, set up the confirmation dialog
+        if (error.requiresConfirmation) {
+          setDeletingShop({
+            id,
+            name: error.shopName,
+            requiresConfirmation: true,
+            dataToBeDeleted: error.dataToBeDeleted
+          });
+          // Throw a special error that won't show a toast
+          throw new Error('CONFIRMATION_REQUIRED');
+        }
+        
+        throw new Error(error.error || t('common.shop.deleteError'));
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
+      setDeletingShop(null);
+      setConfirmationName('');
+      
+      toast({
+        title: t('common.shop.deleted'),
+        description: data.cascadeDelete 
+          ? t('settings.shopAndDataDeleted')
+          : t('common.shop.deleteSuccess'),
+      });
+    },
+    onError: (error: Error) => {
+      console.error('Shop deletion error:', error);
+      
+      // Don't show error toast for confirmation requirements
+      if (error.message === 'CONFIRMATION_REQUIRED') return;
+      
+      if (!error.message.includes('permanently deleted')) {
+        toast({
+          title: t('common.error'),
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     },
   });
 
@@ -532,13 +590,29 @@ export default function Settings() {
                             <p className="text-sm text-muted-foreground mt-1">{shop.address}</p>
                           )}
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setEditingShop({ id: shop.id, name: shop.name, address: shop.address })}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingShop({ id: shop.id, name: shop.name, address: shop.address })}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              deleteShopMutation.mutate({ id: shop.id });
+                            }}
+                            disabled={deleteShopMutation.isPending}
+                          >
+                            {deleteShopMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1087,6 +1161,104 @@ export default function Settings() {
                 </Button>
               </div>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Shop Deletion Confirmation Dialog */}
+        <Dialog open={!!deletingShop} onOpenChange={(open) => {
+          if (!open) {
+            setDeletingShop(null);
+            setConfirmationName('');
+          }
+        }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-destructive">
+                {t('settings.deleteShop')}
+              </DialogTitle>
+              <DialogDescription>
+                {deletingShop?.requiresConfirmation ? (
+                  <div className="space-y-3">
+                    <p className="text-sm">
+                      {t('settings.deleteShopWarning')}
+                    </p>
+                    {deletingShop.dataToBeDeleted && (
+                      <div className="bg-destructive/10 p-3 rounded-md">
+                        <p className="text-sm font-medium text-destructive mb-2">
+                          {t('settings.dataWillBeDeleted')}:
+                        </p>
+                        <ul className="text-sm space-y-1">
+                          {deletingShop.dataToBeDeleted.categories > 0 && (
+                            <li>- {deletingShop.dataToBeDeleted.categories} {t('settings.categories')}</li>
+                          )}
+                          {deletingShop.dataToBeDeleted.products > 0 && (
+                            <li>- {deletingShop.dataToBeDeleted.products} {t('settings.products')}</li>
+                          )}
+                          {deletingShop.dataToBeDeleted.orders > 0 && (
+                            <li>- {deletingShop.dataToBeDeleted.orders} {t('settings.orders')}</li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                    <p className="text-sm font-medium">
+                      {t('settings.typeShopNameToConfirm')}: <span className="font-mono bg-muted px-1 rounded">{deletingShop.name}</span>
+                    </p>
+                  </div>
+                ) : (
+                  t('settings.confirmDeleteEmptyShop')
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            
+            {deletingShop?.requiresConfirmation && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="confirmation-name">
+                    {t('settings.shopName')}
+                  </Label>
+                  <Input
+                    id="confirmation-name"
+                    value={confirmationName}
+                    onChange={(e) => setConfirmationName(e.target.value)}
+                    placeholder={deletingShop.name}
+                    className="font-mono"
+                  />
+                </div>
+              </div>
+            )}
+            
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setDeletingShop(null);
+                  setConfirmationName('');
+                }}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={
+                  deleteShopMutation.isPending || 
+                  (deletingShop?.requiresConfirmation && confirmationName !== deletingShop.name)
+                }
+                onClick={() => {
+                  if (deletingShop) {
+                    deleteShopMutation.mutate({ 
+                      id: deletingShop.id, 
+                      confirmationName: deletingShop.requiresConfirmation ? confirmationName : undefined 
+                    });
+                  }
+                }}
+              >
+                {deleteShopMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : null}
+                {t('settings.deleteShopPermanently')}
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </motion.div>

@@ -29,7 +29,7 @@ export interface IStorage {
   getShop(id: number): Promise<Shop | undefined>;
   getAllShops(): Promise<Shop[]>;
   updateShop(id: number, shop: InsertShop): Promise<Shop | undefined>;
-  deleteShop(id: number): Promise<Shop | undefined>;
+  deleteShop(id: number, force?: boolean): Promise<Shop | undefined>;
 
   // Categories
   getCategories(shopId: number): Promise<Category[]>;
@@ -249,12 +249,68 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async deleteShop(id: number): Promise<Shop | undefined> {
-    const [deletedShop] = await db
-      .delete(shops)
-      .where(eq(shops.id, id))
-      .returning();
-    return deletedShop;
+  async deleteShop(id: number, force: boolean = false): Promise<Shop | undefined> {
+    try {
+      if (force) {
+        // Force delete: cascade delete all related data
+        console.log(`Force deleting shop ${id} and all related data...`);
+        
+        // 0. Delete kitchen_order_items for this shop's orders
+        await db.execute(sql`
+          DELETE FROM kitchen_order_items
+          WHERE order_item_id IN (
+            SELECT oi.id
+            FROM order_items oi
+            JOIN orders o ON oi.order_id = o.id
+            WHERE o.shop_id = ${id}
+          )
+        `);
+        
+        // 1. Delete all order items for orders in this shop
+        await db.execute(sql`
+          DELETE FROM order_items 
+          WHERE order_id IN (
+            SELECT id FROM orders WHERE shop_id = ${id}
+          )
+        `);
+        
+        // 2. Delete all orders for this shop
+        await db
+          .delete(orders)
+          .where(eq(orders.shopId, id));
+        
+        // 3. Delete all products for this shop
+        await db
+          .delete(products)
+          .where(eq(products.shopId, id));
+        
+        // 4. Delete all categories for this shop
+        await db
+          .delete(categories)
+          .where(eq(categories.shopId, id));
+      }
+
+      // Delete user-shop assignments for this shop
+      await db
+        .delete(userShops)
+        .where(eq(userShops.shopId, id));
+
+      // Delete stripe settings for this shop
+      await db
+        .delete(stripeSettings)
+        .where(eq(stripeSettings.shopId, id));
+
+      // Finally, delete the shop itself
+      const [deletedShop] = await db
+        .delete(shops)
+        .where(eq(shops.id, id))
+        .returning();
+
+      return deletedShop;
+    } catch (error) {
+      console.error('Error deleting shop:', error);
+      throw error;
+    }
   }
 
   // Shop-specific methods

@@ -20,7 +20,8 @@
     "test:auth": "playwright test auth.visual.spec.ts --timeout=120000",
     "test:inventory": "playwright test inventory.visual.spec.ts --timeout=120000",
     "test:analytics": "playwright test analytics.visual.spec.ts --timeout=120000",
-    "test:settings": "playwright test settings.visual.spec.ts --timeout=120000"
+    "test:settings": "playwright test settings.visual.spec.ts --timeout=120000",
+    "test:shop-deletion": "playwright test shop-deletion.spec.ts --timeout=120000"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
