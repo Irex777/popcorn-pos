@@ -1,0 +1,2059 @@
+{
+  "config": {
+    "configFile": "/Users/aboy/Documents/Temp/popcorn-pos/playwright.config.ts",
+    "rootDir": "/Users/aboy/Documents/Temp/popcorn-pos/tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "/Users/aboy/Documents/Temp/popcorn-pos/tests/global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/aboy/Documents/Temp/popcorn-pos/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/aboy/Documents/Temp/popcorn-pos/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/Users/aboy/Documents/Temp/popcorn-pos/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/aboy/Documents/Temp/popcorn-pos/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/Users/aboy/Documents/Temp/popcorn-pos/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/aboy/Documents/Temp/popcorn-pos/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/Users/aboy/Documents/Temp/popcorn-pos/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/Users/aboy/Documents/Temp/popcorn-pos/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/Users/aboy/Documents/Temp/popcorn-pos/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "/Users/aboy/Documents/Temp/popcorn-pos/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "changed",
+    "updateSourceMethod": "patch",
+    "version": "1.53.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:3002",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "pos.visual.spec.ts",
+      "file": "pos.visual.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "POS Visual Tests",
+          "file": "pos.visual.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should display POS main interface correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2121,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:56:33.366Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-ba36e1cab20cf96d1245",
+              "file": "pos.visual.spec.ts",
+              "line": 13,
+              "column": 3
+            },
+            {
+              "title": "should show product grid layout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2248,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:56:35.590Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-2102b589877ed1e3f054",
+              "file": "pos.visual.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "should display cart panel correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2459,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:56:37.840Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-7ea1710168ec20828383",
+              "file": "pos.visual.spec.ts",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "should handle product selection interaction",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3108,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:56:40.303Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-e515b4e5752b2bd14574",
+              "file": "pos.visual.spec.ts",
+              "line": 51,
+              "column": 3
+            },
+            {
+              "title": "should display checkout workflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2071,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:56:43.413Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-1970eeeb068a3c212c7f",
+              "file": "pos.visual.spec.ts",
+              "line": 70,
+              "column": 3
+            },
+            {
+              "title": "should show empty cart state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2464,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:56:45.486Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-b691a398999edb50395d",
+              "file": "pos.visual.spec.ts",
+              "line": 86,
+              "column": 3
+            },
+            {
+              "title": "should display navigation and header correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2208,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:56:47.952Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-6f31746e4a0ea6ca8f24",
+              "file": "pos.visual.spec.ts",
+              "line": 94,
+              "column": 3
+            },
+            {
+              "title": "should display POS main interface correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2606,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:56:57.510Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-0bcb47f6a247266ed5d0",
+              "file": "pos.visual.spec.ts",
+              "line": 13,
+              "column": 3
+            },
+            {
+              "title": "should show product grid layout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2448,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:00.800Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-996dc0e9c717b6622dd8",
+              "file": "pos.visual.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "should display cart panel correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2419,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:03.251Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-25d964ae846741fdfbbd",
+              "file": "pos.visual.spec.ts",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "should handle product selection interaction",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2065,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:05.673Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-940bde72c2172f6163f2",
+              "file": "pos.visual.spec.ts",
+              "line": 51,
+              "column": 3
+            },
+            {
+              "title": "should display checkout workflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2540,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:07.740Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-4a3452c7d9e151842719",
+              "file": "pos.visual.spec.ts",
+              "line": 70,
+              "column": 3
+            },
+            {
+              "title": "should show empty cart state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3636,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:10.283Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-4097f975ac131be9a98e",
+              "file": "pos.visual.spec.ts",
+              "line": 86,
+              "column": 3
+            },
+            {
+              "title": "should display navigation and header correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2122,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:13.922Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-b6224792038c82aebfa2",
+              "file": "pos.visual.spec.ts",
+              "line": 94,
+              "column": 3
+            },
+            {
+              "title": "should display POS main interface correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2645,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:23.789Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-4f443c99569661fec45d",
+              "file": "pos.visual.spec.ts",
+              "line": 13,
+              "column": 3
+            },
+            {
+              "title": "should show product grid layout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2217,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:26.702Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-2f9917fb822768c979f3",
+              "file": "pos.visual.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "should display cart panel correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2133,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:28.922Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-02987734622b3c8aa9a9",
+              "file": "pos.visual.spec.ts",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "should handle product selection interaction",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2059,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:31.062Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-7181f2d2a0bf601110eb",
+              "file": "pos.visual.spec.ts",
+              "line": 51,
+              "column": 3
+            },
+            {
+              "title": "should display checkout workflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2085,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:33.124Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-9abfea8c84df4b9c9acc",
+              "file": "pos.visual.spec.ts",
+              "line": 70,
+              "column": 3
+            },
+            {
+              "title": "should show empty cart state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2177,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:35.211Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-e56c544f8827ea320cd0",
+              "file": "pos.visual.spec.ts",
+              "line": 86,
+              "column": 3
+            },
+            {
+              "title": "should display navigation and header correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2105,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:37.391Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-c23963c87e7feff7dcf9",
+              "file": "pos.visual.spec.ts",
+              "line": 94,
+              "column": 3
+            },
+            {
+              "title": "should display POS main interface correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2194,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:46.311Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-d8417abc63e0ad2d0c9d",
+              "file": "pos.visual.spec.ts",
+              "line": 13,
+              "column": 3
+            },
+            {
+              "title": "should show product grid layout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2180,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-product-area-Mobile-Chrome-darwin.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:48.754Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "pos-product-area-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-product-area-Mobile-Chrome-darwin.png"
+                        },
+                        {
+                          "name": "pos-product-area-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/test-results/pos.visual-POS-Visual-Tests-should-show-product-grid-layout-Mobile-Chrome/pos-product-area-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-c660aba11b483c4dbdee",
+              "file": "pos.visual.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "should display cart panel correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2181,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-with-cart-Mobile-Chrome-darwin.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:50.937Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "pos-with-cart-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-with-cart-Mobile-Chrome-darwin.png"
+                        },
+                        {
+                          "name": "pos-with-cart-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/test-results/pos.visual-POS-Visual-Test-04707-isplay-cart-panel-correctly-Mobile-Chrome/pos-with-cart-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-57e87a4c0defe11edd23",
+              "file": "pos.visual.spec.ts",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "should handle product selection interaction",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2023,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:53.120Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-7e91bfc82302c5e9966b",
+              "file": "pos.visual.spec.ts",
+              "line": 51,
+              "column": 3
+            },
+            {
+              "title": "should display checkout workflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1996,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:55.144Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-57d4f754f6e1995c1521",
+              "file": "pos.visual.spec.ts",
+              "line": 70,
+              "column": 3
+            },
+            {
+              "title": "should show empty cart state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2191,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-empty-cart-Mobile-Chrome-darwin.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:57.143Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "pos-empty-cart-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-empty-cart-Mobile-Chrome-darwin.png"
+                        },
+                        {
+                          "name": "pos-empty-cart-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/test-results/pos.visual-POS-Visual-Tests-should-show-empty-cart-state-Mobile-Chrome/pos-empty-cart-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-567a08bb92cc19ca1091",
+              "file": "pos.visual.spec.ts",
+              "line": 86,
+              "column": 3
+            },
+            {
+              "title": "should display navigation and header correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2048,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:59.337Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-ac6afe8fa796c1daba19",
+              "file": "pos.visual.spec.ts",
+              "line": 94,
+              "column": 3
+            },
+            {
+              "title": "should display POS main interface correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2672,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-main-interface-Mobile-Safari-darwin.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:58:08.697Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "pos-main-interface-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-main-interface-Mobile-Safari-darwin.png"
+                        },
+                        {
+                          "name": "pos-main-interface-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/test-results/pos.visual-POS-Visual-Test-11e19-OS-main-interface-correctly-Mobile-Safari/pos-main-interface-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-654a05fdb188360d4faf",
+              "file": "pos.visual.spec.ts",
+              "line": 13,
+              "column": 3
+            },
+            {
+              "title": "should show product grid layout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2301,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-product-area-Mobile-Safari-darwin.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:58:11.581Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "pos-product-area-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-product-area-Mobile-Safari-darwin.png"
+                        },
+                        {
+                          "name": "pos-product-area-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/test-results/pos.visual-POS-Visual-Tests-should-show-product-grid-layout-Mobile-Safari/pos-product-area-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-559ba5d092a701d6825c",
+              "file": "pos.visual.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "should display cart panel correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2264,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-with-cart-Mobile-Safari-darwin.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:58:13.886Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "pos-with-cart-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-with-cart-Mobile-Safari-darwin.png"
+                        },
+                        {
+                          "name": "pos-with-cart-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/test-results/pos.visual-POS-Visual-Test-04707-isplay-cart-panel-correctly-Mobile-Safari/pos-with-cart-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-d44d9a21e2bedd2bcd4c",
+              "file": "pos.visual.spec.ts",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "should handle product selection interaction",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2106,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:58:16.153Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-541889cc031f26129f3f",
+              "file": "pos.visual.spec.ts",
+              "line": 51,
+              "column": 3
+            },
+            {
+              "title": "should display checkout workflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2120,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:58:18.262Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-a28823f15f065592c2e1",
+              "file": "pos.visual.spec.ts",
+              "line": 70,
+              "column": 3
+            },
+            {
+              "title": "should show empty cart state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2238,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-empty-cart-Mobile-Safari-darwin.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:58:20.385Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "pos-empty-cart-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-empty-cart-Mobile-Safari-darwin.png"
+                        },
+                        {
+                          "name": "pos-empty-cart-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/test-results/pos.visual-POS-Visual-Tests-should-show-empty-cart-state-Mobile-Safari/pos-empty-cart-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-da0d40c702bd92a6c961",
+              "file": "pos.visual.spec.ts",
+              "line": 86,
+              "column": 3
+            },
+            {
+              "title": "should display navigation and header correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2058,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:58:22.626Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-ba31def1fc10889f8c3f",
+              "file": "pos.visual.spec.ts",
+              "line": 94,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "POS Responsive Design Tests",
+          "file": "pos.visual.spec.ts",
+          "line": 104,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should display correctly on mobile device",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1978,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:56:50.162Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-777f05e1d6bbe032a6bd",
+              "file": "pos.visual.spec.ts",
+              "line": 105,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on tablet device",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2206,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:56:52.141Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-046ea8598495ff59d11f",
+              "file": "pos.visual.spec.ts",
+              "line": 118,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on desktop",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2850,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:56:54.350Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-26c8b6dd0433ee305609",
+              "file": "pos.visual.spec.ts",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on mobile device",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2488,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:16.048Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-23a3de12ab7488ada0f5",
+              "file": "pos.visual.spec.ts",
+              "line": 105,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on tablet device",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2199,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:18.539Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-6ff5e139c2815304f7cf",
+              "file": "pos.visual.spec.ts",
+              "line": 118,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on desktop",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2294,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:20.740Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-a816c05da0b27e942f43",
+              "file": "pos.visual.spec.ts",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on mobile device",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2099,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:39.499Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-01709882fd5adea34c94",
+              "file": "pos.visual.spec.ts",
+              "line": 105,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on tablet device",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2126,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:41.600Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-79d09a7a39b8a322798d",
+              "file": "pos.visual.spec.ts",
+              "line": 118,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on desktop",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2201,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:57:43.728Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-fed6735cb686309748c2",
+              "file": "pos.visual.spec.ts",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on mobile device",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2189,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-mobile-layout-Mobile-Chrome-darwin.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:58:01.388Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "pos-mobile-layout-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-mobile-layout-Mobile-Chrome-darwin.png"
+                        },
+                        {
+                          "name": "pos-mobile-layout-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/test-results/pos.visual-POS-Responsive--b8c08--correctly-on-mobile-device-Mobile-Chrome/pos-mobile-layout-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-b15501179d98e0f451c4",
+              "file": "pos.visual.spec.ts",
+              "line": 105,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on tablet device",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2229,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-tablet-layout-Mobile-Chrome-darwin.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:58:03.580Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "pos-tablet-layout-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-tablet-layout-Mobile-Chrome-darwin.png"
+                        },
+                        {
+                          "name": "pos-tablet-layout-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/test-results/pos.visual-POS-Responsive--47927--correctly-on-tablet-device-Mobile-Chrome/pos-tablet-layout-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-84e4e514b48c1bd119b0",
+              "file": "pos.visual.spec.ts",
+              "line": 118,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on desktop",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2521,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-desktop-layout-Mobile-Chrome-darwin.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:58:05.811Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "pos-desktop-layout-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-desktop-layout-Mobile-Chrome-darwin.png"
+                        },
+                        {
+                          "name": "pos-desktop-layout-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/test-results/pos.visual-POS-Responsive--fc16f-isplay-correctly-on-desktop-Mobile-Chrome/pos-desktop-layout-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-aa7a7dc37e808c3c0c57",
+              "file": "pos.visual.spec.ts",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on mobile device",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2256,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-mobile-layout-Mobile-Safari-darwin.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:58:24.686Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "pos-mobile-layout-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-mobile-layout-Mobile-Safari-darwin.png"
+                        },
+                        {
+                          "name": "pos-mobile-layout-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/test-results/pos.visual-POS-Responsive--b8c08--correctly-on-mobile-device-Mobile-Safari/pos-mobile-layout-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-97ce1917416d9e870dc1",
+              "file": "pos.visual.spec.ts",
+              "line": 105,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on tablet device",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2418,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-tablet-layout-Mobile-Safari-darwin.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:58:26.945Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "pos-tablet-layout-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-tablet-layout-Mobile-Safari-darwin.png"
+                        },
+                        {
+                          "name": "pos-tablet-layout-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/test-results/pos.visual-POS-Responsive--47927--correctly-on-tablet-device-Mobile-Safari/pos-tablet-layout-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-b6c65d52533a0877414b",
+              "file": "pos.visual.spec.ts",
+              "line": 118,
+              "column": 3
+            },
+            {
+              "title": "should display correctly on desktop",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2416,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-desktop-layout-Mobile-Safari-darwin.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-06-28T15:58:29.366Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "pos-desktop-layout-expected.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/tests/pos.visual.spec.ts-snapshots/pos-desktop-layout-Mobile-Safari-darwin.png"
+                        },
+                        {
+                          "name": "pos-desktop-layout-actual.png",
+                          "contentType": "image/png",
+                          "path": "/Users/aboy/Documents/Temp/popcorn-pos/test-results/pos.visual-POS-Responsive--fc16f-isplay-correctly-on-desktop-Mobile-Safari/pos-desktop-layout-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61bf5d8fe2a15398f4a8-a539c21ff836a5af2ec3",
+              "file": "pos.visual.spec.ts",
+              "line": 131,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-06-28T15:56:33.045Z",
+    "duration": 118782.221,
+    "expected": 50,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
