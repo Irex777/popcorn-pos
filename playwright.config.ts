@@ -36,7 +36,10 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 865 }
+      },
     },
 
     {
@@ -85,8 +88,7 @@ export default defineConfig({
   expect: {
     // Threshold for visual comparisons
     toHaveScreenshot: {
-      threshold: 0.2,
-      mode: 'local'
+      threshold: 0.2
     },
     // Threshold for visual comparison of elements
     toMatchSnapshot: {

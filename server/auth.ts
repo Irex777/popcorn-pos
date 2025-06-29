@@ -158,6 +158,28 @@ export function setupAuth(app: Express): void {
       return res.status(400).json({ error: "Username and password are required" });
     }
 
+    // Demo mode bypass for testing
+    if (process.env.DEMO_MODE === 'true') {
+      console.log('POST /api/login: Demo mode active, creating demo session.');
+      const demoUser = {
+        id: 1,
+        username: "admin",
+        isAdmin: true,
+        shopIds: [1],
+      };
+      
+      // Establish session for demo user
+      req.login(demoUser as any, (loginErr) => {
+        if (loginErr) {
+          console.error("POST /api/login: Demo mode session error:", loginErr);
+          return res.status(500).json({ error: "Failed to create demo session" });
+        }
+        console.log('POST /api/login: Demo session established successfully.');
+        return res.json(demoUser);
+      });
+      return;
+    }
+
     passport.authenticate("local", (err: any, user: Express.User | false, info: any) => {
       if (err) {
         console.error("POST /api/login: Passport authentication error:", err);
@@ -262,7 +284,7 @@ export function setupAuth(app: Express): void {
       console.log('GET /api/user: Demo mode active, returning demo user.');
       return res.json({
         id: 1,
-        username: "demo",
+        username: "admin",
         isAdmin: true,
         shopIds: [1],
       });

@@ -255,17 +255,6 @@ export class DatabaseStorage implements IStorage {
         // Force delete: cascade delete all related data
         console.log(`Force deleting shop ${id} and all related data...`);
         
-        // 0. Delete kitchen_order_items for this shop's orders
-        await db.execute(sql`
-          DELETE FROM kitchen_order_items
-          WHERE order_item_id IN (
-            SELECT oi.id
-            FROM order_items oi
-            JOIN orders o ON oi.order_id = o.id
-            WHERE o.shop_id = ${id}
-          )
-        `);
-        
         // 1. Delete all order items for orders in this shop
         await db.execute(sql`
           DELETE FROM order_items 

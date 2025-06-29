@@ -1,5 +1,9 @@
 {
   "name": "Default",
+  "variant": "professional", 
+  "appearance": "light",
+  "primary": "222.2 47.4% 11.2%",
+  "radius": 0.5,
   "cssVars": {
     "light": {
       "background": "0 0% 100%",
