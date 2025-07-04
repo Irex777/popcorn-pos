@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { getClientConfig } from "@shared/config";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {

@@ -18,16 +18,23 @@ import { setupVite, serveStatic, log } from "./vite";
 import { storage } from "./storage";
 import { hashPassword } from "./auth";
 import { setupAuth } from "./auth";
-import { setupWebSocket, startAnalyticsUpdates } from "./websocket";
+
+import { sessionMiddleware } from "./session";
+import { getAppConfig, findAvailablePort, validatePort } from "@shared/config";
+import { portAnnouncer } from "./port-announcer";
+
+// Get configuration
+const config = getAppConfig();
 
 // Add startup logging
 console.log('🚀 Starting Popcorn POS server...');
 console.log('📋 Environment check:');
 console.log('  - NODE_ENV:', process.env.NODE_ENV);
-console.log('  - PORT:', process.env.PORT);
+console.log('  - PORT:', config.ports.server);
 console.log('  - DATABASE_URL:', process.env.DATABASE_URL ? '✅ Set' : '❌ Missing');
 console.log('  - SESSION_SECRET:', process.env.SESSION_SECRET ? '✅ Set' : '❌ Missing');
-console.log('  - PUBLIC_URL:', process.env.PUBLIC_URL || 'Not set');
+console.log('  - BASE_URL:', config.baseUrl);
+console.log('  - API_URL:', config.apiUrl);
 
 // Write startup info to file for debugging
 import { writeFileSync } from 'fs';
@@ -50,6 +57,9 @@ try {
 
 const app = express();
 
+// Trust first proxy
+app.set('trust proxy', 1);
+
 // Disable express default error handling HTML pages
 app.set('env', process.env.NODE_ENV || 'development');
 
@@ -57,7 +67,7 @@ app.set('env', process.env.NODE_ENV || 'development');
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? (process.env.CLIENT_URL || process.env.PUBLIC_URL || false)
-    : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:3002'],
+    : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:3002', 'http://localhost:3003'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -65,6 +75,9 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Setup session middleware before authentication
+app.use(sessionMiddleware);
 
 // Setup authentication before registering routes
 setupAuth(app);
@@ -143,7 +156,7 @@ async function createDefaultAdmin() {
       const defaultAdmin = {
         username: "admin",
         password: hashedPassword,
-        isAdmin: true, // Make the default user an admin
+        isAdmin: true,
       };
       
       try {
@@ -193,50 +206,47 @@ async function createDefaultAdmin() {
     console.log('📁 Setting up file serving...');
     if (app.get("env") === "development") {
       log("Starting in development mode with Vite middleware");
-      await setupVite(app, server);
+      await setupVite(app, server, config.ports.server);
     } else {
       log("Starting in production mode with static file serving");
       serveStatic(app);
     }
+  
 
-    const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
-  
-  let wsInitialized = false;
-  
-  const startServer = (attempt: number = 0) => {
-    const currentPort = port + attempt;
-    server.listen(currentPort).on('error', (err: NodeJS.ErrnoException) => {
-      if (err.code === 'EADDRINUSE') {
-        if (attempt < 10) {
-          log(`Port ${currentPort} is already in use, trying port ${currentPort + 1}`);
-          startServer(attempt + 1);
-        } else {
-          console.error('Failed to find an available port after 10 attempts');
-        }
-      } else {
-        console.error('Server error:', err);
-      }
-    }).on('listening', () => {
-      const addr = server.address();
-      const actualPort = typeof addr === 'object' && addr ? addr.port : currentPort;
-      log(`Server listening on port ${actualPort}`);
+    let actualPort: number;
+    
+    try {
+      // Try to find an available port starting with the preferred port
+      actualPort = await findAvailablePort(config.ports.server, config.ports.fallbackPorts);
+      console.log(`🔍 Found available port: ${actualPort}`);
       
-      try {
-        if (wsInitialized) {
-          return;
-        }
-        wsInitialized = true;
-        setupWebSocket(server);
-        // Start analytics updates
-        startAnalyticsUpdates();
-      } catch (error) {
-        console.error('Failed to initialize WebSocket:', error);
+      if (actualPort !== config.ports.server) {
+        console.log(`⚠️ Preferred port ${config.ports.server} was not available, using ${actualPort}`);
       }
-    });
-  };
-  
-  console.log('🚀 Starting server...');
-  startServer();
+    } catch (error) {
+      console.error('❌ Failed to find available port:', error);
+      process.exit(1);
+    }
+
+    const startServer = () => {
+      server.listen(actualPort).on('error', (err: NodeJS.ErrnoException) => {
+        console.error('❌ Server error:', err);
+        process.exit(1);
+      }).on('listening', () => {
+        const addr = server.address();
+        const listeningPort = typeof addr === 'object' && addr ? addr.port : actualPort;
+        
+        // Announce the port prominently
+        portAnnouncer.announcePort(listeningPort);
+        
+        log(`Server listening on port ${listeningPort}`);
+        
+
+      });
+    };
+    
+    console.log('🚀 Starting server...');
+    startServer();
   
   } catch (error) {
     console.error('❌ Failed to start server:', error);

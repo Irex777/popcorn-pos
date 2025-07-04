@@ -18,7 +18,7 @@ export function log(message: string, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
-export async function setupVite(app: Express, server: Server) {
+export async function setupVite(app: Express, server: Server, port?: number) {
   // Dynamic import to avoid loading Vite in production
   const { createServer: createViteServer, createLogger } = await import("vite");
   const viteConfig = await import("../vite.config.js");
@@ -26,9 +26,19 @@ export async function setupVite(app: Express, server: Server) {
   
   const viteLogger = createLogger();
 
+  // Get the actual port from the server or use provided port
+  const address = server.address();
+  const actualPort = port || (typeof address === 'object' && address ? address.port : 3000);
+  
+  console.log(`🔧 Setting up Vite HMR on port ${actualPort}`);
+  
   const serverOptions = {
     middlewareMode: true,
-    hmr: { server },
+    hmr: { 
+      server,
+      port: actualPort,
+      host: 'localhost'
+    },
     allowedHosts: true as true,
   };
 

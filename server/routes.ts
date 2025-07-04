@@ -1,9 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertOrderSchema, insertOrderItemSchema, updateProductStockSchema, insertProductSchema, insertCategorySchema, insertShopSchema } from "@shared/schema";
+import { insertOrderSchema, insertOrderItemSchema, updateProductStockSchema, insertProductSchema, insertCategorySchema, insertShopSchema, insertTableSchema, insertReservationSchema, insertKitchenTicketSchema, insertStaffRoleSchema } from "@shared/schema";
 import { z } from "zod";
-import { setupWebSocket, startAnalyticsUpdates } from "./websocket";
+
 import paymentsRouter from './routes/payments';
 import { categories, products, orders, stripeSettings, type Order, type Product, type Category, type StripeSettings } from "@shared/schema";
 
@@ -538,6 +538,39 @@ app.get("/api/shops", async (req, res) => {
     }
   });
 
+  // Add items to existing order (must be before /orders/:id routes)
+  app.post("/api/shops/:shopId/orders/:id/items", requireShopAccess, async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.shopId);
+      const orderId = parseInt(req.params.id);
+
+      // Check if the order exists and belongs to the shop
+      const existingOrder = await storage.getOrder(orderId);
+      if (!existingOrder || existingOrder.shopId !== shopId) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+
+      const itemsData = z.array(insertOrderItemSchema).parse(
+        req.body.items.map((item: any) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price
+        }))
+      );
+
+      const updatedOrder = await storage.addItemsToOrder(orderId, itemsData);
+      const items = await storage.getOrderItems(orderId);
+      
+      res.json({ ...updatedOrder, items });
+    } catch (error) {
+      console.error('Error adding items to order:', error);
+      res.status(400).json({
+        error: error instanceof Error ? error.message : "Failed to add items to order",
+        details: error instanceof Error ? error.stack : undefined
+      });
+    }
+  });
+
   app.delete("/api/shops/:shopId/orders/:id", requireShopAccess, async (req, res) => {
     try {
       const shopId = parseInt(req.params.shopId);
@@ -562,6 +595,42 @@ app.get("/api/shops", async (req, res) => {
     } catch (error) {
       console.error('Error deleting order:', error);
       res.status(500).json({ error: "Failed to delete order" });
+    }
+  });
+
+  // Complete payment for restaurant orders
+  app.patch("/api/shops/:shopId/orders/:id/complete-payment", requireShopAccess, async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.shopId);
+      const orderId = parseInt(req.params.id);
+      const { status, paymentMethod, completedAt } = req.body;
+
+      // Check if the order exists and belongs to the shop
+      const existingOrder = await storage.getOrder(orderId);
+      if (!existingOrder || existingOrder.shopId !== shopId) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+
+      // Update order status to completed
+      const updatedOrder = await storage.updateOrder(orderId, {
+        status: status || 'completed',
+        paymentMethod: paymentMethod || 'cash',
+        completedAt: completedAt ? new Date(completedAt) : new Date()
+      });
+
+      if (!updatedOrder) {
+        return res.status(500).json({ error: "Failed to complete payment" });
+      }
+
+      // If the order has a table, mark it as available for cleaning
+      if (existingOrder.tableId) {
+        await storage.updateTable(existingOrder.tableId, { status: 'cleaning' });
+      }
+
+      res.json(updatedOrder);
+    } catch (error) {
+      console.error('Error completing payment:', error);
+      res.status(500).json({ error: "Failed to complete payment" });
     }
   });
 
@@ -623,6 +692,320 @@ app.get("/api/shops", async (req, res) => {
   // Register payment routes
   app.use('/api', paymentsRouter);
 
+  // Restaurant Tables routes
+  app.get("/api/shops/:shopId/tables", requireShopAccess, async (req, res) => {
+    try {
+      const tables = await storage.getTables(parseInt(req.params.shopId));
+      res.json(tables);
+    } catch (error) {
+      console.error('Error fetching tables:', error);
+      res.status(500).json({ error: 'Failed to fetch tables' });
+    }
+  });
+
+  app.post("/api/shops/:shopId/tables", requireShopAccess, async (req, res) => {
+    try {
+      const tableData = insertTableSchema.parse({
+        ...req.body,
+        shopId: parseInt(req.params.shopId)
+      });
+      const table = await storage.createTable(tableData);
+      res.status(201).json(table);
+    } catch (error) {
+      console.error('Table creation error:', error);
+      res.status(400).json({ error: "Invalid table data" });
+    }
+  });
+
+  app.patch("/api/shops/:shopId/tables/:id", requireShopAccess, async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.shopId);
+      const tableId = parseInt(req.params.id);
+
+      const existingTable = await storage.getTable(tableId);
+      if (!existingTable || existingTable.shopId !== shopId) {
+        return res.status(404).json({ error: "Table not found" });
+      }
+
+      const table = await storage.updateTable(tableId, req.body);
+      if (!table) {
+        return res.status(500).json({ error: "Failed to update table" });
+      }
+
+      res.json(table);
+    } catch (error) {
+      console.error('Table update error:', error);
+      res.status(400).json({ error: "Invalid table data" });
+    }
+  });
+
+  app.delete("/api/shops/:shopId/tables/:id", requireShopAccess, async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.shopId);
+      const tableId = parseInt(req.params.id);
+
+      const existingTable = await storage.getTable(tableId);
+      if (!existingTable || existingTable.shopId !== shopId) {
+        return res.status(404).json({ error: "Table not found" });
+      }
+
+      const deletedTable = await storage.deleteTable(tableId);
+      if (!deletedTable) {
+        return res.status(500).json({ error: "Failed to delete table" });
+      }
+
+      res.json({ success: true, message: "Table deleted successfully" });
+    } catch (error) {
+      console.error('Table deletion error:', error);
+      res.status(500).json({ error: "Failed to delete table" });
+    }
+  });
+
+  // Reservations routes
+  app.get("/api/shops/:shopId/reservations", requireShopAccess, async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.shopId);
+      const date = req.query.date ? new Date(req.query.date as string) : undefined;
+      const reservations = await storage.getReservations(shopId, date);
+      res.json(reservations);
+    } catch (error) {
+      console.error('Error fetching reservations:', error);
+      res.status(500).json({ error: 'Failed to fetch reservations' });
+    }
+  });
+
+  app.post("/api/shops/:shopId/reservations", requireShopAccess, async (req, res) => {
+    try {
+      const reservationData = insertReservationSchema.parse({
+        ...req.body,
+        shopId: parseInt(req.params.shopId),
+        reservationTime: new Date(req.body.reservationTime)
+      });
+      const reservation = await storage.createReservation(reservationData);
+      
+      // If a table was assigned to this reservation, mark it as reserved
+      if (reservation.tableId) {
+        await storage.updateTable(reservation.tableId, { status: 'reserved' });
+      }
+      
+      res.status(201).json(reservation);
+    } catch (error) {
+      console.error('Reservation creation error:', error);
+      res.status(400).json({ error: "Invalid reservation data" });
+    }
+  });
+
+  app.patch("/api/shops/:shopId/reservations/:id", requireShopAccess, async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.shopId);
+      const reservationId = parseInt(req.params.id);
+
+      const existingReservation = await storage.getReservation(reservationId);
+      if (!existingReservation || existingReservation.shopId !== shopId) {
+        return res.status(404).json({ error: "Reservation not found" });
+      }
+
+      const updateData = { ...req.body };
+      if (req.body.reservationTime) {
+        updateData.reservationTime = new Date(req.body.reservationTime);
+      }
+
+      const reservation = await storage.updateReservation(reservationId, updateData);
+      if (!reservation) {
+        return res.status(500).json({ error: "Failed to update reservation" });
+      }
+
+      // Handle table status changes based on reservation status
+      if (req.body.status) {
+        if (existingReservation.tableId) {
+          if (req.body.status === 'seated') {
+            // Mark table as occupied when guests are seated
+            await storage.updateTable(existingReservation.tableId, { status: 'occupied' });
+          } else if (req.body.status === 'cancelled' || req.body.status === 'no_show') {
+            // Mark table as available when reservation is cancelled or no-show
+            await storage.updateTable(existingReservation.tableId, { status: 'available' });
+          }
+        }
+      }
+
+      res.json(reservation);
+    } catch (error) {
+      console.error('Reservation update error:', error);
+      res.status(400).json({ error: "Invalid reservation data" });
+    }
+  });
+
+  app.delete("/api/shops/:shopId/reservations/:id", requireShopAccess, async (req, res) => {
+    try {
+      const shopId = parseInt(req.params.shopId);
+      const reservationId = parseInt(req.params.id);
+
+      const existingReservation = await storage.getReservation(reservationId);
+      if (!existingReservation || existingReservation.shopId !== shopId) {
+        return res.status(404).json({ error: "Reservation not found" });
+      }
+
+      // If reservation had a table assigned, mark it as available
+      if (existingReservation.tableId) {
+        await storage.updateTable(existingReservation.tableId, { status: 'available' });
+      }
+
+      const deletedReservation = await storage.deleteReservation(reservationId);
+      if (!deletedReservation) {
+        return res.status(500).json({ error: "Failed to delete reservation" });
+      }
+
+      res.json({ success: true, message: "Reservation deleted successfully" });
+    } catch (error) {
+      console.error('Reservation deletion error:', error);
+      res.status(500).json({ error: "Failed to delete reservation" });
+    }
+  });
+
+  // Kitchen Tickets routes
+  app.get("/api/shops/:shopId/kitchen/tickets", requireShopAccess, async (req, res) => {
+    try {
+      const tickets = await storage.getKitchenTickets(parseInt(req.params.shopId));
+      res.json(tickets);
+    } catch (error) {
+      console.error('Error fetching kitchen tickets:', error);
+      res.status(500).json({ error: 'Failed to fetch kitchen tickets' });
+    }
+  });
+
+  app.post("/api/shops/:shopId/kitchen/tickets", requireShopAccess, async (req, res) => {
+    try {
+      const ticketData = insertKitchenTicketSchema.parse({
+        ...req.body,
+        estimatedCompletion: req.body.estimatedCompletion ? new Date(req.body.estimatedCompletion) : undefined
+      });
+      const ticket = await storage.createKitchenTicket(ticketData);
+      res.status(201).json(ticket);
+    } catch (error) {
+      console.error('Kitchen ticket creation error:', error);
+      res.status(400).json({ error: "Invalid kitchen ticket data" });
+    }
+  });
+
+  app.patch("/api/shops/:shopId/kitchen/tickets/:id", requireShopAccess, async (req, res) => {
+    try {
+      const ticketId = parseInt(req.params.id);
+      const updateData = { ...req.body };
+      
+      if (req.body.estimatedCompletion) {
+        updateData.estimatedCompletion = new Date(req.body.estimatedCompletion);
+      }
+      if (req.body.status === 'served' && !updateData.completedAt) {
+        updateData.completedAt = new Date();
+      }
+
+      const ticket = await storage.updateKitchenTicket(ticketId, updateData);
+      if (!ticket) {
+        return res.status(404).json({ error: "Kitchen ticket not found" });
+      }
+
+      res.json(ticket);
+    } catch (error) {
+      console.error('Kitchen ticket update error:', error);
+      res.status(400).json({ error: "Invalid kitchen ticket data" });
+    }
+  });
+
+  // Staff Roles routes
+  app.get("/api/shops/:shopId/staff-roles", requireShopAccess, async (req, res) => {
+    try {
+      const roles = await storage.getStaffRoles(parseInt(req.params.shopId));
+      res.json(roles);
+    } catch (error) {
+      console.error('Error fetching staff roles:', error);
+      res.status(500).json({ error: 'Failed to fetch staff roles' });
+    }
+  });
+
+  app.post("/api/shops/:shopId/staff-roles", requireShopAccess, async (req, res) => {
+    try {
+      const roleData = insertStaffRoleSchema.parse({
+        ...req.body,
+        shopId: parseInt(req.params.shopId)
+      });
+      const role = await storage.createStaffRole(roleData);
+      res.status(201).json(role);
+    } catch (error) {
+      console.error('Staff role creation error:', error);
+      res.status(400).json({ error: "Invalid staff role data" });
+    }
+  });
+
+  // Enhanced orders routes for restaurant workflow
+  app.post("/api/shops/:shopId/orders/dine-in", requireShopAccess, async (req, res) => {
+    try {
+      const orderData = insertOrderSchema.parse({
+        ...req.body.order,
+        shopId: parseInt(req.params.shopId),
+        orderType: "dine_in"
+      });
+      const itemsData = z.array(insertOrderItemSchema).parse(
+        req.body.items.map((item: any) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+          courseNumber: item.courseNumber || 1,
+          specialRequests: item.specialRequests,
+          preparationTime: item.preparationTime
+        }))
+      );
+
+      const order = await storage.createOrder(orderData, itemsData);
+
+      if (!order) {
+        return res.status(500).json({ error: "Failed to create order" });
+      }
+
+      // If order is for a table, mark table as occupied
+      if (orderData.tableId) {
+        await storage.updateTable(orderData.tableId, { status: 'occupied' });
+      }
+
+      // Process items based on whether they require kitchen preparation
+      const kitchenItems = [];
+      const nonKitchenItems = [];
+      
+      for (const item of itemsData) {
+        const product = await storage.getProduct(item.productId);
+        if (product && product.requiresKitchen === true) {
+          kitchenItems.push(item);
+        } else {
+          nonKitchenItems.push(item);
+        }
+      }
+      
+      // Immediately mark non-kitchen items as "served" since they can be delivered right away
+      if (nonKitchenItems.length > 0) {
+        for (const item of nonKitchenItems) {
+          await storage.updateOrderItemStatus(order.id, item.productId, "served");
+        }
+      }
+      
+      // Create kitchen ticket only if order has items that require kitchen preparation
+      if (kitchenItems.length > 0) {
+        const ticketNumber = `T${order.id}-${Date.now().toString().slice(-4)}`;
+        await storage.createKitchenTicket({
+          orderId: order.id,
+          ticketNumber,
+          status: "new",
+          priority: "normal"
+        });
+      }
+
+      const items = await storage.getOrderItems(order.id);
+      res.status(201).json({ ...order, items });
+    } catch (error) {
+      console.error('Dine-in order creation error:', error);
+      res.status(400).json({
+        error: error instanceof Error ? error.message : "Invalid order data"
+      });
+    }
+  });
 
   // Analytics endpoints
   app.get("/api/shops/:shopId/analytics/real-time", requireShopAccess, async (req, res) => {
@@ -804,12 +1187,12 @@ app.get("/api/shops", async (req, res) => {
   });
 
   const httpServer = createServer(app);
-  setupWebSocket(httpServer);
+
 
   // Start analytics updates
   process.nextTick(() => {
     try {
-      startAnalyticsUpdates();
+
     } catch (error) {
       console.error('Failed to start analytics updates:', error);
     }

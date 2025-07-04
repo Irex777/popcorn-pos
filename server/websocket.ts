@@ -1,6 +1,7 @@
 import { WebSocket, WebSocketServer } from 'ws';
 import { Server } from 'http';
 import { storage } from './storage';
+import { sessionMiddleware } from './session';
 
 let wss: WebSocketServer;
 let isInitialized = false;
@@ -15,31 +16,17 @@ export function setupWebSocket(server: Server) {
     wss = new WebSocketServer({
       server, // Attach to HTTP server
       path: '/ws',
-      verifyClient: async (info: any, callback: any) => {
-        try {
-          // Extract user session
-          const cookie = info.req.headers.cookie;
-          if (!cookie) {
-            console.log('WS: No cookie provided');
+      verifyClient: (info: any, callback: any) => {
+        // Use the shared session middleware to authenticate
+        sessionMiddleware(info.req, {} as any, () => {
+          if (info.req.session.passport?.user) {
+            console.log('WS: Client is authenticated');
+            callback(true);
+          } else {
+            console.log('WS: Client is not authenticated');
             callback(false, 401, 'Unauthorized');
-            return;
           }
-
-          // Extract sessionId from cookie
-          const sessionMatch = cookie.match(/connect\.sid=([^;]+)/);
-          if (!sessionMatch) {
-            console.log('WS: No session cookie found');
-            callback(false, 401, 'Unauthorized');
-            return;
-          }
-
-          // For now, accept all authenticated connections
-          // In a production environment, you'd want to validate the session
-          callback(true);
-        } catch (error) {
-          console.error('WS verification error:', error);
-          callback(false, 500, 'Internal Server Error');
-        }
+        });
       }
     });
 
