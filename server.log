@@ -10076,3 +10076,600 @@ No user in session.
 Cookies: pos_session_id=s%3AyAYPXgehMCu7NTi8m2xo0-qh3FTVcnKQ.UhaJZuhJymXpVLdRsr7zUcgw980gwMLK2vNxMw4Mb2U
 ---------------------
 11:40:22 PM [express] GET /api/shops/1/orders 304 in 15ms :: [{"id":1,"total":"361.69","status":"pend…
+--- Session Debug (GET /user) ---
+Session ID: n13Pi9-8Eza8wmeBsjwRMfKVQgqIMqjY
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-05T22:00:22.874Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: pos_session_id=s%3AyAYPXgehMCu7NTi8m2xo0-qh3FTVcnKQ.UhaJZuhJymXpVLdRsr7zUcgw980gwMLK2vNxMw4Mb2U
+---------------------
+GET /api/user: Checking authentication status.
+GET /api/user: Demo mode active, returning demo user.
+--- Session Debug (GET /shops) ---
+Session ID: h83fqoBcc_6UMCtYE4YR89Yzzc5vs5xC
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-05T22:00:22.899Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: pos_session_id=s%3AyAYPXgehMCu7NTi8m2xo0-qh3FTVcnKQ.UhaJZuhJymXpVLdRsr7zUcgw980gwMLK2vNxMw4Mb2U
+---------------------
+🔗 Connected to database
+12:00:22 AM [express] GET /api/shops 304 in 15ms :: [{"id":1,"name":"asd","address":"asd","createdAt"…
+--- Session Debug (GET /shops/1/tables) ---
+Session ID: 1vbncSs_ww7ekNIwTCM5f40rpFlEZ-2a
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-05T22:00:22.935Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: pos_session_id=s%3AyAYPXgehMCu7NTi8m2xo0-qh3FTVcnKQ.UhaJZuhJymXpVLdRsr7zUcgw980gwMLK2vNxMw4Mb2U
+---------------------
+--- Session Debug (GET /shops/1/orders) ---
+Session ID: X9foZVZ_WS60HSp7Ivc0PHr35or0xQjo
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-05T22:00:22.936Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: pos_session_id=s%3AyAYPXgehMCu7NTi8m2xo0-qh3FTVcnKQ.UhaJZuhJymXpVLdRsr7zUcgw980gwMLK2vNxMw4Mb2U
+---------------------
+12:00:22 AM [express] GET /api/shops/1/tables 304 in 11ms :: [{"id":16,"number":"A3","capacity":6,"se…
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+12:00:22 AM [express] GET /api/shops/1/orders 304 in 33ms :: [{"id":1,"total":"361.69","status":"pend…
+--- Session Debug (GET /user) ---
+Session ID: hJlz1xMyw8PLzpQFDMbDaEiE6DWxnLgd
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-05T23:46:50.743Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: pos_session_id=s%3AyAYPXgehMCu7NTi8m2xo0-qh3FTVcnKQ.UhaJZuhJymXpVLdRsr7zUcgw980gwMLK2vNxMw4Mb2U
+---------------------
+GET /api/user: Checking authentication status.
+GET /api/user: Demo mode active, returning demo user.
+--- Session Debug (GET /shops) ---
+Session ID: q1eYnIuQfpvY6hDgnzUZn1Mj-exJ561u
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-05T23:46:50.773Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: pos_session_id=s%3AyAYPXgehMCu7NTi8m2xo0-qh3FTVcnKQ.UhaJZuhJymXpVLdRsr7zUcgw980gwMLK2vNxMw4Mb2U
+---------------------
+🔗 Connected to database
+1:46:50 AM [express] GET /api/shops 304 in 11ms :: [{"id":1,"name":"asd","address":"asd","createdAt"…
+--- Session Debug (GET /shops/1/tables) ---
+Session ID: UX4PhWBDNdqyxan4rDapshr_zeCJkrSp
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-05T23:46:50.805Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: pos_session_id=s%3AyAYPXgehMCu7NTi8m2xo0-qh3FTVcnKQ.UhaJZuhJymXpVLdRsr7zUcgw980gwMLK2vNxMw4Mb2U
+---------------------
+--- Session Debug (GET /shops/1/orders) ---
+Session ID: K2diYjd_uApCWtLEWvimHrfyxYnD50M-
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-05T23:46:50.806Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: pos_session_id=s%3AyAYPXgehMCu7NTi8m2xo0-qh3FTVcnKQ.UhaJZuhJymXpVLdRsr7zUcgw980gwMLK2vNxMw4Mb2U
+---------------------
+1:46:50 AM [express] GET /api/shops/1/tables 304 in 4ms :: [{"id":16,"number":"A3","capacity":6,"sec…
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+1:46:50 AM [express] GET /api/shops/1/orders 304 in 25ms :: [{"id":1,"total":"361.69","status":"pend…
+--- Session Debug (GET /user) ---
+Session ID: Tx99CAAYlmT09GffXW_56SG2wFSctX8L
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-06T04:37:58.099Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: pos_session_id=s%3AyAYPXgehMCu7NTi8m2xo0-qh3FTVcnKQ.UhaJZuhJymXpVLdRsr7zUcgw980gwMLK2vNxMw4Mb2U
+---------------------
+GET /api/user: Checking authentication status.
+GET /api/user: Demo mode active, returning demo user.
+--- Session Debug (GET /shops) ---
+Session ID: U8aESfhlH_W5sq0uTnoObkjzJ5nE-vi6
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-06T04:37:58.151Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: pos_session_id=s%3AyAYPXgehMCu7NTi8m2xo0-qh3FTVcnKQ.UhaJZuhJymXpVLdRsr7zUcgw980gwMLK2vNxMw4Mb2U
+---------------------
+🔗 Connected to database
+6:37:58 AM [express] GET /api/shops 304 in 13ms :: [{"id":1,"name":"asd","address":"asd","createdAt"…
+--- Session Debug (GET /shops/1/tables) ---
+Session ID: pRELJRQhE-B5rul9HpJxxE8z2hueEiLm
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-06T04:37:58.187Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: pos_session_id=s%3AyAYPXgehMCu7NTi8m2xo0-qh3FTVcnKQ.UhaJZuhJymXpVLdRsr7zUcgw980gwMLK2vNxMw4Mb2U
+---------------------
+--- Session Debug (GET /shops/1/orders) ---
+Session ID: HHEBQXQWNttxspobuSv6SR9swqHNLAiC
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-06T04:37:58.189Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: pos_session_id=s%3AyAYPXgehMCu7NTi8m2xo0-qh3FTVcnKQ.UhaJZuhJymXpVLdRsr7zUcgw980gwMLK2vNxMw4Mb2U
+---------------------
+6:37:58 AM [express] GET /api/shops/1/tables 304 in 6ms :: [{"id":16,"number":"A3","capacity":6,"sec…
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+6:37:58 AM [express] GET /api/shops/1/orders 304 in 30ms :: [{"id":1,"total":"361.69","status":"pend…
+--- Session Debug (GET /user) ---
+Session ID: aPufSKUTlPO5yMkqi5-DraAtwRJiDEyO
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T15:13:51.784Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: undefined
+---------------------
+GET /api/user: Checking authentication status.
+GET /api/user: Demo mode active, returning demo user.
+--- Session Debug (GET /shops) ---
+Session ID: J86AFlEPp0d4FaLPmKgOsvvgGzcsrQ9O
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T15:13:51.820Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: undefined
+---------------------
+🔗 Connected to database
+5:13:51 PM [express] GET /api/shops 304 in 15ms :: [{"id":1,"name":"asd","address":"asd","createdAt"…
+--- Session Debug (GET /shops/1/orders) ---
+Session ID: kZYtI4-1nnxQ3vlh4daoZczwirXLSMlk
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T15:13:51.858Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: undefined
+---------------------
+--- Session Debug (GET /shops/1/tables) ---
+Session ID: HO9UhiMnBsZV4YK__qMo4zp5AJ49Oq4p
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T15:13:51.858Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: undefined
+---------------------
+🔗 Connected to database
+5:13:51 PM [express] GET /api/shops/1/tables 304 in 18ms :: [{"id":16,"number":"A3","capacity":6,"se…
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+5:13:51 PM [express] GET /api/shops/1/orders 304 in 32ms :: [{"id":1,"total":"361.69","status":"pend…
+--- Session Debug (GET /user) ---
+Session ID: tEQKUwQ5IlCYnJ3sEpbPxywQ9powyq39
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T16:03:44.044Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: undefined
+---------------------
+GET /api/user: Checking authentication status.
+GET /api/user: Demo mode active, returning demo user.
+--- Session Debug (GET /shops) ---
+Session ID: MzkSBKDMOXGh2BlAznYhg36msqZgjR5h
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T16:03:44.087Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: undefined
+---------------------
+🔗 Connected to database
+6:03:44 PM [express] GET /api/shops 304 in 14ms :: [{"id":1,"name":"asd","address":"asd","createdAt"…
+--- Session Debug (GET /shops/1/tables) ---
+Session ID: QhZoos5249urNcS_52cPyky4fo3KsQmv
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T16:03:44.124Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: undefined
+---------------------
+--- Session Debug (GET /shops/1/orders) ---
+Session ID: aiyCeR1lxHSdU8kReyGhz7aaBiuCW30J
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T16:03:44.125Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: undefined
+---------------------
+6:03:44 PM [express] GET /api/shops/1/tables 304 in 6ms :: [{"id":16,"number":"A3","capacity":6,"sec…
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+6:03:44 PM [express] GET /api/shops/1/orders 304 in 30ms :: [{"id":1,"total":"361.69","status":"pend…
+--- Session Debug (GET /user) ---
+Session ID: lQKobOPzW2fpP3j8SI8gOqS2zJVS5_74
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T16:30:34.496Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3ABW-GQFlm0hFbOKjKwK-xjJtUP14rAxpQ.%2Bfhldbq8LnaWnkl%2B8gPmni1UxI5426bMAdXWjClHl%2F0
+---------------------
+GET /api/user: Checking authentication status.
+GET /api/user: Demo mode active, returning demo user.
+--- Session Debug (GET /shops) ---
+Session ID: PL19d3sp-anylGGYtM1REn3rr8pvIxwm
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T16:30:34.528Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3ABW-GQFlm0hFbOKjKwK-xjJtUP14rAxpQ.%2Bfhldbq8LnaWnkl%2B8gPmni1UxI5426bMAdXWjClHl%2F0
+---------------------
+🔗 Connected to database
+6:30:34 PM [express] GET /api/shops 304 in 29ms :: [{"id":1,"name":"asd","address":"asd","createdAt"…
+--- Session Debug (GET /shops/1/tables) ---
+Session ID: 8qYumj5UpBNYgji62tLzj3xoErvrTBvY
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T16:30:34.580Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3ABW-GQFlm0hFbOKjKwK-xjJtUP14rAxpQ.%2Bfhldbq8LnaWnkl%2B8gPmni1UxI5426bMAdXWjClHl%2F0
+---------------------
+--- Session Debug (GET /shops/1/orders) ---
+Session ID: YmLCxmkSkU50zEbVxD62WKTtTqe-qGwH
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T16:30:34.591Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3ABW-GQFlm0hFbOKjKwK-xjJtUP14rAxpQ.%2Bfhldbq8LnaWnkl%2B8gPmni1UxI5426bMAdXWjClHl%2F0
+---------------------
+6:30:34 PM [express] GET /api/shops/1/tables 304 in 13ms :: [{"id":16,"number":"A3","capacity":6,"se…
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+6:30:34 PM [express] GET /api/shops/1/orders 304 in 34ms :: [{"id":1,"total":"361.69","status":"pend…
+--- Session Debug (GET /shops/1/tables) ---
+Session ID: KU4aOffPDjwn2WjKa0AK2dpAK7hH0ROm
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T16:48:24.487Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3ABW-GQFlm0hFbOKjKwK-xjJtUP14rAxpQ.%2Bfhldbq8LnaWnkl%2B8gPmni1UxI5426bMAdXWjClHl%2F0
+---------------------
+--- Session Debug (GET /shops/1/orders) ---
+Session ID: VndXN2bS44Clo4Lac6XjAUhgYnyLbh1H
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T16:48:24.492Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3ABW-GQFlm0hFbOKjKwK-xjJtUP14rAxpQ.%2Bfhldbq8LnaWnkl%2B8gPmni1UxI5426bMAdXWjClHl%2F0
+---------------------
+🔗 Connected to database
+🔗 Connected to database
+6:48:24 PM [express] GET /api/shops/1/tables 304 in 30ms :: [{"id":16,"number":"A3","capacity":6,"se…
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+6:48:24 PM [express] GET /api/shops/1/orders 304 in 52ms :: [{"id":1,"total":"361.69","status":"pend…
+--- Session Debug (GET /user) ---
+Session ID: kDEkQMUn4dc83xxfs0ksKWIcqXxwH4Nj
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T17:21:02.782Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3ATHK5KlUU_NkYlzOuwBIgGN9lGpZ7I-w1.zYO981UlFmjVI%2F1kqLLE%2Fux5AS66p9EYYFRHdw1Isxc
+---------------------
+GET /api/user: Checking authentication status.
+GET /api/user: Demo mode active, returning demo user.
+--- Session Debug (GET /shops) ---
+Session ID: K42Jk3q_72umjLqdTYUtvgX0QDJt3KtD
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T17:21:02.845Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3ATHK5KlUU_NkYlzOuwBIgGN9lGpZ7I-w1.zYO981UlFmjVI%2F1kqLLE%2Fux5AS66p9EYYFRHdw1Isxc
+---------------------
+🔗 Connected to database
+7:21:02 PM [express] GET /api/shops 304 in 18ms :: [{"id":1,"name":"asd","address":"asd","createdAt"…
+--- Session Debug (GET /shops/1/tables) ---
+Session ID: 8A5AG3sZZ_zt-Y-ROrOGeDApDw5XRxZS
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T17:21:02.885Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3ATHK5KlUU_NkYlzOuwBIgGN9lGpZ7I-w1.zYO981UlFmjVI%2F1kqLLE%2Fux5AS66p9EYYFRHdw1Isxc
+---------------------
+--- Session Debug (GET /shops/1/orders) ---
+Session ID: tip0_sn_pMLjPdzZy6t8X4bgKMWxyD7u
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-08T17:21:02.886Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3ATHK5KlUU_NkYlzOuwBIgGN9lGpZ7I-w1.zYO981UlFmjVI%2F1kqLLE%2Fux5AS66p9EYYFRHdw1Isxc
+---------------------
+7:21:02 PM [express] GET /api/shops/1/tables 304 in 5ms :: [{"id":16,"number":"A3","capacity":6,"sec…
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+7:21:02 PM [express] GET /api/shops/1/orders 304 in 33ms :: [{"id":1,"total":"361.69","status":"pend…
