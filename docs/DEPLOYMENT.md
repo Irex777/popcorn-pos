@@ -36,6 +36,20 @@ NEON_DISABLE_WEBSOCKETS=true # Required if using a Neon database
 
 ## 4. Database Setup
 
+### Dual Environment Setup (Main + Beta)
+
+For proper testing and production isolation, set up separate databases:
+
+**Production Database (Main Branch):**
+- Database name: `popcorn_pos`
+- Use for main branch deployments
+- Production-grade configuration
+
+**Beta Database (Beta Branch):**
+- Database name: `popcorn_pos_beta`
+- Use for beta branch deployments
+- Testing and development configuration
+
 ### Option A: External Database (Recommended)
 
 Use a managed PostgreSQL service for better scalability and reliability.
@@ -43,12 +57,14 @@ Use a managed PostgreSQL service for better scalability and reliability.
 *   **Supabase**: [supabase.com](https://supabase.com)
 *   **Railway**: [railway.app](https://railway.app)
 
-Set the `DATABASE_URL` environment variable to the connection string provided by your database host.
+Create two separate database instances and set the appropriate `DATABASE_URL` environment variable for each deployment.
 
 ### Option B: Coolify-Hosted PostgreSQL
 
-1.  Add a new PostgreSQL service within your Coolify project.
-2.  Coolify will provide an internal connection string. Use this value for the `DATABASE_URL` environment variable in your Popcorn POS application service.
+1.  Add two PostgreSQL services within your Coolify project:
+    - `popcorn-pos-db-main` (for production)
+    - `popcorn-pos-db-beta` (for testing)
+2.  Use the respective connection strings for each application deployment.
 
 ## 5. Post-Deployment Checklist
 
