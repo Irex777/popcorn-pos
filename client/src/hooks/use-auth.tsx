@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/user"],
     queryFn: async (): Promise<User | null> => {
       try {
-        const res = await apiFetch("api/user", {
+        const res = await apiFetch("user", {
           method: "GET",
         });
         
