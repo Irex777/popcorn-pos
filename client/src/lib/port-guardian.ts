@@ -24,7 +24,13 @@ class PortGuardian {
   private async init() {
     console.log('🛡️ Port Guardian: Initializing...');
     
-    // EMERGENCY FIX: Force redirect to port 3003 if on wrong port
+    // Skip port guardian in production environments
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      console.log('🛡️ Port Guardian: Skipping in production environment');
+      return;
+    }
+    
+    // EMERGENCY FIX: Force redirect to port 3003 if on wrong port (development only)
     const currentPort = this.getCurrentPort();
     if (currentPort !== 3003) {
       console.log(`🚨 EMERGENCY REDIRECT: Moving from port ${currentPort} to 3003`);
