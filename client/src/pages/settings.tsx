@@ -942,7 +942,7 @@ export default function Settings() {
                           description: t('settings.testInProgress'),
                         });
 
-                        const response = await apiRequest('POST', 'system-test');
+                        const response = await apiRequest('POST', 'api/system-test');
                         const results = await response.json();
 
                         if (results.success) {
