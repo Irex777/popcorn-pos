@@ -12466,3 +12466,174 @@ Cookies: connect.sid=s%3AzEAusWS0QFPGHTQ9_L9WTgvkKtTk1cN8.C3yeKrfpwzuL79pgwu2sSo
 4:54:19 PM [express] GET /api/shops/1/orders 304 in 7ms :: [{"id":1,"total":"361.69","status":"pendi…
 4:54:22 PM [vite] hmr update /src/pages/categories.tsx, /src/index.css?v=8VjuRokfdwwcGO7GiwsIG
 4:54:22 PM [vite] hmr update /src/pages/categories.tsx, /src/index.css?v=8VjuRokfdwwcGO7GiwsIG
+--- Session Debug (GET /user) ---
+Session ID: P5iIEaH15zDHuDOByAyWHlCUOzFkssZv
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-09T16:33:03.651Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3AzEAusWS0QFPGHTQ9_L9WTgvkKtTk1cN8.C3yeKrfpwzuL79pgwu2sSozUUWjuGF5SOwVOMd9gb3k
+---------------------
+GET /api/user: Checking authentication status.
+GET /api/user: Demo mode active, returning demo user.
+--- Session Debug (GET /shops) ---
+Session ID: m-a85l3HEQMtmp2kv41fcSknuRsAjYn7
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-09T16:33:03.687Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3AzEAusWS0QFPGHTQ9_L9WTgvkKtTk1cN8.C3yeKrfpwzuL79pgwu2sSozUUWjuGF5SOwVOMd9gb3k
+---------------------
+🔗 Connected to database
+6:33:03 PM [express] GET /api/shops 304 in 24ms :: [{"id":1,"name":"asd","address":"asd","createdAt"…
+--- Session Debug (GET /shops/1/tables) ---
+Session ID: pYqWmABxwSZmpPzJ44Tn_bJyacl4Repb
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-09T16:33:03.736Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3AzEAusWS0QFPGHTQ9_L9WTgvkKtTk1cN8.C3yeKrfpwzuL79pgwu2sSozUUWjuGF5SOwVOMd9gb3k
+---------------------
+--- Session Debug (GET /shops/1/orders) ---
+Session ID: s833vSNBpyKY93Qpz10sA6tdUaOgPw3m
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-09T16:33:03.737Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3AzEAusWS0QFPGHTQ9_L9WTgvkKtTk1cN8.C3yeKrfpwzuL79pgwu2sSozUUWjuGF5SOwVOMd9gb3k
+---------------------
+6:33:03 PM [express] GET /api/shops/1/tables 304 in 6ms :: [{"id":16,"number":"A3","capacity":6,"sec…
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+6:33:03 PM [express] GET /api/shops/1/orders 304 in 42ms :: [{"id":1,"total":"361.69","status":"pend…
+6:40:52 PM [vite] hmr update /src/hooks/use-auth.tsx, /src/index.css?v=8VjuRokfdwwcGO7GiwsIG
+6:40:52 PM [vite] hmr invalidate /src/hooks/use-auth.tsx Could not Fast Refresh ("AuthContext" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+6:40:52 PM [vite] hmr update /src/App.tsx?v=8VjuRokfdwwcGO7GiwsIG, /src/index.css?v=8VjuRokfdwwcGO7GiwsIG, /src/lib/shop-context.tsx, /src/pages/auth.tsx, /src/pages/history.tsx, /src/pages/settings.tsx, /src/components/layouts/DashboardLayout.tsx, /src/hooks/use-preferences.tsx, /src/components/layouts/ShopSelector.tsx
+6:40:52 PM [vite] hmr invalidate /src/lib/shop-context.tsx Could not Fast Refresh ("useShop" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+6:40:52 PM [vite] hmr update /src/App.tsx?v=8VjuRokfdwwcGO7GiwsIG, /src/index.css?v=8VjuRokfdwwcGO7GiwsIG, /src/pages/pos.tsx, /src/pages/analytics.tsx, /src/pages/kitchen.tsx, /src/pages/inventory.tsx, /src/pages/history.tsx, /src/pages/server.tsx, /src/pages/categories.tsx, /src/pages/settings.tsx, /src/pages/floor-plan.tsx, /src/components/pos/ProductGrid.tsx, /src/components/inventory/CreateProductDialog.tsx, /src/components/inventory/EditProductDialog.tsx, /src/components/restaurant/pos/RestaurantPaymentDialog.tsx, /src/components/restaurant/host/AddTableDialog.tsx, /src/components/restaurant/host/FloorPlanView.tsx, /src/components/restaurant/host/AddReservationDialog.tsx, /src/components/restaurant/host/ReservationList.tsx, /src/components/restaurant/host/EnhancedWaitList.tsx, /src/components/layouts/ShopSelector.tsx, /src/components/restaurant/pos/RestaurantCheckoutDialog.tsx, /src/components/restaurant/host/EditTableDialog.tsx, /src/components/restaurant/shared/TableSelector.tsx
+6:40:52 PM [vite] hmr invalidate /src/hooks/use-preferences.tsx Could not Fast Refresh ("useUserPreferences" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+6:40:52 PM [vite] hmr update /src/pages/settings.tsx, /src/index.css?v=8VjuRokfdwwcGO7GiwsIG
+6:40:57 PM [vite] hmr update /src/hooks/use-preferences.tsx, /src/index.css?v=8VjuRokfdwwcGO7GiwsIG
+6:40:57 PM [vite] hmr invalidate /src/hooks/use-preferences.tsx Could not Fast Refresh ("useUserPreferences" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+6:40:57 PM [vite] hmr update /src/pages/settings.tsx, /src/index.css?v=8VjuRokfdwwcGO7GiwsIG
+6:41:02 PM [vite] hmr update /src/pages/settings.tsx, /src/index.css?v=8VjuRokfdwwcGO7GiwsIG
+6:41:06 PM [vite] page reload src/components/pos/CheckoutDialog.tsx
+--- Session Debug (GET /user) ---
+Session ID: uK-vkGRwDA0lChJAnKkLCemN3VPNV9mU
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-09T16:41:07.085Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3AzEAusWS0QFPGHTQ9_L9WTgvkKtTk1cN8.C3yeKrfpwzuL79pgwu2sSozUUWjuGF5SOwVOMd9gb3k
+---------------------
+GET /api/user: Checking authentication status.
+GET /api/user: Demo mode active, returning demo user.
+--- Session Debug (GET /shops) ---
+Session ID: sF34j5d-VdM04YcDaDxZMigQa6ISaQpo
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-09T16:41:07.145Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3AzEAusWS0QFPGHTQ9_L9WTgvkKtTk1cN8.C3yeKrfpwzuL79pgwu2sSozUUWjuGF5SOwVOMd9gb3k
+---------------------
+🔗 Connected to database
+6:41:07 PM [express] GET /api/shops 304 in 17ms :: [{"id":1,"name":"asd","address":"asd","createdAt"…
+--- Session Debug (GET /shops/1/tables) ---
+Session ID: rq8-tccOsUqFQz_Z0QRSq7RvnkrD_Y4W
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-09T16:41:07.180Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3AzEAusWS0QFPGHTQ9_L9WTgvkKtTk1cN8.C3yeKrfpwzuL79pgwu2sSozUUWjuGF5SOwVOMd9gb3k
+---------------------
+--- Session Debug (GET /shops/1/orders) ---
+Session ID: QM_El_plX9Xc98TezgdTe7QzAi_dhgvn
+Session data: Session {
+  cookie: {
+    path: '/',
+    _expires: 2025-07-09T16:41:07.181Z,
+    originalMaxAge: 86400000,
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax'
+  }
+}
+Is authenticated: false
+No user in session.
+Cookies: connect.sid=s%3AzEAusWS0QFPGHTQ9_L9WTgvkKtTk1cN8.C3yeKrfpwzuL79pgwu2sSozUUWjuGF5SOwVOMd9gb3k
+---------------------
+6:41:07 PM [express] GET /api/shops/1/tables 304 in 5ms :: [{"id":16,"number":"A3","capacity":6,"sec…
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+🔗 Connected to database
+6:41:07 PM [express] GET /api/shops/1/orders 304 in 27ms :: [{"id":1,"total":"361.69","status":"pend…
+6:41:10 PM [vite] hmr update /src/pages/categories.tsx, /src/index.css?v=8VjuRokfdwwcGO7GiwsIG

@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      const res = await apiRequest("POST", "api/login", credentials);
+      const res = await apiRequest("POST", "login", credentials);
       return res.json();
     },
     onSuccess: (data: User) => {
@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.prefetchQuery({
         queryKey: ['/api/user/preferences'],
         queryFn: async () => {
-          const response = await apiRequest('GET', 'api/user/preferences');
+          const response = await apiRequest('GET', 'user/preferences');
           if (!response.ok) {
             if (response.status === 404) {
               return { language: 'cs', currency: 'CZK' };
@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "api/logout");
+      await apiRequest("POST", "logout");
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
@@ -125,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      const res = await apiRequest("POST", "api/register", credentials);
+      const res = await apiRequest("POST", "register", credentials);
       return res.json();
     },
     onSuccess: (data: User) => {

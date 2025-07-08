@@ -22,7 +22,7 @@ export function useUserPreferences() {
   const { data: serverPreferences, isLoading, error } = useQuery({
     queryKey: ['/api/user/preferences'],
     queryFn: async (): Promise<UserPreferences> => {
-      const response = await apiRequest('GET', 'api/user/preferences');
+      const response = await apiRequest('GET', 'user/preferences');
       if (!response.ok) {
         if (response.status === 404) {
           // User preferences not found, use defaults
@@ -56,7 +56,7 @@ export function useUserPreferences() {
   // Mutation to update preferences on server
   const updatePreferencesMutation = useMutation({
     mutationFn: async (preferences: Partial<UserPreferences>) => {
-      const response = await apiRequest('PATCH', 'api/user/preferences', preferences);
+      const response = await apiRequest('PATCH', 'user/preferences', preferences);
       if (!response.ok) {
         throw new Error('Failed to update preferences');
       }
