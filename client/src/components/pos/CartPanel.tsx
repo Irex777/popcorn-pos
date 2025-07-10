@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import CheckoutDialog from "./CheckoutDialog";
 import { useTranslation } from "react-i18next";
+import { Trash2 } from "lucide-react";
 
 // Animation configurations remain the same
 const bounceAnimation = {
@@ -32,6 +33,7 @@ export default function CartPanel() {
   const [cart, setCart] = useAtom(cartAtom);
   const [currency] = useAtom(currencyAtom);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [swipingItem, setSwipingItem] = useState<number | null>(null);
 
   const updateQuantity = (productId: number, delta: number) => {
     setCart(current => {
@@ -58,7 +60,7 @@ export default function CartPanel() {
 
   return (
     <div className="py-2 md:py-6">
-      <div className="max-h-[120px] md:max-h-[calc(100vh-200px)] overflow-y-auto mb-2 md:mb-4">
+      <div className="max-h-[40vh] min-h-[200px] md:max-h-[calc(100vh-200px)] overflow-y-auto mb-2 md:mb-4">
         <AnimatePresence>
           {cart.map(item => (
             <motion.div
@@ -75,13 +77,17 @@ export default function CartPanel() {
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={0.2}
                 dragDirectionLock
+                onDragStart={() => setSwipingItem(item.product.id)}
                 onDragEnd={(e, { offset, velocity }) => {
                   const swipe = offset.x * velocity.x;
                   if (swipe < swipeConfidenceThreshold && offset.x < swipeThreshold) {
                     removeItem(item.product.id);
                   }
+                  setSwipingItem(null);
                 }}
-                className="relative bg-background flex items-center justify-between py-1 md:py-2 touch-pan-y"
+                className={`relative bg-background flex items-center justify-between py-1 md:py-2 touch-pan-y transition-all duration-200 ${
+                  swipingItem === item.product.id ? 'bg-red-50 dark:bg-red-900/20 scale-95' : ''
+                }`}
                 initial={{ x: 0 }}
                 animate={{ x: 0 }}
                 whileDrag={{ cursor: "grabbing" }}
@@ -123,10 +129,20 @@ export default function CartPanel() {
                 >
                   {formatCurrency(Number(item.product.price) * item.quantity, currency)}
                 </motion.span>
+                {swipingItem === item.product.id && (
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-red-500 pointer-events-none">
+                    <Trash2 className="w-5 h-5" />
+                  </div>
+                )}
               </motion.div>
             </motion.div>
           ))}
         </AnimatePresence>
+        {cart.length > 0 && (
+          <div className="text-xs text-muted-foreground text-center mb-2 md:hidden">
+            {t('cart.swipeHint', 'Swipe left to remove items')}
+          </div>
+        )}
       </div>
 
       <div className="space-y-2 md:space-y-4">

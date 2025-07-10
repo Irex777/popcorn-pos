@@ -74,7 +74,7 @@ export default function Analytics() {
       .filter(item => item.productId === product.id)
       .reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0) || 0;
 
-    const categoryName = product.categoryId.toString(); 
+    const categoryName = categories?.find(c => c.id === product.categoryId)?.name || `Category ${product.categoryId}`; 
     if (!acc[categoryName]) {
       acc[categoryName] = 0;
     }
