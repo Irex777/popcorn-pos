@@ -122,9 +122,13 @@ export function registerRoutes(app: Express): Server {
       const shopData = {
         name: req.body.name.trim(),
         address: req.body.address?.trim() || null,
-        businessMode: req.body.businessMode || 'shop',
         createdById: req.user?.id || 0
       };
+      
+      // HOTFIX: Only include businessMode if provided (optional until migration)
+      if (req.body.businessMode) {
+        shopData.businessMode = req.body.businessMode;
+      }
 
       // Parse the data through the schema
       const validatedData = insertShopSchema.parse(shopData);
@@ -254,11 +258,15 @@ app.get("/api/shops", async (req, res) => {
       }
 
       // Only validate the updateable fields
-      const updateData = {
+      const updateData: any = {
         name: req.body.name,
-        address: req.body.address || null,
-        businessMode: req.body.businessMode || existingShop.businessMode || 'shop'
+        address: req.body.address || null
       };
+      
+      // HOTFIX: Only include businessMode if provided or if existing shop has it
+      if (req.body.businessMode || (existingShop as any).businessMode) {
+        updateData.businessMode = req.body.businessMode || (existingShop as any).businessMode || 'shop';
+      }
 
       // Merge with existing data to preserve createdById
       const shopData = {
