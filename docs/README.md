@@ -1,70 +1,151 @@
-# 📚 Popcorn POS Documentation
+# 🍿 Popcorn POS
+## Czech-First Restaurant Management System
 
-Welcome to the Popcorn POS documentation. This folder contains all the essential documentation for the Czech-first restaurant POS system.
-
-## 📋 **Main Documentation**
-
-### **Business & Strategy**
-- [`EXECUTIVE_SUMMARY.md`](./EXECUTIVE_SUMMARY.md) - Complete business overview and market opportunity
-- [`CZECH_RESTAURANT_MARKET_ANALYSIS.md`](./CZECH_RESTAURANT_MARKET_ANALYSIS.md) - Detailed Czech market analysis and go-to-market strategy
-- [`FEATURES_AND_ROADMAP.md`](./FEATURES_AND_ROADMAP.md) - Comprehensive feature list and implementation roadmap
-
-### **Implementation Guides**
-- [`RESTAURANT_IMPLEMENTATION_GUIDE.md`](./RESTAURANT_IMPLEMENTATION_GUIDE.md) - 30-day restaurant feature implementation plan
-- [`IMPLEMENTATION_COMPLETE.md`](./IMPLEMENTATION_COMPLETE.md) - User preferences implementation details
-
-### **Deployment & Operations**
-- [`DOCKER_DEPLOYMENT.md`](./DOCKER_DEPLOYMENT.md) - Docker deployment with Coolify guide
-- [`COOLIFY_SETUP.md`](./COOLIFY_SETUP.md) - Coolify configuration instructions
-- [`DEPLOYMENT_CHECKLIST.md`](./DEPLOYMENT_CHECKLIST.md) - Production deployment checklist
+*Modern, EU-compliant point-of-sale system designed specifically for Czech Republic restaurants*
 
 ---
 
-## 🎯 **Quick Start Guide**
+## 🌟 **Overview**
 
-1. **Understanding the Vision**: Start with [`EXECUTIVE_SUMMARY.md`](./EXECUTIVE_SUMMARY.md)
-2. **Market Context**: Review [`CZECH_RESTAURANT_MARKET_ANALYSIS.md`](./CZECH_RESTAURANT_MARKET_ANALYSIS.md)
-3. **Feature Overview**: Check [`FEATURES_AND_ROADMAP.md`](./FEATURES_AND_ROADMAP.md)
-4. **Implementation Plan**: Follow [`RESTAURANT_IMPLEMENTATION_GUIDE.md`](./RESTAURANT_IMPLEMENTATION_GUIDE.md)
-5. **Deployment**: Use [`DOCKER_DEPLOYMENT.md`](./DOCKER_DEPLOYMENT.md)
+Popcorn POS is a comprehensive restaurant management system built with modern web technologies and designed from the ground up for the Czech Republic market. It combines the power of a traditional POS system with advanced restaurant workflow management, EU compliance, and Czech-first localization.
+
+### **Key Features**
+- 🇨🇿 **Czech-First Design**: Default Czech language and CZK currency
+- 🍽️ **Restaurant-Specific**: Table management, kitchen displays, menu modifiers
+- 📊 **AI-Enhanced Analytics**: ML-based forecasting and business intelligence
+- 💳 **Multi-Payment Support**: Stripe, cash, and local EU payment methods
+- 🔒 **EU Compliant**: GDPR, VAT management, and local tax integration
+- 📱 **Modern UI/UX**: Responsive design with React + TypeScript
 
 ---
 
-## 🍽️ **Restaurant POS Highlights**
+## 🚀 **Quick Start**
+
+### **Development Setup**
+```bash
+# Clone the repository
+git clone <repository-url>
+cd popcorn-pos
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your configuration
+
+# Start development server
+npm run dev
+```
+
+### **Docker Deployment**
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# Or use the provided deployment scripts
+./start-debug.sh
+```
+
+### **Production Deployment**
+See [`DOCKER_DEPLOYMENT.md`](./DOCKER_DEPLOYMENT.md) for complete deployment instructions using Coolify.
+
+---
+
+## 📚 **Documentation**
+
+All comprehensive documentation is located in this folder:
+
+- **[📊 Executive Summary](./EXECUTIVE_SUMMARY.md)** - Business overview and market opportunity
+- **[🇨🇿 Market Analysis](./CZECH_RESTAURANT_MARKET_ANALYSIS.md)** - Czech restaurant market strategy  
+- **[🚀 Features & Roadmap](./FEATURES_AND_ROADMAP.md)** - Complete feature list and implementation plan
+- **[🍽️ Restaurant Implementation](./RESTAURANT_IMPLEMENTATION_GUIDE.md)** - 30-day enhancement guide
+- **[🐳 Deployment Guide](./DOCKER_DEPLOYMENT.md)** - Production deployment instructions
+
+---
+
+## 🏗️ **Architecture**
+
+### **Technology Stack**
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS + Shadcn/ui components
+- **Backend**: Node.js + Express + TypeScript
+- **Database**: PostgreSQL with migrations
+- **Authentication**: Passport.js sessions
+- **Payments**: Stripe integration
+- **Real-time**: WebSocket connections
+- **Deployment**: Docker + Coolify
+
+### **Project Structure**
+```
+popcorn-pos/
+├── client/          # React frontend application
+├── server/          # Node.js backend API
+├── shared/          # Shared types and utilities
+├── docs/           # Comprehensive documentation
+├── migrations/     # Database schema migrations
+├── scripts/        # Utility scripts
+└── archive/        # Legacy/troubleshooting files
+```
+
+---
+
+## 🎯 **Market Focus**
+
+### **Target Markets**
+- **Primary**: Czech Republic (45,000 restaurants)
+- **Secondary**: Slovakia, Poland, Austria, Germany
+- **Segments**: Fast casual, full service, cafés, pubs, food trucks
+
+### **Competitive Advantages**
+- ✅ Only POS system designed specifically for Czech restaurants
+- ✅ Modern technology stack vs. legacy competitors
+- ✅ 25% lower cost than premium alternatives
+- ✅ Built-in EU compliance (VAT, GDPR, local regulations)
+- ✅ Restaurant-specific workflows, not retrofitted retail POS
+
+---
+
+## 💰 **Business Opportunity**
+
+- **Market Size**: €32M annual opportunity in Czech Republic
+- **Revenue Target**: €4.9M ARR by Year 3
+- **Customer Target**: 3,000 restaurants (7% market share)
+- **Pricing**: 999-2,499 CZK/month per location
+
+---
+
+## 🛠️ **Development Status**
 
 ### **Current Features** ✅
-- Czech-first localization (200+ translation keys)
-- Restaurant POS interface with menu management
-- Real-time analytics with ML forecasting
+- Complete restaurant POS interface
+- Czech localization (200+ translation keys)
 - Multi-location support
-- Stripe payment integration
-- Modern React + TypeScript architecture
+- Real-time analytics with ML forecasting
+- Stripe payment processing
+- Inventory and menu management
+- User authentication and role management
 
-### **30-Day Enhancement Plan** 🚀
-- **Table Management System**: Floor plans, reservations, table status
-- **Kitchen Display System**: Order queues, preparation tracking
-- **EU Compliance**: VAT management, GDPR, food safety regulations
-- **Restaurant Analytics**: Table turnover, kitchen efficiency, menu performance
-- **Staff Management**: Scheduling, performance tracking, role-based access
-
-### **Market Opportunity** 💰
-- **45,000 restaurants** in Czech Republic
-- **€32M annual market** with 35% digital adoption gap
-- **€4.9M ARR potential** by Year 3
-- **Clear competitive advantage** through Czech-first design
+### **30-Day Enhancement Plan** 🚧
+- Table management system
+- Kitchen display system
+- EU compliance features
+- Advanced restaurant analytics
+- Staff management tools
+- Mobile applications
 
 ---
 
-## 📊 **Documentation Status**
+## 🤝 **Contributing**
 
-| Document | Status | Last Updated | Purpose |
-|----------|--------|--------------|---------|
-| Executive Summary | ✅ Complete | June 22, 2025 | Business overview |
-| Market Analysis | ✅ Complete | June 22, 2025 | Czech market strategy |
-| Features & Roadmap | ✅ Complete | June 22, 2025 | Technical roadmap |
-| Implementation Guide | ✅ Complete | June 22, 2025 | Development plan |
-| Deployment Guide | ✅ Complete | June 22, 2025 | Operations manual |
+This project is currently in active development for the Czech restaurant market. For questions or collaboration opportunities, please refer to the documentation in this folder.
 
 ---
 
-*This documentation package positions Popcorn POS as the leading Czech-first restaurant management system with a clear path to market dominance.*
+## 📄 **License**
+
+Proprietary software designed for Czech Republic restaurant market.
+
+---
+
+*Popcorn POS - Transforming Czech restaurants through modern technology* 🇨🇿🍽️

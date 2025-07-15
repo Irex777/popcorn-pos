@@ -29,8 +29,8 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'cs',
-    fallbackLng: 'cs',
+    lng: 'cs', // Default to Czech
+    fallbackLng: 'cs', // Fallback to Czech
     interpolation: {
       escapeValue: false,
     },

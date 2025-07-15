@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import EditProductDialog from "@/components/inventory/EditProductDialog";
-import { Edit, Plus, Trash2 } from "lucide-react";
+import { Edit, Plus, Trash2, Search, X } from "lucide-react";
 import CreateProductDialog from "@/components/inventory/CreateProductDialog";
 import { useTranslation } from "react-i18next";
 import { useAtom } from "jotai";
@@ -14,6 +14,8 @@ import { formatCurrency } from "@/lib/settings";
 import { useShop } from "@/lib/shop-context";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { useMemo } from "react";
 
 const container = {
   hidden: { opacity: 0 },
@@ -43,6 +45,7 @@ export default function Inventory() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const { t } = useTranslation();
   const [currency] = useAtom(currencyAtom);
   const { currentShop } = useShop();
@@ -90,13 +93,31 @@ export default function Inventory() {
 
   const isLoading = productsLoading || categoriesLoading;
 
-  const filteredProducts = selectedCategoryId
-    ? products?.filter(p => p.categoryId === selectedCategoryId)
-    : products;
-
   const getCategoryName = (categoryId: number) => {
     return categories?.find(c => c.id === categoryId)?.name || t('common.unknown');
   };
+
+  const filteredProducts = useMemo(() => {
+    if (!products) return [];
+    
+    let filtered = products;
+    
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getCategoryName(product.categoryId).toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.price.toString().includes(searchTerm)
+      );
+    }
+    
+    // Filter by category
+    if (selectedCategoryId) {
+      filtered = filtered.filter(p => p.categoryId === selectedCategoryId);
+    }
+    
+    return filtered;
+  }, [products, searchTerm, selectedCategoryId, categories]);
 
   if (!currentShop) {
     return (
@@ -126,12 +147,37 @@ export default function Inventory() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">{t('inventory.title')}</h2>
+        <h1 className="text-3xl font-bold">{t('inventory.title')}</h1>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           {t('inventory.addProduct')}
         </Button>
       </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+        <Input
+          type="text"
+          placeholder={t('inventory.searchPlaceholder', 'Search products, categories, or prices...')}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10 pr-10"
+        />
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm('')}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
+      {searchTerm && (
+        <div className="text-sm text-muted-foreground">
+          {filteredProducts.length} {t('inventory.resultsFound', 'products found')}
+        </div>
+      )}
 
       <motion.div 
         className="flex gap-2 overflow-x-auto pb-2"
@@ -165,13 +211,34 @@ export default function Inventory() {
         ))}
       </motion.div>
 
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-      >
-        {filteredProducts?.map((product) => (
+      {filteredProducts.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+            <Search className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-medium mb-2">
+            {searchTerm ? t('inventory.noResultsFound', 'No products found') : t('inventory.noProducts', 'No products available')}
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            {searchTerm 
+              ? t('inventory.tryDifferentSearch', 'Try adjusting your search terms or filters')
+              : t('inventory.addFirstProduct', 'Add your first product to get started')
+            }
+          </p>
+          {searchTerm && (
+            <Button variant="outline" onClick={() => setSearchTerm('')}>
+              {t('inventory.clearSearch', 'Clear search')}
+            </Button>
+          )}
+        </div>
+      ) : (
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          {filteredProducts?.map((product) => (
           <motion.div
             key={product.id}
             variants={item}
@@ -226,6 +293,7 @@ export default function Inventory() {
           </motion.div>
         ))}
       </motion.div>
+      )}
 
       {editingProduct && (
         <EditProductDialog

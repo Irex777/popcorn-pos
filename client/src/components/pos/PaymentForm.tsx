@@ -5,6 +5,7 @@ import { LoadingAnimation } from "@/components/ui/loading-animation";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { formatCurrency, Currency } from "@/lib/settings";
+import { useTranslation } from "react-i18next";
 
 interface PaymentFormProps {
   amount: number;
@@ -14,6 +15,7 @@ interface PaymentFormProps {
 }
 
 export default function PaymentForm({ amount, currency, onSuccess, clientSecret }: PaymentFormProps) {
+  const { t } = useTranslation();
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
@@ -34,25 +36,25 @@ export default function PaymentForm({ amount, currency, onSuccess, clientSecret 
       });
 
       if (submitError || !paymentIntent) {
-        setError(submitError?.message || 'Payment failed');
+        setError(submitError?.message || t('checkout.paymentFailed'));
         toast({
-          title: "Payment Error",
+          title: t('checkout.error'),
           description: submitError?.message,
           variant: "destructive",
         });
       } else if (paymentIntent.status === 'succeeded') {
         toast({
-          title: "Payment Successful",
-          description: "Thank you for your payment",
+          title: t('checkout.paymentSuccessful'),
+          description: t('checkout.thankYou'),
         });
         onSuccess();
       }
     } catch (err) {
       console.error('Payment error:', err);
-      setError('An unexpected error occurred');
+      setError(t('checkout.unexpectedError'));
       toast({
-        title: "Payment Error",
-        description: "An unexpected error occurred",
+        title: t('checkout.error'),
+        description: t('checkout.unexpectedError'),
         variant: "destructive",
       });
     } finally {
@@ -72,7 +74,7 @@ export default function PaymentForm({ amount, currency, onSuccess, clientSecret 
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
         <Alert variant="destructive">
-          <AlertTitle>Payment Error</AlertTitle>
+          <AlertTitle>{t('checkout.error')}</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -81,7 +83,7 @@ export default function PaymentForm({ amount, currency, onSuccess, clientSecret 
 
       <div className="pt-4 border-t">
         <div className="flex justify-between font-medium">
-          <span>Total</span>
+          <span>{t('common.total')}</span>
           <span>{formatCurrency(amount, currency)}</span>
         </div>
       </div>
@@ -94,7 +96,7 @@ export default function PaymentForm({ amount, currency, onSuccess, clientSecret 
         {processing ? (
           <LoadingAnimation />
         ) : (
-          `Pay ${formatCurrency(amount, currency)}`
+          `${t('checkout.pay')} ${formatCurrency(amount, currency)}`
         )}
       </Button>
     </form>

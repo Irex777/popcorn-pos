@@ -105,7 +105,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
     async function checkStripeSettings(shopId: number) {
       try {
         setStripeError(null);
-        const response = await apiRequest('GET', `/api/shops/${shopId}/stripe-settings`);
+        const response = await apiRequest('GET', `shops/${shopId}/stripe-settings`);
         if (!response.ok) throw new Error(STRIPE_CONFIGURATION_ERROR);
         const settings = await response.json();
         
@@ -272,7 +272,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
                     appearance: {
                       theme: 'stripe',
                       variables: {
-                        colorPrimary: '#006ADC'
+                        colorPrimary: 'hsl(var(--primary))'
                       }
                     }
                   }}

@@ -10,7 +10,11 @@ import Inventory from "@/pages/inventory";
 import Settings from "@/pages/settings";
 import Categories from "@/pages/categories";
 import Analytics from "@/pages/analytics";
+import Tables from "@/pages/tables";
+import Kitchen from "@/pages/kitchen";
 import AuthPage from "@/pages/auth";
+import Server from "@/pages/server";
+import FloorPlan from "@/pages/floor-plan";
 import PaymentSuccess from "@/pages/payment-success";
 import PaymentCancel from "@/pages/payment-cancel";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
@@ -24,6 +28,7 @@ import { ShopProvider } from "@/lib/shop-context";
 import { ThemeProvider } from "@/lib/ThemeProvider";
 import { LanguageSynchronizer } from "@/components/LanguageSynchronizer";
 
+
 function Router() {
   return (
     <Switch>
@@ -34,11 +39,16 @@ function Router() {
         <DashboardLayout>
           <Switch>
             <ProtectedRoute path="/" component={POS} />
+            <ProtectedRoute path="/pos" component={POS} />
             <ProtectedRoute path="/history" component={History} />
             <ProtectedRoute path="/inventory" component={Inventory} />
             <ProtectedRoute path="/settings" component={Settings} />
             <ProtectedRoute path="/categories" component={Categories} />
             <ProtectedRoute path="/analytics" component={Analytics} />
+            <ProtectedRoute path="/server" component={Server} />
+            <ProtectedRoute path="/tables" component={Tables} />
+            <ProtectedRoute path="/kitchen" component={Kitchen} />
+            <ProtectedRoute path="/floor-plan" component={FloorPlan} />
             <Route component={NotFound} />
           </Switch>
         </DashboardLayout>
@@ -59,6 +69,7 @@ function App() {
               <OnboardingProvider>
                 <Router />
                 <Toaster />
+
               </OnboardingProvider>
             </ShopProvider>
           </AuthProvider>

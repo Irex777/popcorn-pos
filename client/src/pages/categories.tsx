@@ -47,7 +47,7 @@ function CategoryDialog({ category, open, onOpenChange }: CategoryDialogProps) {
     defaultValues: {
       name: category?.name || "",
       description: category?.description || "",
-      color: category?.color || "#94A3B8",
+      color: category?.color || "hsl(var(--muted-foreground))",
       shopId: currentShop?.id
     }
   });
@@ -167,7 +167,7 @@ export default function Categories() {
       if (!currentShop) {
         throw new Error("No shop selected");
       }
-      const response = await apiRequest('DELETE', `/api/shops/${currentShop.id}/categories/${id}`);
+      const response = await apiRequest('DELETE', `shops/${currentShop.id}/categories/${id}`);
       return response.json();
     },
     onSuccess: () => {
@@ -207,7 +207,7 @@ export default function Categories() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">{t('categories.title')}</h2>
+        <h1 className="text-3xl font-bold">{t('categories.title')}</h1>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           {t('categories.addCategory')}

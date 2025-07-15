@@ -1,7 +1,7 @@
-import { type Product, type Order, type OrderItem, type InsertProduct, type InsertOrder, type InsertOrderItem, type UpdateProductStock, type Category, type InsertCategory, type User, type InsertUser, type Shop, type InsertShop, type StripeSettings, users, shops, stripeSettings, userShops } from "@shared/schema";
+import { type Product, type Order, type OrderItem, type InsertProduct, type InsertOrder, type InsertOrderItem, type UpdateProductStock, type Category, type InsertCategory, type User, type InsertUser, type Shop, type InsertShop, type StripeSettings, type Table, type InsertTable, type Reservation, type InsertReservation, type KitchenTicket, type InsertKitchenTicket, type StaffRole, type InsertStaffRole, users, shops, stripeSettings, userShops, tables, reservations, kitchenTickets, staffRoles } from "@shared/schema";
 import { db } from "./db";
 import { products, orders, orderItems, categories } from "@shared/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 
@@ -16,7 +16,7 @@ export interface IStorage {
   // Users
   getUser(id: number): Promise<(User & { shopIds?: number[] }) | undefined>;
   getUserByUsername(username: string): Promise<(User & { shopIds?: number[] }) | undefined>;
-  createUser(user: InsertUser & { isAdmin?: boolean }): Promise<User>;
+  createUser(user: InsertUser & { isAdmin?: boolean; shopIds?: number[] }): Promise<User>;
   updateUserPassword(id: number, password: string): Promise<User>;
   updateUser(id: number, updates: { username?: string; password?: string }): Promise<User>;
   updateUserShops(userId: number, shopIds: number[]): Promise<void>;
@@ -52,12 +52,41 @@ export interface IStorage {
   getOrder(id: number): Promise<Order | undefined>;
   getOrders(shopId: number): Promise<Order[]>;
   getOrderItems(orderId: number): Promise<OrderItem[]>;
+  addItemsToOrder(orderId: number, items: InsertOrderItem[]): Promise<Order>;
   deleteOrderItems(orderId: number): Promise<void>;
   deleteOrderById(orderId: number, shopId: number): Promise<Order | undefined>;
 
   // Stripe settings
   getStripeSettings(shopId: number): Promise<StripeSettings | undefined>;
   updateStripeSettings(settings: { shopId: number; publishableKey: string | null; secretKey: string | null; enabled: boolean }): Promise<StripeSettings>;
+
+  // Restaurant Tables
+  getTables(shopId: number): Promise<Table[]>;
+  getTable(id: number): Promise<Table | undefined>;
+  createTable(table: InsertTable): Promise<Table>;
+  updateTable(id: number, table: Partial<InsertTable>): Promise<Table | undefined>;
+  deleteTable(id: number): Promise<Table | undefined>;
+
+  // Reservations
+  getReservations(shopId: number, date?: Date): Promise<Reservation[]>;
+  getReservation(id: number): Promise<Reservation | undefined>;
+  createReservation(reservation: InsertReservation): Promise<Reservation>;
+  updateReservation(id: number, reservation: Partial<InsertReservation>): Promise<Reservation | undefined>;
+  deleteReservation(id: number): Promise<Reservation | undefined>;
+
+  // Kitchen Tickets
+  getKitchenTickets(shopId: number): Promise<KitchenTicket[]>;
+  getKitchenTicket(id: number): Promise<KitchenTicket | undefined>;
+  createKitchenTicket(ticket: InsertKitchenTicket): Promise<KitchenTicket>;
+  updateKitchenTicket(id: number, ticket: Partial<InsertKitchenTicket>): Promise<KitchenTicket | undefined>;
+  deleteKitchenTicket(id: number): Promise<KitchenTicket | undefined>;
+
+  // Staff Roles
+  getStaffRoles(shopId: number): Promise<StaffRole[]>;
+  getStaffRole(id: number): Promise<StaffRole | undefined>;
+  createStaffRole(role: InsertStaffRole): Promise<StaffRole>;
+  updateStaffRole(id: number, role: Partial<InsertStaffRole>): Promise<StaffRole | undefined>;
+  deleteStaffRole(id: number): Promise<StaffRole | undefined>;
 
   // Session store
   sessionStore: session.Store;
@@ -118,7 +147,8 @@ export class DatabaseStorage implements IStorage {
           category_id INTEGER REFERENCES categories(id) NOT NULL,
           image_url TEXT NOT NULL DEFAULT '',
           stock INTEGER NOT NULL DEFAULT 0,
-          shop_id INTEGER REFERENCES shops(id) NOT NULL
+          shop_id INTEGER REFERENCES shops(id) NOT NULL,
+          requires_kitchen BOOLEAN NOT NULL DEFAULT FALSE
         );
       `);
 
@@ -169,6 +199,145 @@ export class DatabaseStorage implements IStorage {
         console.log('✅ User preferences columns added/verified');
       } catch (migrationError) {
         console.log('ℹ️  User preferences columns may already exist:', migrationError);
+      }
+
+      // Add restaurant tables
+      try {
+        await db.execute(sql`
+          CREATE TABLE IF NOT EXISTS tables (
+            id SERIAL PRIMARY KEY,
+            number TEXT NOT NULL,
+            capacity INTEGER NOT NULL,
+            section TEXT,
+            status TEXT NOT NULL DEFAULT 'available',
+            x_position INTEGER,
+            y_position INTEGER,
+            shop_id INTEGER NOT NULL REFERENCES shops(id) ON DELETE CASCADE,
+            created_at TIMESTAMP DEFAULT NOW()
+          );
+        `);
+
+        await db.execute(sql`
+          CREATE TABLE IF NOT EXISTS reservations (
+            id SERIAL PRIMARY KEY,
+            customer_name TEXT NOT NULL,
+            customer_phone TEXT,
+            party_size INTEGER NOT NULL,
+            reservation_time TIMESTAMP NOT NULL,
+            status TEXT NOT NULL DEFAULT 'confirmed',
+            table_id INTEGER REFERENCES tables(id) ON DELETE SET NULL,
+            shop_id INTEGER NOT NULL REFERENCES shops(id) ON DELETE CASCADE,
+            created_at TIMESTAMP DEFAULT NOW()
+          );
+        `);
+
+        await db.execute(sql`
+          CREATE TABLE IF NOT EXISTS kitchen_tickets (
+            id SERIAL PRIMARY KEY,
+            order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+            ticket_number TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'new',
+            priority TEXT NOT NULL DEFAULT 'normal',
+            estimated_completion TIMESTAMP,
+            created_at TIMESTAMP DEFAULT NOW(),
+            completed_at TIMESTAMP
+          );
+        `);
+
+        await db.execute(sql`
+          CREATE TABLE IF NOT EXISTS staff_roles (
+            id SERIAL PRIMARY KEY,
+            name TEXT NOT NULL,
+            permissions TEXT NOT NULL,
+            shop_id INTEGER NOT NULL REFERENCES shops(id) ON DELETE CASCADE
+          );
+        `);
+
+        // Add restaurant columns to existing tables
+        await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS table_id INTEGER REFERENCES tables(id) ON DELETE SET NULL;`);
+        await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS server_id INTEGER REFERENCES users(id) ON DELETE SET NULL;`);
+        await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS order_type TEXT NOT NULL DEFAULT 'dine_in';`);
+        await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS guest_count INTEGER NOT NULL DEFAULT 1;`);
+        await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS special_instructions TEXT;`);
+        await db.execute(sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS course_timing TEXT;`);
+
+        await db.execute(sql`ALTER TABLE order_items ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'pending';`);
+        await db.execute(sql`ALTER TABLE order_items ADD COLUMN IF NOT EXISTS course_number INTEGER NOT NULL DEFAULT 1;`);
+        await db.execute(sql`ALTER TABLE order_items ADD COLUMN IF NOT EXISTS special_requests TEXT;`);
+        await db.execute(sql`ALTER TABLE order_items ADD COLUMN IF NOT EXISTS preparation_time INTEGER;`);
+
+        await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS role_id INTEGER REFERENCES staff_roles(id) ON DELETE SET NULL;`);
+        await db.execute(sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT true;`);
+        
+        // Add kitchen flag to products
+        await db.execute(sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS requires_kitchen BOOLEAN NOT NULL DEFAULT FALSE;`);
+        
+        // Smart update for existing products based on name patterns
+        await db.execute(sql`
+          UPDATE products 
+          SET requires_kitchen = TRUE 
+          WHERE requires_kitchen = FALSE 
+          AND (
+            LOWER(name) LIKE '%pizza%' OR 
+            LOWER(name) LIKE '%burger%' OR 
+            LOWER(name) LIKE '%sandwich%' OR 
+            LOWER(name) LIKE '%pasta%' OR 
+            LOWER(name) LIKE '%salad%' OR 
+            LOWER(name) LIKE '%soup%' OR 
+            LOWER(name) LIKE '%steak%' OR 
+            LOWER(name) LIKE '%chicken%' OR 
+            LOWER(name) LIKE '%fish%' OR 
+            LOWER(name) LIKE '%fries%' OR 
+            LOWER(name) LIKE '%wings%' OR 
+            LOWER(name) LIKE '%hot%' OR 
+            LOWER(name) LIKE '%grilled%' OR 
+            LOWER(name) LIKE '%fried%' OR 
+            LOWER(name) LIKE '%cooked%' OR 
+            LOWER(name) LIKE '%baked%' OR 
+            LOWER(name) LIKE '%roasted%' OR 
+            LOWER(name) LIKE '%meal%' OR 
+            LOWER(name) LIKE '%dish%' OR 
+            LOWER(name) LIKE '%entree%' OR 
+            LOWER(name) LIKE '%main%' OR 
+            LOWER(name) LIKE '%food%' OR 
+            LOWER(name) LIKE '%plate%' OR 
+            LOWER(name) LIKE '%bowl%'
+          )
+          AND NOT (
+            LOWER(name) LIKE '%drink%' OR 
+            LOWER(name) LIKE '%beverage%' OR 
+            LOWER(name) LIKE '%soda%' OR 
+            LOWER(name) LIKE '%water%' OR 
+            LOWER(name) LIKE '%juice%' OR 
+            LOWER(name) LIKE '%coffee%' OR 
+            LOWER(name) LIKE '%tea%' OR 
+            LOWER(name) LIKE '%beer%' OR 
+            LOWER(name) LIKE '%wine%' OR 
+            LOWER(name) LIKE '%cocktail%' OR 
+            LOWER(name) LIKE '%smoothie%' OR 
+            LOWER(name) LIKE '%shake%' OR 
+            LOWER(name) LIKE '%cold%' OR 
+            LOWER(name) LIKE '%ice%' OR 
+            LOWER(name) LIKE '%bottle%' OR 
+            LOWER(name) LIKE '%can%' OR 
+            LOWER(name) LIKE '%glass%'
+          );
+        `);
+
+        // Create restaurant indexes
+        await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_tables_shop_id ON tables(shop_id);`);
+        await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_tables_status ON tables(status);`);
+        await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_reservations_shop_id ON reservations(shop_id);`);
+        await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_reservations_reservation_time ON reservations(reservation_time);`);
+        await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_kitchen_tickets_order_id ON kitchen_tickets(order_id);`);
+        await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_kitchen_tickets_status ON kitchen_tickets(status);`);
+        await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_staff_roles_shop_id ON staff_roles(shop_id);`);
+        await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_orders_table_id ON orders(table_id);`);
+        await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_orders_server_id ON orders(server_id);`);
+
+        console.log('✅ Restaurant tables and columns added/verified');
+      } catch (restaurantError) {
+        console.log('ℹ️  Restaurant tables may already exist:', restaurantError);
       }
 
       console.log('✅ Database tables initialized successfully');
@@ -238,6 +407,7 @@ export class DatabaseStorage implements IStorage {
         .set({
           name: shop.name,
           address: shop.address,
+          businessMode: shop.businessMode,
           createdById: shop.createdById // Preserve the existing createdById
         })
         .where(eq(shops.id, id))
@@ -319,6 +489,7 @@ export class DatabaseStorage implements IStorage {
       imageUrl: products.imageUrl,
       stock: products.stock,
       shopId: products.shopId,
+      requiresKitchen: products.requiresKitchen,
     })
       .from(products)
       .where(eq(products.shopId, shopId));
@@ -663,8 +834,63 @@ export class DatabaseStorage implements IStorage {
     return order;
   }
 
+  async updateOrder(id: number, updates: Partial<Order>): Promise<Order | undefined> {
+    const [updatedOrder] = await db
+      .update(orders)
+      .set(updates)
+      .where(eq(orders.id, id))
+      .returning();
+    return updatedOrder;
+  }
+
+  async addItemsToOrder(orderId: number, items: InsertOrderItem[]): Promise<Order> {
+    // Get the existing order
+    const existingOrder = await this.getOrder(orderId);
+    if (!existingOrder) {
+      throw new Error("Order not found");
+    }
+
+    // Update stock levels for each new item
+    for (const item of items) {
+      await this.decrementProductStock(item.productId, item.quantity);
+    }
+
+    // Add new items to the order
+    await db.insert(orderItems).values(
+      items.map(item => ({
+        ...item,
+        orderId: orderId
+      }))
+    );
+
+    // Calculate new total by getting all items
+    const allItems = await this.getOrderItems(orderId);
+    const newTotal = allItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    // Update order total
+    const [updatedOrder] = await db
+      .update(orders)
+      .set({ total: newTotal })
+      .where(eq(orders.id, orderId))
+      .returning();
+
+    return updatedOrder;
+  }
+
   async getOrderItems(orderId: number): Promise<OrderItem[]> {
     return await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+  }
+
+  async updateOrderItemStatus(orderId: number, productId: number, status: string): Promise<void> {
+    await db
+      .update(orderItems)
+      .set({ status })
+      .where(
+        and(
+          eq(orderItems.orderId, orderId),
+          eq(orderItems.productId, productId)
+        )
+      );
   }
 
   async deleteOrderItems(orderId: number): Promise<void> {
@@ -694,6 +920,201 @@ export class DatabaseStorage implements IStorage {
       .returning();
 
     return deletedOrder;
+  }
+
+  // Restaurant Tables implementation
+  async getTables(shopId: number): Promise<Table[]> {
+    return await db.select().from(tables).where(eq(tables.shopId, shopId));
+  }
+
+  async getTable(id: number): Promise<Table | undefined> {
+    const [table] = await db.select().from(tables).where(eq(tables.id, id));
+    return table;
+  }
+
+  async createTable(table: InsertTable): Promise<Table> {
+    const [newTable] = await db.insert(tables).values(table).returning();
+    return newTable;
+  }
+
+  async updateTable(id: number, table: Partial<InsertTable>): Promise<Table | undefined> {
+    const [updatedTable] = await db
+      .update(tables)
+      .set(table)
+      .where(eq(tables.id, id))
+      .returning();
+    return updatedTable;
+  }
+
+  async deleteTable(id: number): Promise<Table | undefined> {
+    try {
+      // First, get the table to return it after deletion
+      const tableToDelete = await this.getTable(id);
+      if (!tableToDelete) {
+        return undefined;
+      }
+
+      // Update related orders to remove table reference (preserve order history)
+      await db
+        .update(orders)
+        .set({ tableId: null })
+        .where(eq(orders.tableId, id));
+
+      // Update related reservations to remove table reference
+      await db
+        .update(reservations)
+        .set({ tableId: null })
+        .where(eq(reservations.tableId, id));
+
+      // Now delete the table
+      const [deletedTable] = await db
+        .delete(tables)
+        .where(eq(tables.id, id))
+        .returning();
+      
+      return deletedTable;
+    } catch (error) {
+      console.error('Error deleting table:', error);
+      throw new Error(`Failed to delete table: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  // Reservations implementation
+  async getReservations(shopId: number, date?: Date): Promise<Reservation[]> {
+    let query = db.select().from(reservations).where(eq(reservations.shopId, shopId));
+    
+    if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      query = query.where(sql`${reservations.reservationTime} >= ${startOfDay} AND ${reservations.reservationTime} <= ${endOfDay}`);
+    }
+    
+    return await query;
+  }
+
+  async getReservation(id: number): Promise<Reservation | undefined> {
+    const [reservation] = await db.select().from(reservations).where(eq(reservations.id, id));
+    return reservation;
+  }
+
+  async createReservation(reservation: InsertReservation): Promise<Reservation> {
+    const [newReservation] = await db.insert(reservations).values(reservation).returning();
+    return newReservation;
+  }
+
+  async updateReservation(id: number, reservation: Partial<InsertReservation>): Promise<Reservation | undefined> {
+    const [updatedReservation] = await db
+      .update(reservations)
+      .set(reservation)
+      .where(eq(reservations.id, id))
+      .returning();
+    return updatedReservation;
+  }
+
+  async deleteReservation(id: number): Promise<Reservation | undefined> {
+    const [deletedReservation] = await db
+      .delete(reservations)
+      .where(eq(reservations.id, id))
+      .returning();
+    return deletedReservation;
+  }
+
+  // Kitchen Tickets implementation
+  async getKitchenTickets(shopId: number): Promise<any[]> {
+    const tickets = await db
+      .select()
+      .from(kitchenTickets)
+      .innerJoin(orders, eq(kitchenTickets.orderId, orders.id))
+      .where(eq(orders.shopId, shopId));
+
+    // Get order items with product details for each ticket
+    const ticketsWithItems = await Promise.all(
+      tickets.map(async (ticket) => {
+        const items = await db
+          .select()
+          .from(orderItems)
+          .innerJoin(products, eq(orderItems.productId, products.id))
+          .where(eq(orderItems.orderId, ticket.kitchen_tickets.orderId));
+
+        const itemsWithProducts = items
+          .filter(item => item.products.requiresKitchen)
+          .map(item => ({
+            ...item.order_items,
+            product: item.products
+          }));
+
+        return {
+          ...ticket.kitchen_tickets,
+          order: ticket.orders,
+          items: itemsWithProducts
+        };
+      })
+    );
+
+    // Filter out tickets that have no kitchen items
+    return ticketsWithItems.filter(ticket => ticket.items.length > 0);
+  }
+
+  async getKitchenTicket(id: number): Promise<KitchenTicket | undefined> {
+    const [ticket] = await db.select().from(kitchenTickets).where(eq(kitchenTickets.id, id));
+    return ticket;
+  }
+
+  async createKitchenTicket(ticket: InsertKitchenTicket): Promise<KitchenTicket> {
+    const [newTicket] = await db.insert(kitchenTickets).values(ticket).returning();
+    return newTicket;
+  }
+
+  async updateKitchenTicket(id: number, ticket: Partial<InsertKitchenTicket>): Promise<KitchenTicket | undefined> {
+    const [updatedTicket] = await db
+      .update(kitchenTickets)
+      .set(ticket)
+      .where(eq(kitchenTickets.id, id))
+      .returning();
+    return updatedTicket;
+  }
+
+  async deleteKitchenTicket(id: number): Promise<KitchenTicket | undefined> {
+    const [deletedTicket] = await db
+      .delete(kitchenTickets)
+      .where(eq(kitchenTickets.id, id))
+      .returning();
+    return deletedTicket;
+  }
+
+  // Staff Roles implementation
+  async getStaffRoles(shopId: number): Promise<StaffRole[]> {
+    return await db.select().from(staffRoles).where(eq(staffRoles.shopId, shopId));
+  }
+
+  async getStaffRole(id: number): Promise<StaffRole | undefined> {
+    const [role] = await db.select().from(staffRoles).where(eq(staffRoles.id, id));
+    return role;
+  }
+
+  async createStaffRole(role: InsertStaffRole): Promise<StaffRole> {
+    const [newRole] = await db.insert(staffRoles).values(role).returning();
+    return newRole;
+  }
+
+  async updateStaffRole(id: number, role: Partial<InsertStaffRole>): Promise<StaffRole | undefined> {
+    const [updatedRole] = await db
+      .update(staffRoles)
+      .set(role)
+      .where(eq(staffRoles.id, id))
+      .returning();
+    return updatedRole;
+  }
+
+  async deleteStaffRole(id: number): Promise<StaffRole | undefined> {
+    const [deletedRole] = await db
+      .delete(staffRoles)
+      .where(eq(staffRoles.id, id))
+      .returning();
+    return deletedRole;
   }
 }
 

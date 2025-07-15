@@ -7,6 +7,7 @@ export const shops = pgTable("shops", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   address: text("address"),
+  businessMode: text("business_mode").notNull().default("shop"), // "shop" or "restaurant"
   createdAt: timestamp("created_at").defaultNow(),
   createdById: integer("created_by_id").references(() => users.id).notNull(),
 });
@@ -34,6 +35,7 @@ export const insertShopSchema = createInsertSchema(shops)
   .extend({
     name: z.string().min(1, "Shop name is required"),
     address: z.string().nullable(),
+    businessMode: z.enum(["shop", "restaurant"]).default("shop"),
   })
   .omit({ id: true, createdAt: true });
 
@@ -52,6 +54,9 @@ export const users = pgTable("users", {
   language: text("language").notNull().default('cs'),
   currency: text("currency").notNull().default('CZK'),
   createdAt: timestamp("created_at").defaultNow(),
+  // Restaurant-specific fields
+  roleId: integer("role_id").references(() => staffRoles.id),
+  isActive: boolean("is_active").notNull().default(true),
 });
 
 // Add types for user shops
@@ -95,6 +100,7 @@ export const products = pgTable("products", {
   imageUrl: text("image_url").notNull().default(''),
   stock: integer("stock").notNull().default(0),
   shopId: integer("shop_id").references(() => shops.id).notNull(),
+  requiresKitchen: boolean("requires_kitchen").notNull().default(false),
 });
 
 // Add shopId to orders
@@ -105,6 +111,15 @@ export const orders = pgTable("orders", {
   createdAt: timestamp("created_at").defaultNow(),
   userId: integer("user_id").references(() => users.id),
   shopId: integer("shop_id").references(() => shops.id).notNull(),
+  // Restaurant-specific fields
+  tableId: integer("table_id").references(() => tables.id),
+  serverId: integer("server_id").references(() => users.id),
+  orderType: text("order_type").notNull().default("dine_in"), // 'dine_in', 'takeout', 'delivery'
+  guestCount: integer("guest_count").notNull().default(1),
+  specialInstructions: text("special_instructions"),
+  courseTiming: text("course_timing"), // JSON for course timing
+  paymentMethod: text("payment_method"), // 'cash', 'card', 'online'
+  completedAt: timestamp("completed_at")
 });
 
 // OrderItems 
@@ -114,6 +129,11 @@ export const orderItems = pgTable("order_items", {
   productId: integer("product_id").references(() => products.id).notNull(),
   quantity: integer("quantity").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  // Restaurant-specific fields
+  status: text("status").notNull().default("pending"), // 'pending', 'preparing', 'ready', 'served'
+  courseNumber: integer("course_number").notNull().default(1),
+  specialRequests: text("special_requests"),
+  preparationTime: integer("preparation_time"), // estimated minutes
 });
 
 // Update schemas
@@ -128,13 +148,28 @@ export const insertProductSchema = createInsertSchema(products)
     categoryId: z.number().int().positive("Category is required"),
     imageUrl: z.string().default(''),
     stock: z.number().int().min(0, "Stock cannot be negative"),
+    requiresKitchen: z.boolean().default(false),
   });
 
 export const insertOrderSchema = createInsertSchema(orders)
-  .omit({ id: true, createdAt: true });
+  .omit({ id: true, createdAt: true })
+  .extend({
+    orderType: z.enum(["dine_in", "takeout", "delivery"]).default("dine_in"),
+    guestCount: z.number().int().min(1).default(1),
+    tableId: z.number().int().optional(),
+    serverId: z.number().int().optional(),
+    specialInstructions: z.string().optional(),
+    courseTiming: z.string().optional(),
+  });
 
 export const insertOrderItemSchema = createInsertSchema(orderItems)
-  .omit({ id: true, orderId: true });
+  .omit({ id: true, orderId: true })
+  .extend({
+    status: z.enum(["pending", "preparing", "ready", "served"]).default("pending"),
+    courseNumber: z.number().int().min(1).default(1),
+    specialRequests: z.string().optional(),
+    preparationTime: z.number().int().optional(),
+  });
 
 // Export types
 export type Shop = typeof shops.$inferSelect;
@@ -153,3 +188,98 @@ export const updateProductStockSchema = z.object({
 });
 
 export type UpdateProductStock = z.infer<typeof updateProductStockSchema>;
+
+// Restaurant Tables
+export const tables = pgTable("tables", {
+  id: serial("id").primaryKey(),
+  number: text("number").notNull(),
+  capacity: integer("capacity").notNull(),
+  section: text("section"),
+  status: text("status").notNull().default("available"), // 'available', 'occupied', 'reserved', 'cleaning'
+  xPosition: integer("x_position"),
+  yPosition: integer("y_position"),
+  shopId: integer("shop_id").references(() => shops.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Reservations
+export const reservations = pgTable("reservations", {
+  id: serial("id").primaryKey(),
+  customerName: text("customer_name").notNull(),
+  customerPhone: text("customer_phone"),
+  partySize: integer("party_size").notNull(),
+  reservationTime: timestamp("reservation_time").notNull(),
+  status: text("status").notNull().default("confirmed"), // 'confirmed', 'seated', 'cancelled', 'no_show'
+  tableId: integer("table_id").references(() => tables.id),
+  shopId: integer("shop_id").references(() => shops.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Kitchen Tickets
+export const kitchenTickets = pgTable("kitchen_tickets", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").references(() => orders.id).notNull(),
+  ticketNumber: text("ticket_number").notNull(),
+  status: text("status").notNull().default("new"), // 'new', 'preparing', 'ready', 'served'
+  priority: text("priority").notNull().default("normal"), // 'low', 'normal', 'high', 'urgent'
+  estimatedCompletion: timestamp("estimated_completion"),
+  createdAt: timestamp("created_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+});
+
+// Staff Roles
+export const staffRoles = pgTable("staff_roles", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(), // 'host', 'server', 'kitchen', 'manager', 'cashier'
+  permissions: text("permissions").notNull(), // JSON array of permissions
+  shopId: integer("shop_id").references(() => shops.id).notNull(),
+});
+
+// Restaurant table schemas
+export const insertTableSchema = createInsertSchema(tables)
+  .omit({ id: true, createdAt: true })
+  .extend({
+    number: z.string().min(1, "Table number is required"),
+    capacity: z.number().int().min(1, "Capacity must be at least 1"),
+    status: z.enum(["available", "occupied", "reserved", "cleaning"]).default("available"),
+    section: z.string().optional(),
+    xPosition: z.number().int().optional(),
+    yPosition: z.number().int().optional(),
+  });
+
+export const insertReservationSchema = createInsertSchema(reservations)
+  .omit({ id: true, createdAt: true })
+  .extend({
+    customerName: z.string().min(1, "Customer name is required"),
+    customerPhone: z.string().optional(),
+    partySize: z.number().int().min(1, "Party size must be at least 1"),
+    reservationTime: z.date(),
+    status: z.enum(["confirmed", "seated", "cancelled", "no_show"]).default("confirmed"),
+    tableId: z.number().int().optional(),
+  });
+
+export const insertKitchenTicketSchema = createInsertSchema(kitchenTickets)
+  .omit({ id: true, createdAt: true, completedAt: true })
+  .extend({
+    ticketNumber: z.string().min(1, "Ticket number is required"),
+    status: z.enum(["new", "preparing", "ready", "served"]).default("new"),
+    priority: z.enum(["low", "normal", "high", "urgent"]).default("normal"),
+    estimatedCompletion: z.date().optional(),
+  });
+
+export const insertStaffRoleSchema = createInsertSchema(staffRoles)
+  .omit({ id: true })
+  .extend({
+    name: z.string().min(1, "Role name is required"),
+    permissions: z.string().min(1, "Permissions are required"),
+  });
+
+// Export restaurant types
+export type Table = typeof tables.$inferSelect;
+export type InsertTable = z.infer<typeof insertTableSchema>;
+export type Reservation = typeof reservations.$inferSelect;
+export type InsertReservation = z.infer<typeof insertReservationSchema>;
+export type KitchenTicket = typeof kitchenTickets.$inferSelect;
+export type InsertKitchenTicket = z.infer<typeof insertKitchenTicketSchema>;
+export type StaffRole = typeof staffRoles.$inferSelect;
+export type InsertStaffRole = z.infer<typeof insertStaffRoleSchema>;

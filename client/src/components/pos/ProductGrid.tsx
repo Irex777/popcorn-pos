@@ -138,6 +138,7 @@ export default function ProductGrid() {
         initial="hidden"
         animate="show"
         className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 md:gap-4 product-grid"
+        data-testid="product-grid"
       >
         {filteredProducts?.map((product) => (
           <motion.button
@@ -146,7 +147,7 @@ export default function ProductGrid() {
             onClick={() => addToCart(product)}
             whileTap={buttonTapAnimation}
             layoutId={`product-${product.id}`}
-            className="bg-card hover:bg-accent active:bg-accent/90 rounded-lg p-3 text-left transition-colors w-full border shadow-sm min-h-[80px]"
+            className="bg-card hover:bg-accent active:bg-accent/90 rounded-lg p-3 text-left transition-colors w-full border shadow-sm min-h-[80px] product"
           >
             <div className="flex flex-col h-full justify-between">
               <span className="font-medium text-sm md:text-base line-clamp-2">{product.name}</span>

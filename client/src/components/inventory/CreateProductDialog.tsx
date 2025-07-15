@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { type Category, type InsertProduct, insertProductSchema } from "@shared/schema";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -38,7 +39,8 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
       categoryId: undefined,
       imageUrl: "",
       stock: 0,
-      shopId: currentShop?.id
+      shopId: currentShop?.id,
+      requiresKitchen: false
     }
   });
 
@@ -193,6 +195,28 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="requiresKitchen"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>
+                      Requires Kitchen Preparation
+                    </FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Check this if the item needs to be prepared in the kitchen
+                    </p>
+                  </div>
                 </FormItem>
               )}
             />

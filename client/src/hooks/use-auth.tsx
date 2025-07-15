@@ -6,7 +6,8 @@ import {
 import { User } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { wsClient } from "@/lib/websocket";
+
+import { apiFetch, logPortInfo } from "@/lib/api";
 
 type AuthContextType = {
   user: User | null;
@@ -22,6 +23,11 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
+  // Log port information for debugging
+  useEffect(() => {
+    logPortInfo();
+  }, []);
+
   const {
     data: user,
     error,
@@ -30,11 +36,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/user"],
     queryFn: async (): Promise<User | null> => {
       try {
-        const res = await apiRequest("GET", "/api/user");
+        const res = await apiFetch("user", {
+          method: "GET",
+        });
+        
+        if (res.status === 401) {
+          return null;
+        }
+        
         if (!res.ok) {
-          if (res.status === 401) return null;
           throw new Error("Failed to fetch user");
         }
+        
         const data = await res.json();
         return {
           ...data,
@@ -45,17 +58,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error("Error fetching user:", error);
         return null;
       }
-    }
+    },
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 
-  // Update WebSocket authentication state when user data changes
-  useEffect(() => {
-    wsClient.setAuthenticated(!!user);
-  }, [user]);
+
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      const res = await apiRequest("POST", "/api/login", credentials);
+      const res = await apiRequest("POST", "login", credentials);
       return res.json();
     },
     onSuccess: (data: User) => {
@@ -72,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.prefetchQuery({
         queryKey: ['/api/user/preferences'],
         queryFn: async () => {
-          const response = await apiRequest('GET', '/api/user/preferences');
+          const response = await apiRequest('GET', 'user/preferences');
           if (!response.ok) {
             if (response.status === 404) {
               return { language: 'cs', currency: 'CZK' };
@@ -94,13 +106,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "/api/logout");
+      await apiRequest("POST", "logout");
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
       // Clear user preferences cache on logout
       queryClient.removeQueries({ queryKey: ['/api/user/preferences'] });
-      wsClient.setAuthenticated(false);
+
     },
     onError: (error: Error) => {
       toast({
@@ -113,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      const res = await apiRequest("POST", "/api/register", credentials);
+      const res = await apiRequest("POST", "register", credentials);
       return res.json();
     },
     onSuccess: (data: User) => {

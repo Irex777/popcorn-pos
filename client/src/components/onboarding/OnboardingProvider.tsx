@@ -30,9 +30,9 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         showSkipButton
         styles={{
           options: {
-            primaryColor: theme === 'dark' ? '#8884d8' : '#6366f1',
-            textColor: theme === 'dark' ? '#ffffff' : '#000000',
-            backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+            primaryColor: 'hsl(var(--primary))',
+            textColor: 'hsl(var(--foreground))',
+            backgroundColor: 'hsl(var(--background))',
           }
         }}
         callback={handleJoyrideCallback}

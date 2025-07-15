@@ -1,14 +1,11 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Express } from "express";
-import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
-import createMemoryStore from "memorystore";
-
-const MemoryStore = createMemoryStore(session);
+import { sessionMiddleware } from "./session";
 
 declare global {
   namespace Express {
@@ -51,36 +48,15 @@ async function comparePasswords(supplied: string, stored: string): Promise<boole
 
 // Export setupAuth for use in index.ts
 export function setupAuth(app: Express): void {
-  const MemoryStoreInstance = new MemoryStore({
-    checkPeriod: 86400000 // prune expired entries every 24h
-  });
+  
 
-  const sessionSettings: session.SessionOptions = {
-    name: 'pos_session_id', // Use a specific name for the session cookie
-    secret: process.env.SESSION_SECRET || 'a-fallback-very-secure-secret-key-32-chars', // Use a strong, env-based secret
-    resave: false, // Don't save session if unmodified
-    saveUninitialized: false, // Don't create session until something stored
-    cookie: {
-      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax', // Allows cookies with top-level navigations and GET requests
-      path: '/',
-      httpOnly: true // Prevent client-side JS access
-    },
-    store: MemoryStoreInstance,
-    proxy: true // Important if behind a proxy (like Replit)
-  };
-
-  // Trust first proxy if applicable
-  app.set('trust proxy', 1);
-
-  app.use(session(sessionSettings));
+  app.use(sessionMiddleware);
   app.use(passport.initialize());
   app.use(passport.session()); // This uses serialize/deserialize
 
-  // Add session debugging middleware (useful for development)
+  // Add session debugging middleware only for API routes (useful for development)
   if (process.env.NODE_ENV !== 'production') {
-    app.use((req, res, next) => {
+    app.use('/api', (req, res, next) => {
       console.log(`--- Session Debug (${req.method} ${req.path}) ---`);
       console.log('Session ID:', req.sessionID);
       console.log('Session data:', req.session);
@@ -130,7 +106,7 @@ export function setupAuth(app: Express): void {
 
   passport.serializeUser((user: Express.User, done) => {
     // Store only the user ID in the session
-    console.log(`SerializeUser: Storing user ID ${user.id} in session.`);
+    console.log(`SerializeUser: Storing user ID ${user.id} in session. User object:`, user);
     done(null, user.id);
   });
 
@@ -140,15 +116,15 @@ export function setupAuth(app: Express): void {
     try {
       const user = await storage.getUser(id); // getUser fetches full details including shopIds
       if (!user) {
-        console.log(`DeserializeUser: User with ID ${id} not found.`);
-        return done(new Error('User not found during deserialization'));
+        console.log(`DeserializeUser: User with ID ${id} not found. Treating as not authenticated.`);
+        return done(null, false); // Return false instead of error to indicate "not authenticated"
       }
-      console.log(`DeserializeUser: User ${user.username} found, attaching to req.user.`);
+      console.log(`DeserializeUser: User ${user.username} found, attaching to req.user. User object:`, user);
       // Attach the full user object to req.user for subsequent middleware/routes
       done(null, user);
     } catch (error) {
       console.error('DeserializeUser: Error fetching user:', error);
-      done(error);
+      done(null, false); // Return false instead of error to prevent authentication errors
     }
   });
 
@@ -321,7 +297,7 @@ export function setupAuth(app: Express): void {
       return res.status(400).json({ error: "Current and new passwords are required" });
     }
 
-    const isValidPassword = await comparePasswords(currentPassword, storedUser.password);
+        const isValidPassword = await comparePasswords(currentPassword, storedUser.password);
     if (!isValidPassword) {
       return res.status(400).json({ error: "Current password is incorrect" });
     }
