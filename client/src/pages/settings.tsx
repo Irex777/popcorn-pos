@@ -778,7 +778,7 @@ export default function Settings() {
                 <CardContent>
                   {usersLoading ? (
                     <div className="flex justify-center py-4">
-                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                     </div>
                   ) : (
                     <div className="space-y-4">

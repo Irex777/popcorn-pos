@@ -24,7 +24,7 @@ import { PredictiveInsights } from "@/components/analytics/PredictiveInsights";
 import { useRealTimeAnalytics } from "@/hooks/use-real-time-analytics";
 import { useShop } from "@/lib/shop-context";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 interface OrderWithItems extends Order {
   items: any[];
@@ -244,7 +244,7 @@ export default function Analytics() {
                   <Line
                     type="monotone"
                     dataKey="total"
-                    stroke="#8884d8"
+                    stroke="hsl(var(--chart-1))"
                     name={t('analytics.revenue')}
                   />
                 </LineChart>
@@ -267,7 +267,7 @@ export default function Analytics() {
                     cy="50%"
                     labelLine={false}
                     outerRadius={80}
-                    fill="#8884d8"
+                    fill="hsl(var(--chart-1))"
                     dataKey="value"
                     label={({ name, value }) =>
                       `${name}: ${formatCurrency(value, currency)}`
@@ -302,7 +302,7 @@ export default function Analytics() {
                   <Legend />
                   <Bar
                     dataKey="sales"
-                    fill="#8884d8"
+                    fill="hsl(var(--chart-1))"
                     name={t('analytics.unitsSold')}
                   />
                 </BarChart>

@@ -163,7 +163,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </div>
       </header>
-      <main className="container mx-auto px-2 py-4 md:px-4 md:py-6 safe-area-x">
+      <main className="container mx-auto px-4 py-4 md:px-6 md:py-6 safe-area-x">
         {children}
       </main>
     </div>
