@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useShop } from "@/lib/shop-context";
 import { ShopSelector } from "./ShopSelector";
 
 interface DashboardLayoutProps {
@@ -23,6 +24,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { toast } = useToast();
   const { user, logoutMutation } = useAuth();
+  const { isRestaurantMode } = useShop();
 
   const menuItems = [
     { href: "/", label: t('analytics.navigation.pos') },
@@ -30,6 +32,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { href: "/inventory", label: t('analytics.navigation.inventory') },
     { href: "/categories", label: t('analytics.navigation.categories') },
     { href: "/analytics", label: t('analytics.navigation.analytics') },
+    // Restaurant-specific features (only shown in restaurant mode)
+    ...(isRestaurantMode ? [
+      { href: "/tables", label: "Tables", isRestaurantFeature: true },
+      { href: "/kitchen", label: "Kitchen Display", isRestaurantFeature: true },
+    ] : []),
   ];
 
   const handleLogout = () => {
@@ -87,6 +94,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   ))}
                 </nav>
 
+                {isRestaurantMode && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-200 rounded-md text-sm mx-2 my-2">
+                    <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                    Restaurant Mode Active
+                  </div>
+                )}
+
                 <Separator className="my-4" />
 
                 <div className="flex flex-col gap-2">
@@ -140,6 +154,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               ))}
             </nav>
             <ShopSelector />
+            {isRestaurantMode && (
+              <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-200 rounded-md text-sm">
+                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                Restaurant Mode
+              </div>
+            )}
             <Button
               variant="ghost"
               size="icon"

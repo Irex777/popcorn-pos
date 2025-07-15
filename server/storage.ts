@@ -238,6 +238,7 @@ export class DatabaseStorage implements IStorage {
         .set({
           name: shop.name,
           address: shop.address,
+          businessMode: shop.businessMode,
           createdById: shop.createdById // Preserve the existing createdById
         })
         .where(eq(shops.id, id))

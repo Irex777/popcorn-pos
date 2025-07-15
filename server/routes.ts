@@ -122,6 +122,7 @@ export function registerRoutes(app: Express): Server {
       const shopData = {
         name: req.body.name.trim(),
         address: req.body.address?.trim() || null,
+        businessMode: req.body.businessMode || 'shop',
         createdById: req.user?.id || 0
       };
 
@@ -255,7 +256,8 @@ app.get("/api/shops", async (req, res) => {
       // Only validate the updateable fields
       const updateData = {
         name: req.body.name,
-        address: req.body.address || null
+        address: req.body.address || null,
+        businessMode: req.body.businessMode || existingShop.businessMode || 'shop'
       };
 
       // Merge with existing data to preserve createdById
@@ -702,6 +704,7 @@ app.get("/api/shops", async (req, res) => {
       const testShop = await storage.createShop({
         name: "Test Shop",
         address: null,
+        businessMode: "shop",
         createdById: userId
       });
       testShopId = testShop.id;

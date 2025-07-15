@@ -36,7 +36,7 @@ export default function Settings() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [editingUser, setEditingUser] = useState<{ id: number; username: string; isAdmin?: boolean } | null>(null);
-  const [editingShop, setEditingShop] = useState<{ id: number; name: string; address?: string | null } | null>(null);
+  const [editingShop, setEditingShop] = useState<{ id: number; name: string; address?: string | null; businessMode?: string } | null>(null);
   const [deletingShop, setDeletingShop] = useState<{ id: number; name: string; requiresConfirmation?: boolean; dataToBeDeleted?: any } | null>(null);
   const [confirmationName, setConfirmationName] = useState('');
   const { user } = useAuth();
@@ -60,13 +60,14 @@ export default function Settings() {
   });
 
   const createShopMutation = useMutation({
-    mutationFn: async (data: { name: string; address?: string }) => {
+    mutationFn: async (data: { name: string; address?: string; businessMode?: string }) => {
       const response = await fetch('/api/shops', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: data.name.trim(),
-          address: data.address?.trim() || null
+          address: data.address?.trim() || null,
+          businessMode: data.businessMode || 'shop'
         }),
       });
 
@@ -99,13 +100,14 @@ export default function Settings() {
   });
 
   const editShopMutation = useMutation({
-    mutationFn: async (data: { id: number; name: string; address?: string | null }) => {
+    mutationFn: async (data: { id: number; name: string; address?: string | null; businessMode?: string }) => {
       const response = await fetch(`/api/shops/${data.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: data.name.trim(),
-          address: data.address === null ? null : data.address?.trim()
+          address: data.address === null ? null : data.address?.trim(),
+          businessMode: data.businessMode || 'shop'
         }),
       });
 
@@ -527,6 +529,7 @@ export default function Settings() {
                       const formData = new FormData(e.currentTarget);
                       const name = formData.get('name') as string;
                       const address = formData.get('address') as string;
+                      const businessMode = formData.get('businessMode') as string;
 
                       if (!name.trim()) {
                         toast({
@@ -537,7 +540,7 @@ export default function Settings() {
                         return;
                       }
 
-                      createShopMutation.mutate({ name, address });
+                      createShopMutation.mutate({ name, address, businessMode });
                     }}
                     className="space-y-4"
                   >
@@ -555,6 +558,18 @@ export default function Settings() {
                         id="address"
                         name="address"
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="businessMode">{t('settings.businessMode')}</Label>
+                      <Select name="businessMode" defaultValue="shop">
+                        <SelectTrigger>
+                          <SelectValue placeholder={t('settings.selectBusinessMode')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="shop">{t('settings.shopMode')}</SelectItem>
+                          <SelectItem value="restaurant">{t('settings.restaurantMode')}</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <Button
                       type="submit"
@@ -589,12 +604,15 @@ export default function Settings() {
                           {shop.address && (
                             <p className="text-sm text-muted-foreground mt-1">{shop.address}</p>
                           )}
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {t(`settings.${shop.businessMode}Mode`)}
+                          </p>
                         </div>
                         <div className="flex gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setEditingShop({ id: shop.id, name: shop.name, address: shop.address })}
+                            onClick={() => setEditingShop({ id: shop.id, name: shop.name, address: shop.address, businessMode: shop.businessMode })}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -1106,6 +1124,7 @@ export default function Settings() {
                 const formData = new FormData(e.currentTarget);
                 const name = formData.get('name') as string;
                 const address = formData.get('address') as string;
+                const businessMode = formData.get('businessMode') as string;
 
                 if (!name.trim()) {
                   toast({
@@ -1119,7 +1138,8 @@ export default function Settings() {
                 editShopMutation.mutate({
                   id: editingShop.id,
                   name: name.trim(),
-                  address: address ? address.trim() : null
+                  address: address ? address.trim() : null,
+                  businessMode: businessMode || 'shop'
                 });
               }}
               className="space-y-4"
@@ -1140,6 +1160,18 @@ export default function Settings() {
                   name="address"
                   defaultValue={editingShop?.address || ''}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-businessMode">{t('settings.businessMode')}</Label>
+                <Select name="businessMode" defaultValue={editingShop?.businessMode || 'shop'}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('settings.selectBusinessMode')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="shop">{t('settings.shopMode')}</SelectItem>
+                    <SelectItem value="restaurant">{t('settings.restaurantMode')}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex justify-end gap-2">
                 <Button
