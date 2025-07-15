@@ -129,7 +129,7 @@ export function PredictiveInsights() {
                   <Line
                     type="monotone"
                     dataKey="predictedValue"
-                    stroke="#8884d8"
+                    stroke="hsl(var(--chart-1))"
                     name={t('analytics.predictedValue')}
                   />
                 </LineChart>

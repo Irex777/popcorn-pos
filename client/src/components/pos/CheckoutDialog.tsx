@@ -272,7 +272,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
                     appearance: {
                       theme: 'stripe',
                       variables: {
-                        colorPrimary: '#006ADC'
+                        colorPrimary: 'hsl(var(--primary))'
                       }
                     }
                   }}

@@ -147,7 +147,7 @@ export default function Inventory() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">{t('inventory.title')}</h2>
+        <h1 className="text-3xl font-bold">{t('inventory.title')}</h1>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           {t('inventory.addProduct')}
