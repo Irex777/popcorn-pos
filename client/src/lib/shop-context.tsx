@@ -8,6 +8,8 @@ interface ShopContextType {
   setCurrentShop: (shop: Shop) => void;
   isLoading: boolean;
   shops: Shop[];
+  isRestaurantMode: boolean;
+  isShopMode: boolean;
 }
 
 const ShopContext = createContext<ShopContextType | null>(null);
@@ -60,6 +62,10 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     }
   }, [shops, currentShop]);
 
+  // Business mode helpers
+  const isRestaurantMode = currentShop?.businessMode === 'restaurant';
+  const isShopMode = !isRestaurantMode;
+
   return (
     <ShopContext.Provider
       value={{
@@ -67,6 +73,8 @@ export function ShopProvider({ children }: { children: ReactNode }) {
         setCurrentShop,
         isLoading,
         shops,
+        isRestaurantMode,
+        isShopMode,
       }}
     >
       {children}

@@ -10,9 +10,10 @@ import Inventory from "@/pages/inventory";
 import Settings from "@/pages/settings";
 import Categories from "@/pages/categories";
 import Analytics from "@/pages/analytics";
+import Tables from "@/pages/tables";
+import Kitchen from "@/pages/kitchen";
 import AuthPage from "@/pages/auth";
 import Server from "@/pages/server";
-import Kitchen from "@/pages/kitchen";
 import FloorPlan from "@/pages/floor-plan";
 import PaymentSuccess from "@/pages/payment-success";
 import PaymentCancel from "@/pages/payment-cancel";
@@ -45,6 +46,7 @@ function Router() {
             <ProtectedRoute path="/categories" component={Categories} />
             <ProtectedRoute path="/analytics" component={Analytics} />
             <ProtectedRoute path="/server" component={Server} />
+            <ProtectedRoute path="/tables" component={Tables} />
             <ProtectedRoute path="/kitchen" component={Kitchen} />
             <ProtectedRoute path="/floor-plan" component={FloorPlan} />
             <Route component={NotFound} />

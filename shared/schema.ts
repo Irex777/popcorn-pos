@@ -7,6 +7,7 @@ export const shops = pgTable("shops", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   address: text("address"),
+  businessMode: text("business_mode").notNull().default("shop"), // "shop" or "restaurant"
   createdAt: timestamp("created_at").defaultNow(),
   createdById: integer("created_by_id").references(() => users.id).notNull(),
 });
@@ -34,6 +35,7 @@ export const insertShopSchema = createInsertSchema(shops)
   .extend({
     name: z.string().min(1, "Shop name is required"),
     address: z.string().nullable(),
+    businessMode: z.enum(["shop", "restaurant"]).default("shop"),
   })
   .omit({ id: true, createdAt: true });
 

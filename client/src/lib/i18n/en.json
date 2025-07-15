@@ -181,7 +181,11 @@
     "stripeNote": "You can find your API keys in the Stripe dashboard. Leave fields empty to disable card payments.",
     "appNameDescription": "Customize the application name displayed throughout the system",
     "saveAppName": "Save App Name",
-    "error": "Settings Error"
+    "error": "Settings Error",
+    "businessMode": "Business Mode",
+    "selectBusinessMode": "Select business mode",
+    "shopMode": "Shop Mode",
+    "restaurantMode": "Restaurant Mode"
   },
   "checkout": {
     "title": "Checkout",
