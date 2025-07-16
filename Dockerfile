@@ -39,4 +39,4 @@ RUN apk add --no-cache postgresql-client
 RUN chmod +x startup.sh
 
 # Start the application using startup script
-CMD ["sh", "-c", "echo '=== CONTAINER STARTUP DEBUG ===' && echo 'Node: $(node --version)' && echo 'Working dir: $(pwd)' && echo 'Files:' && ls -la && echo 'Starting app with migrations...' && exec ./startup.sh"]
+CMD ["./startup.sh"]
