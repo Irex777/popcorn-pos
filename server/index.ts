@@ -18,6 +18,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { storage } from "./storage";
 import { hashPassword } from "./auth";
 import { setupAuth } from "./auth";
+import { runStartupMigrations } from "./migrations";
 
 import { sessionMiddleware } from "./session";
 import { getAppConfig, findAvailablePort, validatePort } from "@shared/config";
@@ -126,6 +127,9 @@ async function createDefaultAdmin() {
       console.error('💥 Database initialization failed:', initError);
       throw new Error(`Database initialization failed: ${initError instanceof Error ? initError.message : String(initError)}`);
     }
+    
+    // Run startup migrations
+    await runStartupMigrations();
     
     // Test database connection
     console.log('🔄 Testing database connection...');
