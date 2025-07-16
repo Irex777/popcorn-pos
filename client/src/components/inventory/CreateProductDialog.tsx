@@ -65,7 +65,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
 
       const response = await apiRequest(
         'POST',
-        `/api/shops/${currentShop.id}/products`,
+        `api/shops/${currentShop.id}/products`,
         formattedData
       );
 

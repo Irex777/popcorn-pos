@@ -52,7 +52,7 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
 
       const response = await apiRequest(
         'PATCH',
-        `/api/shops/${currentShop.id}/products/${product.id}`,
+        `api/shops/${currentShop.id}/products/${product.id}`,
         {
           ...data,
           shopId: currentShop.id
@@ -87,7 +87,7 @@ export default function EditProductDialog({ product, open, onOpenChange }: EditP
 
       const response = await apiRequest(
         'DELETE',
-        `/api/shops/${currentShop.id}/products/${product.id}`
+        `api/shops/${currentShop.id}/products/${product.id}`
       );
       if (!response.ok) {
         const error = await response.json();

@@ -51,7 +51,7 @@ export default function History() {
       if (!currentShop) throw new Error("No shop selected");
       const response = await apiRequest(
         'DELETE',
-        `/api/shops/${currentShop.id}/orders/${orderId}`
+        `api/shops/${currentShop.id}/orders/${orderId}`
       );
       if (!response.ok) {
         const error = await response.json();

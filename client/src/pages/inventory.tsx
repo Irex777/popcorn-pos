@@ -67,7 +67,7 @@ export default function Inventory() {
       if (!currentShop) throw new Error("No shop selected");
       const response = await apiRequest(
         'DELETE',
-        `/api/shops/${currentShop.id}/products/${productId}`
+        `api/shops/${currentShop.id}/products/${productId}`
       );
       if (!response.ok) {
         const error = await response.json();
