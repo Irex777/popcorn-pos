@@ -12,6 +12,10 @@ echo "Checking database connection..."
 if [ -d "migrations" ]; then
     echo "Running database migrations..."
     npm run db:push || echo "Migration failed or not configured"
+    
+    # Run hotfix migration for business_mode column
+    echo "Running hotfix migration for business_mode column..."
+    npm run migrate:hotfix || echo "Hotfix migration failed or already applied"
 fi
 
 echo "Starting application..."

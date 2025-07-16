@@ -32,5 +32,11 @@ EXPOSE 3002
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3002/api/health || exit 1
 
-# Start the application directly with debug info
-CMD ["sh", "-c", "echo '=== CONTAINER STARTUP DEBUG ===' && echo 'Node: $(node --version)' && echo 'Working dir: $(pwd)' && echo 'Files:' && ls -la && echo 'Starting app...' && exec node dist/index.js"]
+# Install psql for database migrations
+RUN apk add --no-cache postgresql-client
+
+# Make startup script executable
+RUN chmod +x startup.sh
+
+# Start the application using startup script
+CMD ["sh", "-c", "echo '=== CONTAINER STARTUP DEBUG ===' && echo 'Node: $(node --version)' && echo 'Working dir: $(pwd)' && echo 'Files:' && ls -la && echo 'Starting app with migrations...' && exec ./startup.sh"]
