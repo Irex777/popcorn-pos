@@ -119,7 +119,7 @@ export function registerRoutes(app: Express): Server {
       }
 
       // Create shop data with authenticated user's ID
-      const shopData = {
+      const shopData: any = {
         name: req.body.name.trim(),
         address: req.body.address?.trim() || null,
         createdById: req.user?.id || 0
