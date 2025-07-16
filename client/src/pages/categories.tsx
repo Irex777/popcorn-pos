@@ -60,7 +60,7 @@ function CategoryDialog({ category, open, onOpenChange }: CategoryDialogProps) {
 
       const response = await apiRequest(
         category ? 'PATCH' : 'POST',
-        category ? `/api/shops/${currentShop.id}/categories/${category.id}` : `/api/shops/${currentShop.id}/categories`,
+        category ? `api/shops/${currentShop.id}/categories/${category.id}` : `api/shops/${currentShop.id}/categories`,
         data
       );
       return response.json();
@@ -167,7 +167,7 @@ export default function Categories() {
       if (!currentShop) {
         throw new Error("No shop selected");
       }
-      const response = await apiRequest('DELETE', `shops/${currentShop.id}/categories/${id}`);
+      const response = await apiRequest('DELETE', `api/shops/${currentShop.id}/categories/${id}`);
       return response.json();
     },
     onSuccess: () => {

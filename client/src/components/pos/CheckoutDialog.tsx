@@ -56,7 +56,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
       
       const response = await apiRequest(
         'POST',
-        '/api/create-payment-intent',
+        'api/create-payment-intent',
         {
           amount: amount,
           currency: currency.code,
@@ -155,7 +155,7 @@ export default function CheckoutDialog({ open, onOpenChange, total }: CheckoutDi
 
       const response = await apiRequest(
         'POST',
-        `/api/shops/${currentShop.id}/orders`,
+        `api/shops/${currentShop.id}/orders`,
         orderData
       );
 
