@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
-# Install wget for health checks
-RUN apk add --no-cache wget
+# Install wget for health checks and postgresql-client for migrations
+RUN apk add --no-cache wget postgresql-client
 
 WORKDIR /app
 
@@ -16,6 +16,9 @@ COPY . .
 
 # Build the application
 RUN npm run build
+
+# Make startup script executable (before user switch)
+RUN chmod +x startup.sh
 
 # Don't remove dev dependencies - we need some at runtime for dynamic imports
 
@@ -32,11 +35,6 @@ EXPOSE 3002
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3002/api/health || exit 1
 
-# Install psql for database migrations
-RUN apk add --no-cache postgresql-client
-
-# Make startup script executable
-RUN chmod +x startup.sh
 
 # Start the application using startup script
 CMD ["./startup.sh"]
