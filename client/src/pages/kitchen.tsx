@@ -2,14 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { ChefHat, UtensilsCrossed, Timer } from "lucide-react";
+import { ChefHat, UtensilsCrossed, Timer, ShoppingBag, AlertCircle } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useShop } from "@/lib/shop-context";
 import { motion } from "framer-motion";
 
 export default function Kitchen() {
   const { t } = useTranslation();
-  const { currentShop } = useShop();
+  const { currentShop, isRestaurantMode } = useShop();
   const queryClient = useQueryClient();
 
   const { data: allTickets = [], isLoading } = useQuery({
@@ -90,6 +90,44 @@ export default function Kitchen() {
     const diff = Math.floor((now.getTime() - created.getTime()) / (1000 * 60));
     return Math.max(0, diff);
   };
+
+  // Show simplified kitchen view for shop mode
+  if (!isRestaurantMode) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <Card className="border-orange-200 bg-orange-50 dark:bg-orange-900/20">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-center gap-2 text-orange-800 dark:text-orange-200">
+                <ShoppingBag className="h-6 w-6" />
+                Shop Mode Active
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-3 p-4 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+                <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                <div className="text-left">
+                  <p className="text-sm font-medium text-orange-800 dark:text-orange-200">
+                    Kitchen Display System Not Available
+                  </p>
+                  <p className="text-sm text-orange-600 dark:text-orange-300">
+                    The kitchen display system is designed for restaurant operations. In shop mode, orders are processed directly at the point of sale.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 text-sm text-orange-600 dark:text-orange-300">
+                <p>Switch to Restaurant Mode in Settings to access the full kitchen display system.</p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-6">

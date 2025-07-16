@@ -29,7 +29,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const menuItems = [
     { href: "/", label: t('analytics.navigation.pos') },
     { href: "/server", label: t('analytics.navigation.server') },
-    { href: "/kitchen", label: t('analytics.navigation.kitchen') },
     { href: "/history", label: t('analytics.navigation.history') },
     { href: "/inventory", label: t('analytics.navigation.inventory') },
     { href: "/categories", label: t('analytics.navigation.categories') },

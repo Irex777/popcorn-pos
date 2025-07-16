@@ -8,11 +8,11 @@ import RestaurantCartPanel from "@/components/restaurant/pos/RestaurantCartPanel
 
 export default function POS() {
   const search = useSearch();
-  const { currentShop } = useShop();
+  const { currentShop, isRestaurantMode } = useShop();
   const searchParams = new URLSearchParams(search);
   const preSelectedTableId = searchParams.get('tableId') ? parseInt(searchParams.get('tableId')!) : null;
 
-  // Fetch table data if a table was pre-selected
+  // Fetch table data if a table was pre-selected (restaurant mode only)
   const { data: preSelectedTable } = useQuery({
     queryKey: [`/api/shops/${currentShop?.id}/tables/${preSelectedTableId}`],
     queryFn: async () => {
@@ -22,7 +22,7 @@ export default function POS() {
       const tables = await response.json();
       return tables.find((table: any) => table.id === preSelectedTableId) || null;
     },
-    enabled: !!currentShop?.id && !!preSelectedTableId,
+    enabled: !!currentShop?.id && !!preSelectedTableId && isRestaurantMode,
   });
 
   return (
@@ -37,7 +37,11 @@ export default function POS() {
       {/* Cart panel - fixed on mobile, side panel on desktop */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t md:relative md:w-[400px] md:border-l md:border-t-0 safe-area-bottom">
         <div className="container mx-auto px-4 md:px-6 md:h-screen md:sticky md:top-0">
-          <RestaurantCartPanel preSelectedTable={preSelectedTable} />
+          {isRestaurantMode ? (
+            <RestaurantCartPanel preSelectedTable={preSelectedTable} />
+          ) : (
+            <CartPanel />
+          )}
         </div>
       </div>
     </div>
