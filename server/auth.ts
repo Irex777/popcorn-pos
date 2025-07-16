@@ -55,14 +55,15 @@ export function setupAuth(app: Express): void {
   app.use(passport.session()); // This uses serialize/deserialize
 
   // Add session debugging middleware only for API routes (useful for development)
-  if (process.env.NODE_ENV !== 'production') {
+  // Session debug middleware in development (only when DEBUG_SESSION is enabled)
+  if (process.env.NODE_ENV === 'development' && process.env.DEBUG_SESSION === 'true') {
     app.use('/api', (req, res, next) => {
       console.log(`--- Session Debug (${req.method} ${req.path}) ---`);
       console.log('Session ID:', req.sessionID);
       console.log('Session data:', req.session);
       console.log('Is authenticated:', req.isAuthenticated());
       if (req.isAuthenticated()) {
-        console.log('User in session (req.user):', req.user); // Populated by deserializeUser
+        console.log('User in session (req.user):', req.user);
       } else {
          console.log('No user in session.');
       }
@@ -250,6 +251,32 @@ export function setupAuth(app: Express): void {
         res.json({ message: "Logged out successfully" });
       });
     });
+  });
+
+  // Temporary endpoint to reset admin password for development
+  app.post("/api/reset-admin-password", async (req, res) => {
+    try {
+      console.log("🔄 Resetting admin password for development...");
+      
+      // Get the admin user
+      const adminUser = await storage.getUserByUsername("admin");
+      if (!adminUser) {
+        return res.status(404).json({ error: "Admin user not found" });
+      }
+      
+      // Hash the new password
+      const newPassword = await hashPassword("admin123");
+      
+      // Update the password
+      await storage.updateUserPassword(adminUser.id, newPassword);
+      
+      console.log("✅ Admin password reset to 'admin123'");
+      res.json({ message: "Admin password reset successfully" });
+      
+    } catch (error) {
+      console.error("❌ Error resetting admin password:", error);
+      res.status(500).json({ error: "Failed to reset admin password" });
+    }
   });
 
   app.get("/api/user", (req, res) => {
