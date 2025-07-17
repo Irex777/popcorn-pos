@@ -63,13 +63,13 @@ export default function TableSelector({ selectedTable, onTableSelect, allowOccup
           {selectedTable ? `${t('restaurant.table')} ${selectedTable.number}` : t('restaurant.selectTable')}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl h-auto max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {allowOccupiedTables ? t('restaurant.selectTableOccupied') : t('restaurant.selectTable')}
           </DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {selectedTable && (
             <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
               <div className="flex items-center gap-2">
@@ -85,13 +85,13 @@ export default function TableSelector({ selectedTable, onTableSelect, allowOccup
           )}
           
           {isLoading ? (
-            <div className="text-center py-8">{t('restaurant.loadingTables')}</div>
+            <div className="text-center py-4">{t('restaurant.loadingTables')}</div>
           ) : availableTables.length === 0 ? (
-            <div className="text-center py-8">
+            <div className="text-center py-4">
               <p className="text-muted-foreground">{t('restaurant.noAvailableTables')}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-60 overflow-y-auto">
               {availableTables.map((table: Table) => (
                 <Card
                   key={table.id}

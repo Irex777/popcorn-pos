@@ -114,7 +114,7 @@ export function useReservationConflictDetector({
         return resHour === proposedHour;
       });
 
-      const totalCapacityNeeded = sameHourReservations.reduce((sum, res) => sum + res.partySize, 0) + partySize;
+      const totalCapacityNeeded = sameHourReservations.reduce((sum: number, res: any) => sum + res.partySize, 0) + partySize;
       const totalAvailableCapacity = tables.reduce((sum: number, table: Table) => sum + table.capacity, 0);
 
       if (totalCapacityNeeded > totalAvailableCapacity * 0.8) {

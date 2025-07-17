@@ -198,8 +198,8 @@ function WaitListCard({ entry, onSeat, onRemove, onNotify }: WaitListCardProps) 
                 {t('restaurant.waitingTime', { time: waitTime })}
               </div>
             </div>
-            {entry.specialInstructions && (
-              <p className="text-sm text-muted-foreground mt-1">{entry.specialInstructions}</p>
+            {(entry as any).specialInstructions && (
+              <p className="text-sm text-muted-foreground mt-1">{(entry as any).specialInstructions}</p>
             )}
           </div>
         </div>

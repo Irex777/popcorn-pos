@@ -211,7 +211,7 @@ export function setupAuth(app: Express): void {
       username: username,
       password: hashedPassword,
       isAdmin: false, // Explicitly set new users as non-admin
-    });
+    } as any);
 
     // Log in the newly registered user
     req.login(newUser, (err: Error | null) => { // req.login triggers serializeUser
@@ -362,7 +362,7 @@ export function setupAuth(app: Express): void {
       password: hashedPassword,
       isAdmin: false, // New users created by admins are not admins themselves
       shopIds: Array.isArray(shopIds) ? shopIds : undefined
-    });
+    } as any);
 
     // Return the newly created user details (including assigned shops)
     const createdUserWithShops = await storage.getUser(newUser.id);

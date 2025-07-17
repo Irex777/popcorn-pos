@@ -43,7 +43,9 @@ export default function History() {
 
   const { data: orders, isLoading } = useQuery<OrderWithId[]>({
     queryKey: [`/api/shops/${currentShop?.id}/orders`],
-    enabled: !!currentShop
+    enabled: !!currentShop,
+    staleTime: 0,  // Always fetch fresh data
+    gcTime: 0      // Don't cache the data
   });
 
   const deleteMutation = useMutation({

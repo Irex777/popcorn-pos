@@ -7,7 +7,7 @@ import { User } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-import { apiFetch, logPortInfo } from "@/lib/api";
+import { apiFetch, logPortInfo, getApiUrl } from "@/lib/api";
 
 type AuthContextType = {
   user: User | null;
@@ -36,8 +36,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/user"],
     queryFn: async (): Promise<User | null> => {
       try {
-        const res = await apiFetch("user", {
+        // Create a custom fetch that doesn't log 401 errors
+        const silentFetch = async (url: string, options: RequestInit) => {
+          const originalFetch = window.fetch;
+          const response = await originalFetch(url, options);
+          return response;
+        };
+        
+        const res = await silentFetch(getApiUrl("api/user"), {
           method: "GET",
+          credentials: "include",
         });
         
         if (res.status === 401) {
@@ -45,7 +53,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         
         if (!res.ok) {
-          throw new Error("Failed to fetch user");
+          return null;
+        }
+        
+        const contentType = res.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          return null;
         }
         
         const data = await res.json();
@@ -55,7 +68,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           shopIds: data.shopIds || []
         };
       } catch (error) {
-        console.error("Error fetching user:", error);
         return null;
       }
     },
@@ -67,7 +79,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      const res = await apiRequest("POST", "login", credentials);
+      const res = await apiRequest("POST", "api/login", credentials);
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error("Server returned non-JSON response");
+      }
       return res.json();
     },
     onSuccess: (data: User) => {
@@ -106,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "logout");
+      await apiRequest("POST", "api/logout");
     },
     onSuccess: () => {
       queryClient.setQueryData(["/api/user"], null);
@@ -125,7 +141,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      const res = await apiRequest("POST", "register", credentials);
+      const res = await apiRequest("POST", "api/register", credentials);
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error("Server returned non-JSON response");
+      }
       return res.json();
     },
     onSuccess: (data: User) => {

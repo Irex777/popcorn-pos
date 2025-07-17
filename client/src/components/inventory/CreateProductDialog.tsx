@@ -24,7 +24,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
-  const { currentShop } = useShop();
+  const { currentShop, isRestaurantMode } = useShop();
 
   const { data: categories } = useQuery<Category[]>({
     queryKey: [`/api/shops/${currentShop?.id}/categories`],
@@ -40,7 +40,7 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
       imageUrl: "",
       stock: 0,
       shopId: currentShop?.id,
-      requiresKitchen: false
+      requiresKitchen: isRestaurantMode // Default to true in restaurant mode
     }
   });
 
@@ -211,10 +211,10 @@ export default function CreateProductDialog({ open, onOpenChange }: CreateProduc
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>
-                      Requires Kitchen Preparation
+                      {t('inventory.requiresKitchen', 'Requires Kitchen Preparation')}
                     </FormLabel>
                     <p className="text-sm text-muted-foreground">
-                      Check this if the item needs to be prepared in the kitchen
+                      {t('inventory.requiresKitchenDescription', 'Check this if the item needs to be prepared in the kitchen')}
                     </p>
                   </div>
                 </FormItem>

@@ -47,6 +47,11 @@ export default function Analytics() {
     enabled: !!currentShop
   });
 
+  const { data: categories, isLoading: categoriesLoading } = useQuery({
+    queryKey: [`/api/shops/${currentShop?.id}/categories`],
+    enabled: !!currentShop
+  });
+
   if (!currentShop) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -55,7 +60,7 @@ export default function Analytics() {
     );
   }
 
-  if (ordersLoading || productsLoading || realtimeLoading || !analyticsData) {
+  if (ordersLoading || productsLoading || categoriesLoading || realtimeLoading || !analyticsData) {
     return (
       <LoadingAnimation />
     );
@@ -74,7 +79,7 @@ export default function Analytics() {
       .filter(item => item.productId === product.id)
       .reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0) || 0;
 
-    const categoryName = categories?.find(c => c.id === product.categoryId)?.name || `Category ${product.categoryId}`; 
+    const categoryName = (categories as any)?.find((c: any) => c.id === product.categoryId)?.name || `Category ${product.categoryId}`; 
     if (!acc[categoryName]) {
       acc[categoryName] = 0;
     }

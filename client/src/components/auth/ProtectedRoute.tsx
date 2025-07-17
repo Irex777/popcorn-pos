@@ -12,7 +12,7 @@ export function ProtectedRoute({
 }) {
   const [, navigate] = useLocation();
 
-  const { data: user, isLoading } = useQuery({
+  const { data: user, isLoading, error } = useQuery({
     queryKey: ['/api/user'],
     queryFn: async () => {
       const res = await fetch('/api/user');
@@ -21,13 +21,14 @@ export function ProtectedRoute({
       }
       return res.json();
     },
+    retry: false,
   });
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isLoading && (!user || error)) {
       navigate('/auth');
     }
-  }, [user, isLoading, navigate]);
+  }, [user, isLoading, error, navigate]);
 
   if (isLoading) {
     return (

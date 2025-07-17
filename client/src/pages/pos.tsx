@@ -36,7 +36,7 @@ export default function POS() {
 
       {/* Cart panel - fixed on mobile, side panel on desktop */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t md:relative md:w-[400px] md:border-l md:border-t-0 safe-area-bottom">
-        <div className="container mx-auto px-4 md:px-6 md:h-screen md:sticky md:top-0">
+        <div className="container mx-auto px-4 md:px-6 md:h-auto md:sticky md:top-0">
           {isRestaurantMode ? (
             <RestaurantCartPanel preSelectedTable={preSelectedTable} />
           ) : (

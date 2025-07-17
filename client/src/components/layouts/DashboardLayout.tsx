@@ -94,12 +94,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   ))}
                 </nav>
 
-                {isRestaurantMode && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-200 rounded-md text-sm mx-2 my-2">
-                    <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
-                    Restaurant Mode Active
-                  </div>
-                )}
 
                 <Separator className="my-4" />
 
@@ -154,12 +148,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               ))}
             </nav>
             <ShopSelector />
-            {isRestaurantMode && (
-              <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-200 rounded-md text-sm">
-                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
-                Restaurant Mode
-              </div>
-            )}
             <Button
               variant="ghost"
               size="icon"

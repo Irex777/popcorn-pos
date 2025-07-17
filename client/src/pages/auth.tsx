@@ -37,7 +37,7 @@ export default function AuthPage() {
     defaultValues: {
       username: "",
       password: "",
-    },
+    } as any,
   });
 
   // Remove the local mutation definition

@@ -26,6 +26,12 @@
     "test:analytics": "playwright test analytics.visual.spec.ts --timeout=120000",
     "test:settings": "playwright test settings.visual.spec.ts --timeout=120000",
     "test:shop-deletion": "playwright test shop-deletion.spec.ts --timeout=120000",
+    "test:errors": "playwright test --config=tests/error-prevention.config.ts",
+    "test:runtime-errors": "playwright test runtime-errors.spec.ts --timeout=120000",
+    "test:translation-keys": "playwright test translation-keys.spec.ts --timeout=120000",
+    "test:auth-validation": "playwright test auth-validation.spec.ts --timeout=120000",
+    "test:common-errors": "playwright test common-runtime-errors.spec.ts --timeout=120000",
+    "test:error-prevention": "node tests/run-error-prevention-tests.js",
     "check-translations": "node scripts/check-translations.js"
   },
   "dependencies": {

@@ -1,7 +1,7 @@
 import { type Product, type Order, type OrderItem, type InsertProduct, type InsertOrder, type InsertOrderItem, type UpdateProductStock, type Category, type InsertCategory, type User, type InsertUser, type Shop, type InsertShop, type StripeSettings, type Table, type InsertTable, type Reservation, type InsertReservation, type KitchenTicket, type InsertKitchenTicket, type StaffRole, type InsertStaffRole, users, shops, stripeSettings, userShops, tables, reservations, kitchenTickets, staffRoles } from "@shared/schema";
 import { db } from "./db";
 import { products, orders, orderItems, categories } from "@shared/schema";
-import { eq, sql, and } from "drizzle-orm";
+import { eq, sql, and, leftJoin } from "drizzle-orm";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 
@@ -387,8 +387,8 @@ export class DatabaseStorage implements IStorage {
 
   // Shop methods
   async createShop(shop: InsertShop): Promise<Shop> {
-    const [newShop] = await db.insert(shops).values(shop).returning();
-    return newShop;
+    const result = await db.insert(shops).values(shop).returning();
+    return result[0] as Shop;
   }
 
   async getShop(id: number): Promise<Shop | undefined> {
@@ -460,12 +460,12 @@ export class DatabaseStorage implements IStorage {
         .where(eq(stripeSettings.shopId, id));
 
       // Finally, delete the shop itself
-      const [deletedShop] = await db
+      const result = await db
         .delete(shops)
         .where(eq(shops.id, id))
         .returning();
 
-      return deletedShop;
+      return (result as any)[0];
     } catch (error) {
       console.error('Error deleting shop:', error);
       throw error;
@@ -570,13 +570,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser & { isAdmin?: boolean; shopIds?: number[] }): Promise<User> {
-    const [user] = await db
+    const result = await db
       .insert(users)
       .values({
         ...insertUser,
         isAdmin: insertUser.isAdmin || false,
       })
       .returning();
+    const user = result[0];
 
     // If specific shops are provided, assign those
     if (insertUser.shopIds?.length) {
@@ -865,20 +866,29 @@ export class DatabaseStorage implements IStorage {
 
     // Calculate new total by getting all items
     const allItems = await this.getOrderItems(orderId);
-    const newTotal = allItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const newTotal = allItems.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
 
     // Update order total
-    const [updatedOrder] = await db
+    const result = await db
       .update(orders)
-      .set({ total: newTotal })
+      .set({ total: newTotal.toString() })
       .where(eq(orders.id, orderId))
       .returning();
 
-    return updatedOrder;
+    return result[0];
   }
 
   async getOrderItems(orderId: number): Promise<OrderItem[]> {
-    return await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+    const items = await db
+      .select()
+      .from(orderItems)
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .where(eq(orderItems.orderId, orderId));
+
+    return items.map(item => ({
+      ...item.order_items,
+      product: item.products
+    }));
   }
 
   async updateOrderItemStatus(orderId: number, productId: number, status: string): Promise<void> {
@@ -989,7 +999,10 @@ export class DatabaseStorage implements IStorage {
       const endOfDay = new Date(date);
       endOfDay.setHours(23, 59, 59, 999);
       
-      query = query.where(sql`${reservations.reservationTime} >= ${startOfDay} AND ${reservations.reservationTime} <= ${endOfDay}`);
+      query = (query as any).where(and(
+        sql`${reservations.reservationTime} >= ${startOfDay}`,
+        sql`${reservations.reservationTime} <= ${endOfDay}`
+      ));
     }
     
     return await query;
@@ -1096,25 +1109,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createStaffRole(role: InsertStaffRole): Promise<StaffRole> {
-    const [newRole] = await db.insert(staffRoles).values(role).returning();
-    return newRole;
+    const result = await db.insert(staffRoles).values(role).returning();
+    return result[0];
   }
 
   async updateStaffRole(id: number, role: Partial<InsertStaffRole>): Promise<StaffRole | undefined> {
-    const [updatedRole] = await db
+    const result = await db
       .update(staffRoles)
       .set(role)
       .where(eq(staffRoles.id, id))
       .returning();
-    return updatedRole;
+    return result[0];
   }
 
   async deleteStaffRole(id: number): Promise<StaffRole | undefined> {
-    const [deletedRole] = await db
+    const result = await db
       .delete(staffRoles)
       .where(eq(staffRoles.id, id))
       .returning();
-    return deletedRole;
+    return result[0];
   }
 }
 

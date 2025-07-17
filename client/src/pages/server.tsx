@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -95,6 +96,11 @@ export default function Server() {
   const activeOrders = orders.filter((order: Order) => 
     order.status !== 'completed' && order.status !== 'cancelled'
   );
+  
+  // Debug logging
+  console.log('Debug - All orders:', orders);
+  console.log('Debug - Active orders:', activeOrders);
+  console.log('Debug - myTables count:', myTables.length);
   
   const todaysSales = orders
     .filter((order: Order) => {
@@ -289,8 +295,18 @@ export default function Server() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
+    <motion.div 
+      className="container mx-auto px-4 py-2"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.div 
+        className="flex items-center justify-between mb-4"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+      >
         <div>
           <h1 className="text-3xl font-bold">{t('restaurant.serverStation')}</h1>
           <p className="text-muted-foreground">{t('restaurant.manageOrders')}</p>
@@ -313,10 +329,15 @@ export default function Server() {
             {t('restaurant.newOrder')}
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+      >
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -369,122 +390,147 @@ export default function Server() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="my-tables">{t('restaurant.activeOrders')}</TabsTrigger>
           <TabsTrigger value="floor-plan">{t('restaurant.floorPlan')}</TabsTrigger>
           <TabsTrigger value="reservations">{t('restaurant.reservations')}</TabsTrigger>
           <TabsTrigger value="wait-list">{t('restaurant.waitList')}</TabsTrigger>
-          <TabsTrigger value="menu">{t('restaurant.quickMenu')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="my-tables" className="space-y-4">
-          <div className="grid gap-4">
+          <motion.div 
+            className="grid gap-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
             {ordersLoading ? (
-              <div className="text-center py-8">
+              <motion.div 
+                className="text-center py-8"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+              >
                 <div className="text-muted-foreground">{t('common.loading')}...</div>
-              </div>
+              </motion.div>
             ) : activeOrders.length === 0 ? (
-              <div className="text-center py-8">
+              <motion.div 
+                className="text-center py-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
                 <UtensilsCrossed className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">{t('restaurant.noActiveOrders')}</p>
                 <p className="text-sm text-muted-foreground mt-2">
                   {t('restaurant.waitingForNewOrders')}
                 </p>
-              </div>
+              </motion.div>
             ) : (
-              activeOrders.map((order) => {
-                const orderTable = tables.find(t => t.id === order.tableId);
+              <AnimatePresence>
+                {activeOrders.map((order: any, index: number) => {
+                const orderTable = tables.find((t: any) => t.id === order.tableId);
                 const orderStatus = getOrderStatusDisplay(order);
                 const orderTotal = Number(order.total);
                 const guestCount = order.guestCount || 1;
                 const orderTime = order.createdAt;
 
                 return (
-                  <Card key={order.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="text-center">
-                            <div className="flex items-center justify-center gap-2 mb-1">
-                              {order.orderType === 'dine_in' ? (
-                                <Utensils className="h-5 w-5 text-blue-600" />
-                              ) : order.orderType === 'takeout' ? (
-                                <ShoppingBag className="h-5 w-5 text-orange-600" />
-                              ) : (
-                                <Truck className="h-5 w-5 text-green-600" />
+                  <motion.div
+                    key={order.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2, delay: index * 0.05 }}
+                    layout
+                  >
+                    <Card className="cursor-pointer hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="text-center">
+                              <div className="flex items-center justify-center gap-2 mb-1">
+                                {order.orderType === 'dine_in' ? (
+                                  <Utensils className="h-5 w-5 text-blue-600" />
+                                ) : order.orderType === 'takeout' ? (
+                                  <ShoppingBag className="h-5 w-5 text-orange-600" />
+                                ) : (
+                                  <Truck className="h-5 w-5 text-green-600" />
+                                )}
+                                <div className="text-2xl font-bold">
+                                  {orderTable ? `${t('restaurant.table')} ${orderTable.number}` : `${t('common.order')} #${order.id}`}
+                                </div>
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {guestCount} {guestCount === 1 ? t('restaurant.guest') : t('restaurant.guests')}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {order.orderType.replace('_', ' ').toUpperCase()}
+                              </div>
+                            </div>
+                            <div>
+                              <Badge className={getStatusColor(orderStatus)}>
+                                {orderStatus}
+                              </Badge>
+                              {orderTime && (
+                                <div className="text-sm text-muted-foreground mt-1">
+                                  {t('restaurant.orderPlaced')} {getTimeAgo(orderTime)}
+                                </div>
                               )}
-                              <div className="text-2xl font-bold">
-                                {orderTable ? `${t('restaurant.table')} ${orderTable.number}` : `${t('common.order')} #${order.id}`}
-                              </div>
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {guestCount} {guestCount === 1 ? t('restaurant.guest') : t('restaurant.guests')}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {order.orderType.replace('_', ' ').toUpperCase()}
                             </div>
                           </div>
-                          <div>
-                            <Badge className={getStatusColor(orderStatus)}>
-                              {orderStatus}
-                            </Badge>
-                            {orderTime && (
-                              <div className="text-sm text-muted-foreground mt-1">
-                                {t('restaurant.orderPlaced')} {getTimeAgo(orderTime)}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold">
-                            {formatCurrency(orderTotal, currency)}
-                          </div>
-                          <div className="flex gap-2 mt-2 flex-wrap">
-                            {(orderStatus === "ready" || orderStatus === "pending" || orderStatus === "preparing") && (
-                              <Button 
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedOrderForPayment(order);
-                                  setSelectedTableForPayment(orderTable?.number || order.id.toString());
-                                  setPaymentDialogOpen(true);
-                                }}
-                                className="bg-green-600 hover:bg-green-700"
-                              >
-                                <DollarSign className="h-4 w-4 mr-1" />
-                                {t('restaurant.processPayment')}
-                              </Button>
-                            )}
-                            {(orderStatus === "ready" || orderStatus === "pending" || orderStatus === "preparing") && (
+                          <div className="text-right">
+                            <div className="text-2xl font-bold">
+                              {formatCurrency(orderTotal, currency)}
+                            </div>
+                            <div className="flex gap-2 mt-2 flex-wrap">
+                              {(orderStatus === "ready" || orderStatus === "pending" || orderStatus === "preparing") && (
+                                <Button 
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedOrderForPayment(order);
+                                    setSelectedTableForPayment(orderTable?.number || order.id.toString());
+                                    setPaymentDialogOpen(true);
+                                  }}
+                                  className="bg-green-600 hover:bg-green-700"
+                                >
+                                  <DollarSign className="h-4 w-4 mr-1" />
+                                  {t('restaurant.processPayment')}
+                                </Button>
+                              )}
+                              {(orderStatus === "ready" || orderStatus === "pending" || orderStatus === "preparing") && (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => handleAddItemsToOrder(order.id)}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                                >
+                                  <Plus className="h-4 w-4 mr-1" />
+                                  {t('restaurant.addItems')}
+                                </Button>
+                              )}
                               <Button 
                                 size="sm" 
                                 variant="outline"
-                                onClick={() => handleAddItemsToOrder(order.id)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                onClick={() => handleViewOrder(order.id)}
                               >
-                                <Plus className="h-4 w-4 mr-1" />
-                                {t('restaurant.addItems')}
+                                <Eye className="h-4 w-4 mr-1" />
+                                {t('restaurant.viewOrder')}
                               </Button>
-                            )}
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleViewOrder(order.id)}
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              {t('restaurant.viewOrder')}
-                            </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 );
-              })
+                })}
+              </AnimatePresence>
             )}
-          </div>
+          </motion.div>
         </TabsContent>
 
         <TabsContent value="floor-plan" className="space-y-4">
@@ -535,11 +581,11 @@ export default function Server() {
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ClipboardList className="h-5 w-5" />
-                  Current Wait List
+                  {t('restaurant.currentWaitList')}
                 </div>
                 <Button size="sm" onClick={() => setShowAddReservation(true)}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Add to Wait List
+                  {t('restaurant.addToWaitList')}
                 </Button>
               </CardTitle>
             </CardHeader>
@@ -549,75 +595,58 @@ export default function Server() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="menu" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('restaurant.quickMenuAccess')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <UtensilsCrossed className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground mb-4">
-                  Quick access to menu items for taking orders
-                </p>
-                <Button 
-                  onClick={handleNewOrder}
-                  disabled={!currentShop}
-                  size="lg"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  {t('restaurant.takeNewOrder')}
-                </Button>
-                {!currentShop && (
-                  <p className="text-sm text-orange-600 mt-4">
-                    Please select a shop to access the menu
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
 
       {/* New Order Dialog */}
       <Dialog open={newOrderDialogOpen} onOpenChange={setNewOrderDialogOpen}>
-        <DialogContent className="max-w-[95vw] w-full h-[95vh] max-h-[95vh]">
-          <DialogHeader className="pb-4 border-b">
-            <DialogTitle className="text-xl flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <UtensilsCrossed className="h-6 w-6" />
+        <DialogContent className="max-w-6xl w-[98vw] h-auto max-h-[90vh] overflow-hidden p-0 sm:w-[95vw] sm:max-h-[85vh]">
+          <DialogHeader className="px-3 py-2 border-b sm:px-4">
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <UtensilsCrossed className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="truncate">
                 {editingOrder 
-                  ? t('restaurant.addItemsToOrderWithId', { orderId: editingOrder.id, tableNumber: selectedTableForOrder?.number || editingOrder.tableId })
+                  ? t('restaurant.addItemsToOrderWithId', { orderId: editingOrder.id })
                   : selectedTableForOrder 
-                    ? t('restaurant.takeOrderWithTable', { tableNumber: selectedTableForOrder.number, capacity: selectedTableForOrder.capacity })
-                    : t('restaurant.newOrderSelectTable')
+                    ? `${t('restaurant.table')} ${selectedTableForOrder.number}`
+                    : t('restaurant.newOrder')
                 }
-              </div>
+              </span>
               {selectedTableForOrder && (
-                <Badge variant="outline" className="text-sm">
+                <Badge variant="outline" className="hidden sm:block ml-auto text-xs">
                   {selectedTableForOrder.section || t('restaurant.mainArea')}
                 </Badge>
               )}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex h-[calc(100%-80px)] gap-6 pt-4">
-            {/* Menu Grid */}
-            <div className="flex-1 overflow-y-auto pr-2">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">{t('restaurant.menuItems')}</h3>
-                  <div className="text-sm text-muted-foreground">
-                    Click items to add to order
-                  </div>
-                </div>
-                <ProductGrid />
-              </div>
-            </div>
-            {/* Cart Panel */}
-            <div className="w-[450px] border-l pl-6 flex flex-col">
+          
+          {/* Mobile Layout - Stacked */}
+          <div className="flex flex-col md:hidden h-[80vh]">
+            {/* Mobile Cart Summary - Always visible at top */}
+            <div className="border-b bg-muted/30 p-3">
               <RestaurantCartPanel 
                 preSelectedTable={selectedTableForOrder} 
                 editingOrder={editingOrder}
+                onOrderPlaced={() => setNewOrderDialogOpen(false)}
+              />
+            </div>
+            {/* Mobile Menu Grid */}
+            <div className="flex-1 overflow-y-auto p-3">
+              <ProductGrid />
+            </div>
+          </div>
+
+          {/* Desktop Layout - Side by side */}
+          <div className="hidden md:flex h-[65vh]">
+            {/* Menu Grid */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <ProductGrid />
+            </div>
+            {/* Cart Panel */}
+            <div className="w-80 border-l bg-muted/30 p-4 overflow-y-auto">
+              <RestaurantCartPanel 
+                preSelectedTable={selectedTableForOrder} 
+                editingOrder={editingOrder}
+                onOrderPlaced={() => setNewOrderDialogOpen(false)}
               />
             </div>
           </div>
@@ -650,7 +679,7 @@ export default function Server() {
                   <p className="text-sm text-muted-foreground">{t('restaurant.table')}</p>
                   <p className="font-medium">
                     {selectedOrderDetails.tableId 
-                      ? `${t('restaurant.table')} ${tables.find(t => t.id === selectedOrderDetails.tableId)?.number || selectedOrderDetails.tableId}`
+                      ? `${t('restaurant.table')} ${tables.find((t: any) => t.id === selectedOrderDetails.tableId)?.number || selectedOrderDetails.tableId}`
                       : t('restaurant.takeoutDelivery')
                     }
                   </p>
@@ -685,7 +714,7 @@ export default function Server() {
                     <div key={item.id} className="flex justify-between items-center p-2 bg-muted rounded">
                       <div>
                         <span className="font-medium">{item.quantity}x </span>
-                        <span>{item.product?.name || 'Unknown Item'}</span>
+                        <span>{(item as any).product?.name || 'Unknown Item'}</span>
                         {item.specialRequests && (
                           <p className="text-xs text-muted-foreground">{item.specialRequests}</p>
                         )}
@@ -725,6 +754,6 @@ export default function Server() {
         isOpen={showAddReservation}
         onOpenChange={setShowAddReservation}
       />
-    </div>
+    </motion.div>
   );
 }

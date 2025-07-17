@@ -94,32 +94,15 @@ export default function CartPanel() {
                 style={{ cursor: "grab" }}
               >
                 <div className="flex items-center gap-3">
-                  <motion.div 
-                    className="flex items-center gap-2"
-                    {...bounceAnimation}
+                  <motion.span 
+                    className="font-medium text-xl min-w-[32px] text-center bg-primary/10 rounded-full px-3 py-1"
+                    key={item.quantity}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <button
-                      onClick={() => updateQuantity(item.product.id, -1)}
-                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-2.5 transition-colors"
-                    >
-                      <Minus className="h-5 w-5" />
-                    </button>
-                    <motion.span 
-                      className="font-medium text-xl min-w-[24px] text-center"
-                      key={item.quantity}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
-                      {item.quantity}
-                    </motion.span>
-                    <button
-                      onClick={() => updateQuantity(item.product.id, 1)}
-                      className="bg-primary/10 hover:bg-primary/20 rounded-full p-2.5 transition-colors"
-                    >
-                      <Plus className="h-5 w-5" />
-                    </button>
-                  </motion.div>
+                    {item.quantity}
+                  </motion.span>
                   <span className="font-medium text-base md:text-lg">{item.product.name}</span>
                 </div>
                 <motion.span 

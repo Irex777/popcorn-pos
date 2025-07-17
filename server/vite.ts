@@ -60,6 +60,11 @@ export async function setupVite(app: Express, server: Server, port?: number) {
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
 
+    // If the request is for an API endpoint, skip Vite middleware
+    if (url.startsWith('/api/')) {
+      return next();
+    }
+
     try {
       const clientTemplate = path.resolve(
         __dirname,

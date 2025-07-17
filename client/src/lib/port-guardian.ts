@@ -13,7 +13,7 @@ class PortGuardian {
   private checkInterval: number | null = null;
   private isChecking = false;
   private lastKnownGoodPort: number | null = null;
-  private readonly FALLBACK_PORTS = [3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010];
+  private readonly FALLBACK_PORTS = [3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010];
   private readonly CHECK_INTERVAL_MS = 5000; // Check every 5 seconds
   private readonly HEALTH_TIMEOUT_MS = 2000; // 2 second timeout for health checks
 
@@ -30,15 +30,15 @@ class PortGuardian {
       return;
     }
     
-    // EMERGENCY FIX: Force redirect to port 3003 if on wrong port (development only)
+    // EMERGENCY FIX: Force redirect to port 3002 if on wrong port (development only)
     const currentPort = this.getCurrentPort();
-    if (currentPort !== 3003) {
-      console.log(`🚨 EMERGENCY REDIRECT: Moving from port ${currentPort} to 3003`);
-      this.redirectToCorrectPort(3003);
+    if (currentPort !== 3002) {
+      console.log(`🚨 EMERGENCY REDIRECT: Moving from port ${currentPort} to 3002`);
+      this.redirectToCorrectPort(3002);
       return;
     }
     
-    console.log('✅ Port Guardian: Already on correct port 3003');
+    console.log('✅ Port Guardian: Already on correct port 3002');
   }
 
   private startMonitoring() {

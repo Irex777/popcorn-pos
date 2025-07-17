@@ -1088,7 +1088,7 @@ app.get("/api/shops", async (req, res) => {
         const tempUser = await storage.createUser({
           username: "test-user",
           password: "test-password"
-        });
+        } as any);
         userId = tempUser.id;
       }
       
@@ -1097,7 +1097,7 @@ app.get("/api/shops", async (req, res) => {
         address: null,
         businessMode: "shop",
         createdById: userId
-      });
+      } as any);
       testShopId = testShop.id;
       console.log('✓ Test shop created');
 
@@ -1106,8 +1106,8 @@ app.get("/api/shops", async (req, res) => {
         name: "Test Category",
         description: "Test Description",
         color: "#000000",
-        shopId: testShopId
-      });
+        shopId: testShopId!
+      } as any);
       testCategoryId = testCategory.id;
       console.log('✓ Test category created');
 
@@ -1116,10 +1116,10 @@ app.get("/api/shops", async (req, res) => {
         name: "Test Product",
         price: "9.99",
         stock: 100,
-        categoryId: testCategoryId,
-        shopId: testShopId,
+        categoryId: testCategoryId!,
+        shopId: testShopId!,
         imageUrl: ""
-      });
+      } as any);
       testProductId = testProduct.id;
       console.log('✓ Test product created');
 
@@ -1128,22 +1128,24 @@ app.get("/api/shops", async (req, res) => {
         {
           total: "9.99",
           status: "completed",
-          shopId: testShopId
-        },
+          shopId: testShopId!
+        } as any,
         [{
-          productId: testProductId,
+          productId: testProductId!,
           quantity: 1,
-          price: "9.99"
+          price: "9.99",
+          status: "pending",
+          courseNumber: 1
         }]
       );
       testOrderId = testOrder.id;
       console.log('✓ Test order created');
 
       // Step 5: Test reading data
-      const shopExists = await storage.getShop(testShopId);
-      const categoryExists = await storage.getCategories(testShopId);
-      const productExists = await storage.getProducts(testShopId);
-      const orderExists = await storage.getOrders(testShopId);
+      const shopExists = await storage.getShop(testShopId!);
+      const categoryExists = await storage.getCategories(testShopId!);
+      const productExists = await storage.getProducts(testShopId!);
+      const orderExists = await storage.getOrders(testShopId!);
 
       if (!shopExists || !categoryExists.length || !productExists.length || !orderExists.length) {
         throw new Error("Data verification failed");

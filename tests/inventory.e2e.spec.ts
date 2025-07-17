@@ -17,8 +17,8 @@ test.describe('Inventory Management - Complete Workflows', () => {
     await helper.navigateAndWait('/inventory');
     
     // Verify inventory page loads
-    const inventoryTable = page.locator('table, .inventory-grid, .products-list, [data-testid="inventory"]');
-    await expect(inventoryTable).toBeVisible();
+    const inventoryGrid = page.locator('.grid, .inventory-grid, .products-list, [data-testid="inventory"]');
+    await expect(inventoryGrid).toBeVisible();
     
     // Test create new product
     const addProductButton = page.locator('button:has-text("Add"), button:has-text("Create"), .add-product, [data-testid="add-product"]');

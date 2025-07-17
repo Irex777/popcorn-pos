@@ -119,7 +119,7 @@ export default function RestaurantPaymentDialog({
             <div className="max-h-32 overflow-y-auto space-y-1">
               {order.items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
-                  <span>{item.quantity}x {item.product?.name || t('common.unknown')}</span>
+                  <span>{item.quantity}x {(item as any).product?.name || t('common.unknown')}</span>
                   <span>{formatCurrency(Number(item.price) * item.quantity, currency)}</span>
                 </div>
               ))}

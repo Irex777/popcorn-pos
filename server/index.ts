@@ -164,7 +164,7 @@ async function createDefaultAdmin() {
       };
       
       try {
-        await storage.createUser(defaultAdmin);
+        await storage.createUser(defaultAdmin as any);
         console.log("✅ Default admin account created (admin/admin123)");
       } catch (createError) {
         console.error('💥 User creation failed:', createError);

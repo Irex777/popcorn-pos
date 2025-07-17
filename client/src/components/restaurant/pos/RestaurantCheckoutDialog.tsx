@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { CreditCard, Banknote, UtensilsCrossed, Receipt } from "lucide-react";
 import TableSelector from "../shared/TableSelector";
 import OrderTypeSelector from "../shared/OrderTypeSelector";
 import GuestCounter from "../shared/GuestCounter";
@@ -26,9 +27,10 @@ interface RestaurantCheckoutDialogProps {
   onOpenChange: (open: boolean) => void;
   preSelectedTable?: Table | null;
   editingOrder?: OrderWithItems | null;
+  onOrderPlaced?: () => void;
 }
 
-export default function RestaurantCheckoutDialog({ isOpen, onOpenChange, preSelectedTable, editingOrder }: RestaurantCheckoutDialogProps) {
+export default function RestaurantCheckoutDialog({ isOpen, onOpenChange, preSelectedTable, editingOrder, onOrderPlaced }: RestaurantCheckoutDialogProps) {
   const { t } = useTranslation();
   const [cart, setCart] = useAtom(cartAtom);
   const [currency] = useAtom(currencyAtom);
@@ -41,91 +43,100 @@ export default function RestaurantCheckoutDialog({ isOpen, onOpenChange, preSele
   const [guestCount, setGuestCount] = useState(1);
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [detectedExistingOrder, setDetectedExistingOrder] = useState<OrderWithItems | null>(null);
+  const [step, setStep] = useState<"order_details" | "payment">("order_details");
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash');
+
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedTable(preSelectedTable || null);
+      setOrderType("dine_in");
+      setGuestCount(1);
+      setSpecialInstructions("");
+      setStep("order_details");
+      setPaymentMethod('cash');
+    }
+  }, [isOpen, preSelectedTable]);
 
   const total = cart.reduce((sum, item) => sum + (Number(item.product.price) * item.quantity), 0);
 
-  // Fetch orders to check for existing orders on selected table
-  const { data: orders = [] } = useQuery({
-    queryKey: [`/api/shops/${currentShop?.id}/orders`],
-    queryFn: async () => {
-      if (!currentShop?.id) return [];
-      const response = await fetch(`/api/shops/${currentShop.id}/orders`);
-      if (!response.ok) throw new Error(t('restaurant.fetchOrdersError'));
-      return response.json();
-    },
-    enabled: !!currentShop?.id,
-  });
-
-  // Effect to detect existing order when table is selected
-  useEffect(() => {
-    if (selectedTable && orders.length > 0 && !editingOrder) {
-      const existingOrder = orders.find((order: OrderWithItems) => 
-        order.tableId === selectedTable.id && 
-        order.status !== 'completed' && 
-        order.status !== 'cancelled'
-      );
-      setDetectedExistingOrder(existingOrder || null);
-    } else {
-      setDetectedExistingOrder(null);
-    }
-  }, [selectedTable, orders, editingOrder]);
-
-  const createOrderMutation = useMutation({
+  const sendToKitchenMutation = useMutation({
     mutationFn: async () => {
       if (!currentShop?.id) throw new Error(t('common.shop.noAssigned'));
-      
-      if (editingOrder || detectedExistingOrder) {
-        // Adding items to existing order
-        const targetOrder = editingOrder || detectedExistingOrder;
-        const itemsData = {
-          items: cart.map(item => ({
-            productId: item.product.id,
-            quantity: item.quantity,
-            price: item.product.price.toString(),
-            courseNumber: 1, // Default to first course
-          }))
-        };
+      if (!selectedTable && orderType === "dine_in") {
+        throw new Error(t('restaurant.selectTableRequired'));
+      }
 
-        const endpoint = `/api/shops/${currentShop.id}/orders/${targetOrder!.id}/items`;
-
-        const response = await fetch(endpoint, {
+      // If we're editing an existing order, add items to it instead of creating new order
+      if (editingOrder) {
+        const response = await fetch(`/api/shops/${currentShop.id}/orders/${editingOrder.id}/items`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(itemsData),
+          body: JSON.stringify({
+            items: cart.map(item => ({
+              productId: item.product.id,
+              quantity: item.quantity,
+              price: item.product.price.toString()
+            }))
+          }),
         });
 
         if (!response.ok) {
           const error = await response.json();
-          throw new Error(error.error || t('restaurant.addItemsError'));
+          throw new Error(error.error || t('restaurant.orderUpdateFailed'));
         }
 
         return response.json();
       } else {
-        // Creating new order
+        // Check if there's an existing pending order for this table
+        if (selectedTable) {
+          const existingOrderResponse = await fetch(`/api/shops/${currentShop.id}/orders?tableId=${selectedTable.id}&status=pending`);
+          if (existingOrderResponse.ok) {
+            const existingOrders = await existingOrderResponse.json();
+            if (existingOrders.length > 0) {
+              // Add to existing order
+              const existingOrder = existingOrders[0];
+              const response = await fetch(`/api/shops/${currentShop.id}/orders/${existingOrder.id}/items`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  items: cart.map(item => ({
+                    productId: item.product.id,
+                    quantity: item.quantity,
+                    price: item.product.price.toString()
+                  }))
+                }),
+              });
+
+              if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || t('restaurant.orderUpdateFailed'));
+              }
+
+              return response.json();
+            }
+          }
+        }
+
+        // Create new order if no existing order found
         const orderData = {
           order: {
             total: total.toString(),
-            status: "pending",
-            shopId: currentShop.id,
-            tableId: selectedTable?.id,
+            status: "pending", // Kitchen orders start as pending
             orderType,
-            guestCount,
-            specialInstructions: specialInstructions || undefined,
+            tableId: selectedTable?.id,
+            guestCount: orderType === "dine_in" ? guestCount : undefined,
+            specialInstructions: specialInstructions.trim() || undefined,
+            shopId: currentShop.id
           },
           items: cart.map(item => ({
             productId: item.product.id,
             quantity: item.quantity,
-            price: item.product.price.toString(),
-            courseNumber: 1, // Default to first course
+            price: item.product.price.toString()
           }))
         };
 
-        const endpoint = orderType === "dine_in" 
-          ? `/api/shops/${currentShop.id}/orders/dine-in`
-          : `/api/shops/${currentShop.id}/orders`;
-
-        const response = await fetch(endpoint, {
+        const response = await fetch(`/api/shops/${currentShop.id}/orders`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(orderData),
@@ -133,177 +144,273 @@ export default function RestaurantCheckoutDialog({ isOpen, onOpenChange, preSele
 
         if (!response.ok) {
           const error = await response.json();
-          throw new Error(error.error || t('restaurant.createOrderError'));
+          throw new Error(error.error || t('restaurant.orderSendFailed'));
         }
 
         return response.json();
       }
     },
     onSuccess: () => {
-      if (editingOrder || detectedExistingOrder) {
-        const targetOrder = editingOrder || detectedExistingOrder;
-        toast({
-          title: t('restaurant.itemsAdded'),
-          description: t('restaurant.itemsAddedSuccess', { orderId: targetOrder!.id }),
-        });
-      } else {
-        toast({
-          title: t('restaurant.orderCreated'),
-          description: t('restaurant.orderCreatedSuccess', { orderType: t(`restaurant.${orderType}`) }),
-        });
-      }
+      toast({
+        title: editingOrder ? t('restaurant.itemsAddedToOrder') : t('restaurant.orderPlaced'),
+        description: editingOrder ? t('restaurant.itemsAddedSuccess') : t('restaurant.orderPlacedSuccess')
+      });
       setCart([]);
       onOpenChange(false);
+      onOrderPlaced?.(); // Close parent dialog
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["kitchen-tickets"] });
-      
-      // Update table status if dine-in
-      if (orderType === "dine_in" && selectedTable) {
+      if (selectedTable) {
         queryClient.invalidateQueries({ queryKey: ["tables"] });
       }
     },
     onError: (error: Error) => {
       toast({
-        title: (editingOrder || detectedExistingOrder) ? t('restaurant.addItemsError') : t('restaurant.orderFailed'),
+        title: t('restaurant.error'),
         description: error.message,
         variant: "destructive",
       });
     },
   });
 
-  const handleSubmitOrder = async () => {
-    if (!editingOrder && !detectedExistingOrder && orderType === "dine_in" && !selectedTable) {
+  const payOrderMutation = useMutation({
+    mutationFn: async () => {
+      if (!currentShop?.id) throw new Error(t('common.shop.noAssigned'));
+      if (!selectedTable && orderType === "dine_in") {
+        throw new Error(t('restaurant.selectTableRequired'));
+      }
+
+      const orderData = {
+        order: {
+          total: total.toString(),
+          status: "completed", // Paid orders are completed
+          orderType,
+          tableId: selectedTable?.id,
+          guestCount: orderType === "dine_in" ? guestCount : undefined,
+          specialInstructions: specialInstructions.trim() || undefined,
+          paymentMethod,
+          shopId: currentShop.id
+        },
+        items: cart.map(item => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+          price: item.product.price.toString()
+        }))
+      };
+
+      const response = await fetch(`/api/shops/${currentShop.id}/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || t('checkout.orderProcessingFailed'));
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
       toast({
-        title: t('restaurant.tableRequired'),
-        description: t('restaurant.tableRequiredDescription'),
+        title: t('checkout.orderCompleted'),
+        description: t('checkout.thankYou')
+      });
+      setCart([]);
+      onOpenChange(false);
+      onOrderPlaced?.(); // Close parent dialog
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["kitchen-tickets"] });
+      if (selectedTable) {
+        queryClient.invalidateQueries({ queryKey: ["tables"] });
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('checkout.error'),
+        description: error.message,
         variant: "destructive",
       });
-      return;
-    }
+    },
+  });
 
-    setIsProcessing(true);
-    try {
-      await createOrderMutation.mutateAsync();
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+  const canProceed = cart.length > 0 && (orderType !== "dine_in" || selectedTable);
 
-  const resetForm = () => {
-    setSelectedTable(preSelectedTable || null);
-    setOrderType("dine_in");
-    setGuestCount(1);
-    setSpecialInstructions("");
-    setDetectedExistingOrder(null);
-  };
+  if (step === "payment") {
+    return (
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t('checkout.title')}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="space-y-4">
+              {/* Payment Method Selection */}
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={paymentMethod === 'card' ? 'default' : 'outline'}
+                  className="flex-1 gap-2"
+                  onClick={() => setPaymentMethod('card')}
+                  disabled={total <= 0}
+                >
+                  <CreditCard className="h-4 w-4" />
+                  {t('checkout.card')}
+                </Button>
+                <Button
+                  type="button"
+                  variant={paymentMethod === 'cash' ? 'default' : 'outline'}
+                  className="flex-1 gap-2"
+                  onClick={() => setPaymentMethod('cash')}
+                >
+                  <Banknote className="h-4 w-4" />
+                  {t('checkout.cash')}
+                </Button>
+              </div>
+
+              {/* Order Summary */}
+              <div className="space-y-4">
+                {cart.map(item => (
+                  <div key={item.product.id} className="flex justify-between">
+                    <span>
+                      {item.product.name} x {item.quantity}
+                    </span>
+                    <span>
+                      {formatCurrency(Number(item.product.price) * item.quantity, currency)}
+                    </span>
+                  </div>
+                ))}
+                <div className="pt-4 border-t">
+                  <div className="flex justify-between font-medium">
+                    <span>{t('common.total')}</span>
+                    <span>{formatCurrency(total, currency)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setStep("order_details")}
+                >
+                  {t('common.back')}
+                </Button>
+                <Button
+                  className="flex-1 bg-primary hover:opacity-90 transition-opacity text-white"
+                  onClick={() => payOrderMutation.mutate()}
+                  disabled={payOrderMutation.isPending || cart.length === 0}
+                >
+                  {payOrderMutation.isPending ? (
+                    t('checkout.processing')
+                  ) : (
+                    `${t('checkout.completeCashPayment')} (${formatCurrency(total, currency)})`
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      onOpenChange(open);
-      if (!open) resetForm();
-    }}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent 
+        className="sm:max-w-[500px] h-fit max-h-[80vh] overflow-y-auto p-4 !min-h-0 !gap-2"
+        style={{ height: 'auto', minHeight: '0', gap: '8px' }}
+      >
         <DialogHeader>
-          <DialogTitle>
-            {editingOrder 
-              ? `${t('restaurant.addItemsToOrder')} #${editingOrder.id}` 
-              : detectedExistingOrder 
-                ? `${t('restaurant.addItemsToOrder')} #${detectedExistingOrder.id}`
-                : t('restaurant.restaurantOrder')
-            }
-          </DialogTitle>
+          <DialogTitle>{editingOrder ? t('restaurant.editOrder') : t('restaurant.newOrder')}</DialogTitle>
         </DialogHeader>
-        
-        <div className="space-y-4">
-          {detectedExistingOrder && (
-            <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-              <div className="flex items-center gap-2 text-orange-800">
-                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                <div className="font-medium">{t('restaurant.existingOrderDetected')}</div>
-              </div>
-              <div className="text-sm text-orange-700 mt-1">
-                {t('restaurant.existingOrderDescription', { tableNumber: selectedTable?.number, orderId: detectedExistingOrder.id })}
-              </div>
+        <div className="space-y-3">
+            {/* Order Type */}
+            <div className="space-y-2">
+              <Label>{t('restaurant.orderType')}</Label>
+              <OrderTypeSelector value={orderType} onValueChange={setOrderType} />
             </div>
-          )}
-          
-          {!editingOrder && !detectedExistingOrder && (
-            <>
-              {/* Order Type */}
+
+            {/* Table Selection (only for dine-in) */}
+            {orderType === "dine_in" && (
               <div className="space-y-2">
-                <Label>{t('restaurant.orderType')}</Label>
-                <OrderTypeSelector value={orderType} onValueChange={setOrderType} />
+                <Label>{t('restaurant.table')}</Label>
+                <TableSelector 
+                  selectedTable={selectedTable} 
+                  onTableSelect={setSelectedTable}
+                  allowOccupiedTables={true}
+                />
               </div>
+            )}
 
-              {/* Table Selection (only for dine-in) */}
-              {orderType === "dine_in" && (
-                <div className="space-y-2">
-                  <Label>{t('restaurant.table')}</Label>
-                  <TableSelector 
-                    selectedTable={selectedTable} 
-                    onTableSelect={setSelectedTable}
-                    allowOccupiedTables={!editingOrder}
-                  />
-                </div>
-              )}
-
-              {/* Guest Count */}
-              <GuestCounter value={guestCount} onChange={setGuestCount} />
-            </>
-          )}
-
-          {/* Special Instructions */}
-          <div className="space-y-2">
-            <Label htmlFor="instructions">{t('restaurant.specialInstructionsOptional')}</Label>
-            <Textarea
-              id="instructions"
-              placeholder={t('restaurant.specialInstructionsPlaceholder')}
-              value={specialInstructions}
-              onChange={(e) => setSpecialInstructions(e.target.value)}
-              rows={3}
-            />
-          </div>
-
-          <Separator />
-
-          {/* Order Summary */}
-          <div className="space-y-2">
-            <h3 className="font-semibold">{t('restaurant.orderSummary')}</h3>
-            {cart.map((item) => (
-              <div key={item.product.id} className="flex justify-between text-sm">
-                <span>{item.quantity}x {item.product.name}</span>
-                <span>{formatCurrency(Number(item.product.price) * item.quantity, currency)}</span>
+            {/* Guest Count (only for dine-in) */}
+            {orderType === "dine_in" && (
+              <div className="space-y-2">
+                <Label>{t('restaurant.guestCount')}</Label>
+                <GuestCounter value={guestCount} onChange={setGuestCount} />
               </div>
-            ))}
-            <Separator />
-            <div className="flex justify-between font-semibold">
-              <span>{t('common.total')}</span>
-              <span>{formatCurrency(total, currency)}</span>
+            )}
+
+            {/* Special Instructions */}
+            <div className="space-y-2">
+              <Label>{t('restaurant.specialInstructions')}</Label>
+              <Textarea
+                value={specialInstructions}
+                onChange={(e) => setSpecialInstructions(e.target.value)}
+                placeholder={t('restaurant.specialInstructionsPlaceholder')}
+                rows={2}
+              />
             </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              className="flex-1"
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button 
-              onClick={handleSubmitOrder}
-              disabled={isProcessing || cart.length === 0}
-              className="flex-1"
-            >
-              {isProcessing 
-                ? t('restaurant.processing') 
-                : (editingOrder || detectedExistingOrder) 
-                  ? t('restaurant.addItemsToOrder')
-                  : t('restaurant.sendToKitchen')
-              }
-            </Button>
-          </div>
+            {/* Order Summary */}
+            <div className="space-y-2">
+              <Separator />
+              <div className="space-y-2">
+                {cart.map(item => (
+                  <div key={item.product.id} className="flex justify-between text-sm">
+                    <span>
+                      {item.product.name} x {item.quantity}
+                    </span>
+                    <span>
+                      {formatCurrency(Number(item.product.price) * item.quantity, currency)}
+                    </span>
+                  </div>
+                ))}
+                <div className="pt-2 border-t">
+                  <div className="flex justify-between font-medium">
+                    <span>{t('common.total')}</span>
+                    <span>{formatCurrency(total, currency)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-2">
+              <Button
+                className="w-full bg-primary hover:opacity-90 text-white gap-2"
+                onClick={() => sendToKitchenMutation.mutate()}
+                disabled={!canProceed || sendToKitchenMutation.isPending}
+              >
+                <UtensilsCrossed className="h-4 w-4" />
+                {sendToKitchenMutation.isPending ? (
+                  t('restaurant.placingOrder')
+                ) : (
+                  `${t('restaurant.placeOrder')} (${formatCurrency(total, currency)})`
+                )}
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={() => setStep("payment")}
+                disabled={!canProceed}
+              >
+                <Receipt className="h-4 w-4" />
+                {t('restaurant.payNow')}
+              </Button>
+            </div>
         </div>
       </DialogContent>
     </Dialog>

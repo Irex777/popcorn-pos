@@ -2,14 +2,36 @@ import { pgTable, text, serial, integer, decimal, timestamp, boolean } from "dri
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Shops model
-export const shops = pgTable("shops", {
+// Shops model (defined first to avoid circular reference)
+export const shops: any = pgTable("shops", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   address: text("address"),
   businessMode: text("business_mode").notNull().default("shop"), // "shop" or "restaurant"
   createdAt: timestamp("created_at").defaultNow(),
-  createdById: integer("created_by_id").references(() => users.id).notNull(),
+  createdById: integer("created_by_id").references((): any => users.id),
+});
+
+// Staff Roles
+export const staffRoles: any = pgTable("staff_roles", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(), // 'host', 'server', 'kitchen', 'manager', 'cashier'
+  permissions: text("permissions").notNull(), // JSON array of permissions
+  shopId: integer("shop_id").references((): any => shops.id).notNull(),
+});
+
+// Users model
+export const users: any = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  isAdmin: boolean("is_admin").notNull().default(false),
+  language: text("language").notNull().default('cs'),
+  currency: text("currency").notNull().default('CZK'),
+  createdAt: timestamp("created_at").defaultNow(),
+  // Restaurant-specific fields
+  roleId: integer("role_id").references((): any => staffRoles.id),
+  isActive: boolean("is_active").notNull().default(true),
 });
 
 // Stripe settings
@@ -45,19 +67,6 @@ export const insertShopSchema = createInsertSchema(shops)
 export const userShops = pgTable("user_shops", {
   userId: integer("user_id").references(() => users.id).notNull(),
   shopId: integer("shop_id").references(() => shops.id).notNull(),
-});
-
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  isAdmin: boolean("is_admin").notNull().default(false),
-  language: text("language").notNull().default('cs'),
-  currency: text("currency").notNull().default('CZK'),
-  createdAt: timestamp("created_at").defaultNow(),
-  // Restaurant-specific fields
-  roleId: integer("role_id").references(() => staffRoles.id),
-  isActive: boolean("is_active").notNull().default(true),
 });
 
 // Add types for user shops
@@ -226,14 +235,6 @@ export const kitchenTickets = pgTable("kitchen_tickets", {
   estimatedCompletion: timestamp("estimated_completion"),
   createdAt: timestamp("created_at").defaultNow(),
   completedAt: timestamp("completed_at"),
-});
-
-// Staff Roles
-export const staffRoles = pgTable("staff_roles", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(), // 'host', 'server', 'kitchen', 'manager', 'cashier'
-  permissions: text("permissions").notNull(), // JSON array of permissions
-  shopId: integer("shop_id").references(() => shops.id).notNull(),
 });
 
 // Restaurant table schemas
