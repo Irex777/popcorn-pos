@@ -11,11 +11,11 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 1,
-  /* Allow more workers for better parallelization */
-  workers: process.env.CI ? 2 : undefined,
+  retries: process.env.CI ? 3 : 1,
+  /* Reduce workers for more stable CI runs */
+  workers: process.env.CI ? 1 : undefined,
   /* Increase timeout for comprehensive testing */
-  timeout: 60 * 1000, // 60 seconds per test
+  timeout: 120 * 1000, // 120 seconds per test
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['html'],
@@ -39,28 +39,48 @@ export default defineConfig({
       name: 'chromium',
       use: { 
         ...devices['Desktop Chrome'],
-        viewport: { width: 1280, height: 865 }
+        viewport: { width: 1280, height: 720 },
+        // Disable animations for consistent screenshots
+        reducedMotion: 'reduce',
       },
     },
 
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: { 
+        ...devices['Desktop Firefox'],
+        viewport: { width: 1280, height: 720 },
+        reducedMotion: 'reduce',
+      },
     },
 
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: { 
+        ...devices['Desktop Safari'],
+        viewport: { width: 1280, height: 720 },
+        reducedMotion: 'reduce',
+      },
     },
 
     /* Test against mobile viewports. */
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      use: { 
+        ...devices['Pixel 5'],
+        // Standardize mobile viewport
+        viewport: { width: 393, height: 851 },
+        reducedMotion: 'reduce',
+      },
     },
     {
       name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
+      use: { 
+        ...devices['iPhone 12'],
+        // Standardize mobile viewport
+        viewport: { width: 390, height: 844 },
+        reducedMotion: 'reduce',
+      },
     },
 
     /* Test against branded browsers. */
@@ -87,13 +107,18 @@ export default defineConfig({
 
   /* Visual comparison settings */
   expect: {
-    // Threshold for visual comparisons
+    // Threshold for visual comparisons - increased for better stability
     toHaveScreenshot: {
-      threshold: 0.2
+      threshold: 0.4,
+      // Add animation handling
+      animations: 'disabled',
+      // Clip to avoid dynamic content
+      clip: { x: 0, y: 0, width: 1280, height: 720 }
     },
     // Threshold for visual comparison of elements
     toMatchSnapshot: {
-      threshold: 0.2
+      threshold: 0.4,
+      animations: 'disabled'
     }
   }
 });

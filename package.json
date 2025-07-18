@@ -13,6 +13,7 @@
     "migrate": "tsx scripts/migrate.ts",
     "migrate:hotfix": "psql $DATABASE_URL -f migrations/HOTFIX_004_add_business_mode_production.sql",
     "migrate:manual": "node -e \"const { execSync } = require('child_process'); execSync('psql \\\"$DATABASE_URL\\\" -f migrations/HOTFIX_004_add_business_mode_production.sql', { stdio: 'inherit' });\"",
+    "setup:test-db": "node scripts/setup-test-db.js",
     "test": "playwright test --timeout=120000",
     "test:headed": "playwright test --headed --timeout=120000",
     "test:ui": "playwright test --ui",
