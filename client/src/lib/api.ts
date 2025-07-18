@@ -9,20 +9,31 @@ export const API_BASE_URL = config.apiUrl;
 // Helper function to construct API URLs
 export function getApiUrl(endpoint: string): string {
   // Remove leading slash if present to avoid double slashes
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  let cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  
+  // Remove api/ prefix if present to avoid double api paths
+  if (cleanEndpoint.startsWith('api/')) {
+    cleanEndpoint = cleanEndpoint.slice(4);
+  }
   
   // In development, use relative URLs since client and server are on same port
   if (config.isDevelopment) {
-    return `/${cleanEndpoint}`;
+    return `/api/${cleanEndpoint}`;
   }
   
-  // In production, use the full API URL
+  // In production, construct the full URL
+  // API_BASE_URL already includes the /api path, so just append the endpoint
   return `${API_BASE_URL}/${cleanEndpoint}`;
 }
 
 // Fallback function to try different ports if the current one fails
 export async function getApiUrlWithFallback(endpoint: string): Promise<string> {
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  let cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  
+  // Remove api/ prefix if present to avoid double api paths
+  if (cleanEndpoint.startsWith('api/')) {
+    cleanEndpoint = cleanEndpoint.slice(4);
+  }
   
   if (config.isDevelopment) {
     // In development, if we're on the wrong port, try to detect the correct server port
@@ -30,7 +41,7 @@ export async function getApiUrlWithFallback(endpoint: string): Promise<string> {
     const fallbackPorts = ['3003', '3004', '3005', '3006'];
     
     // First try the current port (relative URL)
-    return `/${cleanEndpoint}`;
+    return `/api/${cleanEndpoint}`;
   }
   
   return `${API_BASE_URL}/${cleanEndpoint}`;
