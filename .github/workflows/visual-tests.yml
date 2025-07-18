@@ -91,7 +91,7 @@ jobs:
         DEMO_MODE: true
     
     - name: Wait for server
-      run: npx wait-on http://localhost:3002 --timeout 60000
+      run: npx wait-on http://localhost:3003 --timeout 60000
     
     - name: Run Lighthouse CI
       run: |
