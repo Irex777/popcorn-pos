@@ -507,14 +507,52 @@ app.get("/api/shops", async (req, res) => {
 
   // Orders routes
   app.get("/api/shops/:shopId/orders", requireShopAccess, async (req, res) => {
-    const orders = await storage.getOrders(parseInt(req.params.shopId));
-    const ordersWithItems = await Promise.all(
-      orders.map(async (order: Order) => {
-        const items = await storage.getOrderItems(order.id);
-        return { ...order, items };
-      })
-    );
-    res.json(ordersWithItems);
+    try {
+      const shopId = parseInt(req.params.shopId);
+      
+      // Validate shopId
+      if (isNaN(shopId) || shopId <= 0) {
+        return res.status(400).json({ error: 'Invalid shop ID' });
+      }
+
+      console.log(`Fetching orders for shop ${shopId}`);
+      
+      // Add timeout to database query
+      const orders = await Promise.race([
+        storage.getOrders(shopId),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Database query timeout')), 15000)
+        )
+      ]) as Order[];
+
+      console.log(`Retrieved ${orders.length} orders`);
+
+      // Process orders with items, with error handling for each order
+      const ordersWithItems = await Promise.all(
+        orders.map(async (order: Order) => {
+          try {
+            const items = await storage.getOrderItems(order.id);
+            return { ...order, items };
+          } catch (itemError) {
+            console.warn(`Failed to get items for order ${order.id}:`, itemError);
+            return { ...order, items: [] }; // Return order with empty items array
+          }
+        })
+      );
+
+      console.log(`Processed ${ordersWithItems.length} orders with items`);
+      res.json(ordersWithItems);
+    } catch (error) {
+      console.error('Error fetching orders:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        shopId: req.params.shopId
+      });
+      res.status(500).json({ 
+        error: 'Failed to fetch orders',
+        details: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : String(error) : undefined
+      });
+    }
   });
 
   app.post("/api/shops/:shopId/orders", requireShopAccess, async (req, res) => {
@@ -1021,22 +1059,63 @@ app.get("/api/shops", async (req, res) => {
   app.get("/api/shops/:shopId/analytics/real-time", requireShopAccess, async (req, res) => {
     try {
       const shopId = parseInt(req.params.shopId);
-      const orders = await storage.getOrders(shopId);
-      const currentHour = new Date().getHours();
+      
+      // Validate shopId
+      if (isNaN(shopId) || shopId <= 0) {
+        return res.status(400).json({ error: 'Invalid shop ID' });
+      }
 
-      // Calculate real-time metrics...
+      console.log(`Fetching real-time analytics for shop ${shopId}`);
+      
+      // Add timeout to database query
+      const orders = await Promise.race([
+        storage.getOrders(shopId),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Database query timeout')), 10000)
+        )
+      ]) as Order[];
+
+      console.log(`Retrieved ${orders.length} orders for real-time analytics`);
+
+      const currentHour = new Date().getHours();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Safe filtering with null checks
       const currentHourOrders = orders.filter((order: Order) => {
-        const orderHour = new Date(order.createdAt!).getHours();
-        return orderHour === currentHour;
+        if (!order || !order.createdAt) return false;
+        try {
+          const orderDate = new Date(order.createdAt);
+          const orderHour = orderDate.getHours();
+          const orderDay = new Date(orderDate);
+          orderDay.setHours(0, 0, 0, 0);
+          return orderHour === currentHour && orderDay.getTime() === today.getTime();
+        } catch (e) {
+          console.warn('Invalid order date:', order.createdAt);
+          return false;
+        }
       });
 
-      const realtimeMetrics = {
-        currentHourSales: currentHourOrders.reduce((sum: number, order: Order) => sum + Number(order.total), 0),
-        activeCustomers: new Set(currentHourOrders.map((order: Order) => order.id)).size,
-        averageOrderValue: currentHourOrders.length > 0
-          ? currentHourOrders.reduce((sum: number, order: Order) => sum + Number(order.total), 0) / currentHourOrders.length
-          : 0
+      // Safe total calculation
+      const calculateTotal = (orders: Order[]): number => {
+        return orders.reduce((sum: number, order: Order) => {
+          if (!order || order.total === null || order.total === undefined) return sum;
+          const total = typeof order.total === 'string' ? parseFloat(order.total) : Number(order.total);
+          return sum + (isNaN(total) ? 0 : total);
+        }, 0);
       };
+
+      const currentHourSales = calculateTotal(currentHourOrders);
+      const activeCustomers = new Set(currentHourOrders.map((order: Order) => order.id)).size;
+      const averageOrderValue = currentHourOrders.length > 0 ? currentHourSales / currentHourOrders.length : 0;
+
+      const realtimeMetrics = {
+        currentHourSales: Math.round(currentHourSales * 100) / 100, // Round to 2 decimal places
+        activeCustomers,
+        averageOrderValue: Math.round(averageOrderValue * 100) / 100
+      };
+
+      console.log(`Real-time metrics calculated:`, realtimeMetrics);
 
       res.json({
         realtimeMetrics,
@@ -1051,24 +1130,62 @@ app.get("/api/shops", async (req, res) => {
         }
       });
     } catch (error) {
-      console.error('Error fetching real-time analytics:', error);
-      res.status(500).json({ error: 'Failed to fetch analytics data' });
+      console.error('Error fetching real-time analytics:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        shopId: req.params.shopId
+      });
+      res.status(500).json({ 
+        error: 'Failed to fetch analytics data',
+        details: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : String(error) : undefined
+      });
     }
   });
 
   app.get("/api/shops/:shopId/analytics/historical", requireShopAccess, async (req, res) => {
     try {
       const shopId = parseInt(req.params.shopId);
-      const orders = await storage.getOrders(shopId);
-      const historicalData = orders.map((order: Order) => ({
-        date: order.createdAt,
-        total: Number(order.total)
-      }));
+      
+      // Validate shopId
+      if (isNaN(shopId) || shopId <= 0) {
+        return res.status(400).json({ error: 'Invalid shop ID' });
+      }
 
+      console.log(`Fetching historical analytics for shop ${shopId}`);
+      
+      // Add timeout to database query
+      const orders = await Promise.race([
+        storage.getOrders(shopId),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Database query timeout')), 10000)
+        )
+      ]) as Order[];
+
+      console.log(`Retrieved ${orders.length} orders for historical analytics`);
+
+      // Safe data transformation with null checks
+      const historicalData = orders
+        .filter(order => order && order.createdAt && order.total !== null && order.total !== undefined)
+        .map((order: Order) => {
+          const total = typeof order.total === 'string' ? parseFloat(order.total) : Number(order.total);
+          return {
+            date: order.createdAt,
+            total: isNaN(total) ? 0 : total
+          };
+        });
+
+      console.log(`Processed ${historicalData.length} valid historical data points`);
       res.json(historicalData);
     } catch (error) {
-      console.error('Error fetching historical analytics:', error);
-      res.status(500).json({ error: 'Failed to fetch historical data' });
+      console.error('Error fetching historical analytics:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        shopId: req.params.shopId
+      });
+      res.status(500).json({ 
+        error: 'Failed to fetch historical data',
+        details: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : String(error) : undefined
+      });
     }
   });
 

@@ -498,11 +498,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrders(shopId: number): Promise<Order[]> {
-    return await db
-      .select()
-      .from(orders)
-      .where(eq(orders.shopId, shopId))
-      .orderBy(orders.createdAt);
+    try {
+      console.log(`Storage: Fetching orders for shop ${shopId}`);
+      const result = await db
+        .select()
+        .from(orders)
+        .where(eq(orders.shopId, shopId))
+        .orderBy(orders.createdAt);
+      
+      console.log(`Storage: Retrieved ${result.length} orders for shop ${shopId}`);
+      return result;
+    } catch (error) {
+      console.error(`Storage: Error fetching orders for shop ${shopId}:`, {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      throw error;
+    }
   }
 
   // Keep other existing methods but add shopId validation where appropriate
