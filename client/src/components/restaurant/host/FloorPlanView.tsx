@@ -483,43 +483,54 @@ export default function FloorPlanView() {
       
       {/* New Order Dialog */}
       <Dialog open={newOrderDialogOpen} onOpenChange={setNewOrderDialogOpen}>
-        <DialogContent className="max-w-[95vw] w-full h-[95vh] max-h-[95vh]">
-          <DialogHeader className="pb-4 border-b">
-            <DialogTitle className="text-xl flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <UtensilsCrossed className="h-6 w-6" />
+        <DialogContent className="max-w-6xl w-[98vw] h-auto max-h-[90vh] overflow-hidden p-0 sm:w-[95vw] sm:max-h-[85vh]">
+          <DialogHeader className="px-3 py-2 border-b sm:px-4">
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <UtensilsCrossed className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="truncate">
                 {editingOrder 
-                  ? t('restaurant.addItemsToOrderWithId', { orderId: editingOrder.id, tableNumber: selectedTableForOrder?.number || editingOrder.tableId })
+                  ? t('restaurant.addItemsToOrderWithId', { orderId: editingOrder.id })
                   : selectedTableForOrder 
-                    ? t('restaurant.takeOrderWithTable', { tableNumber: selectedTableForOrder.number, capacity: selectedTableForOrder.capacity })
-                    : t('restaurant.newOrderSelectTable')
+                    ? `${t('restaurant.table')} ${selectedTableForOrder.number}`
+                    : t('restaurant.newOrder')
                 }
-              </div>
+              </span>
               {selectedTableForOrder && (
-                <Badge variant="outline" className="text-sm">
+                <Badge variant="outline" className="hidden sm:block ml-auto text-xs">
                   {selectedTableForOrder.section || t('restaurant.mainArea')}
                 </Badge>
               )}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex h-[calc(100%-80px)] gap-6 pt-4">
-            {/* Menu Grid */}
-            <div className="flex-1 overflow-y-auto pr-2">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">{t('restaurant.menuItems')}</h3>
-                  <div className="text-sm text-muted-foreground">
-                    Click items to add to order
-                  </div>
-                </div>
-                <ProductGrid />
-              </div>
-            </div>
-            {/* Cart Panel */}
-            <div className="w-[450px] border-l pl-6 flex flex-col">
+          
+          {/* Mobile Layout - Stacked */}
+          <div className="flex flex-col md:hidden h-[80vh]">
+            {/* Mobile Cart Summary - Always visible at top */}
+            <div className="border-b bg-muted/30 p-3">
               <RestaurantCartPanel 
                 preSelectedTable={selectedTableForOrder} 
                 editingOrder={editingOrder}
+                onOrderPlaced={() => setNewOrderDialogOpen(false)}
+              />
+            </div>
+            {/* Mobile Menu Grid */}
+            <div className="flex-1 overflow-y-auto p-3">
+              <ProductGrid />
+            </div>
+          </div>
+
+          {/* Desktop Layout - Side by side */}
+          <div className="hidden md:flex h-[65vh]">
+            {/* Menu Grid */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <ProductGrid />
+            </div>
+            {/* Cart Panel */}
+            <div className="w-80 border-l bg-muted/30 p-4 overflow-y-auto">
+              <RestaurantCartPanel 
+                preSelectedTable={selectedTableForOrder} 
+                editingOrder={editingOrder}
+                onOrderPlaced={() => setNewOrderDialogOpen(false)}
               />
             </div>
           </div>

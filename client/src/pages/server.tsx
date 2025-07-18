@@ -97,11 +97,6 @@ export default function Server() {
     order.status !== 'completed' && order.status !== 'cancelled'
   );
   
-  // Debug logging
-  console.log('Debug - All orders:', orders);
-  console.log('Debug - Active orders:', activeOrders);
-  console.log('Debug - myTables count:', myTables.length);
-  
   const todaysSales = orders
     .filter((order: Order) => {
       const orderDate = new Date(order.createdAt!);
