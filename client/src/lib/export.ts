@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
 
 export function downloadCSV(data: any[], filename: string) {
   const headers = Object.keys(data[0]);
@@ -22,11 +22,25 @@ export function downloadCSV(data: any[], filename: string) {
   link.click();
 }
 
-export function downloadExcel(data: any[], filename: string) {
-  const worksheet = XLSX.utils.json_to_sheet(data);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-  XLSX.writeFile(workbook, `${filename}.xlsx`);
+export async function downloadExcel(data: any[], filename: string) {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Sheet1');
+  
+  if (data.length > 0) {
+    const headers = Object.keys(data[0]);
+    worksheet.addRow(headers);
+    
+    data.forEach(row => {
+      worksheet.addRow(headers.map(header => row[header]));
+    });
+  }
+  
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${filename}.xlsx`;
+  link.click();
 }
 
 export function downloadPDF(data: any[], filename: string, title: string) {
@@ -54,13 +68,13 @@ export function downloadPDF(data: any[], filename: string, title: string) {
 
 export type ExportFormat = 'csv' | 'excel' | 'pdf';
 
-export function exportData(data: any[], format: ExportFormat, filename: string, title: string) {
+export async function exportData(data: any[], format: ExportFormat, filename: string, title: string) {
   switch (format) {
     case 'csv':
       downloadCSV(data, filename);
       break;
     case 'excel':
-      downloadExcel(data, filename);
+      await downloadExcel(data, filename);
       break;
     case 'pdf':
       downloadPDF(data, filename, title);

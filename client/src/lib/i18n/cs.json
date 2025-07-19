@@ -95,6 +95,10 @@
     "deleteError": "Chyba při mazání objednávky",
     "confirmDelete": "Opravdu chcete smazat tuto objednávku?",
     "searchPlaceholder": "Hledat objednávky podle ID nebo názvu produktu",
+    "startDate": "Datum od",
+    "endDate": "Datum do",
+    "from": "Od",
+    "to": "Do",
     "status": {
       "completed": "Dokončeno",
       "pending": "Čeká na vyřízení",

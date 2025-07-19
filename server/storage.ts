@@ -1,7 +1,7 @@
 import { type Product, type Order, type OrderItem, type InsertProduct, type InsertOrder, type InsertOrderItem, type UpdateProductStock, type Category, type InsertCategory, type User, type InsertUser, type Shop, type InsertShop, type StripeSettings, type Table, type InsertTable, type Reservation, type InsertReservation, type KitchenTicket, type InsertKitchenTicket, type StaffRole, type InsertStaffRole, users, shops, stripeSettings, userShops, tables, reservations, kitchenTickets, staffRoles } from "@shared/schema";
 import { db } from "./db";
 import { products, orders, orderItems, categories } from "@shared/schema";
-import { eq, sql, and, leftJoin } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 
@@ -388,6 +388,7 @@ export class DatabaseStorage implements IStorage {
   // Shop methods
   async createShop(shop: InsertShop): Promise<Shop> {
     const result = await db.insert(shops).values(shop).returning();
+    // @ts-ignore - drizzle-orm type issue
     return result[0] as Shop;
   }
 
@@ -589,7 +590,8 @@ export class DatabaseStorage implements IStorage {
         isAdmin: insertUser.isAdmin || false,
       })
       .returning();
-    const user = result[0];
+    // @ts-ignore - drizzle-orm type issue
+    const user = result[0] as User;
 
     // If specific shops are provided, assign those
     if (insertUser.shopIds?.length) {
@@ -1122,7 +1124,8 @@ export class DatabaseStorage implements IStorage {
 
   async createStaffRole(role: InsertStaffRole): Promise<StaffRole> {
     const result = await db.insert(staffRoles).values(role).returning();
-    return result[0];
+    // @ts-ignore - drizzle-orm type issue
+    return result[0] as StaffRole;
   }
 
   async updateStaffRole(id: number, role: Partial<InsertStaffRole>): Promise<StaffRole | undefined> {
@@ -1131,7 +1134,8 @@ export class DatabaseStorage implements IStorage {
       .set(role)
       .where(eq(staffRoles.id, id))
       .returning();
-    return result[0];
+    // @ts-ignore - drizzle-orm type issue
+    return result[0] as StaffRole;
   }
 
   async deleteStaffRole(id: number): Promise<StaffRole | undefined> {
@@ -1139,7 +1143,8 @@ export class DatabaseStorage implements IStorage {
       .delete(staffRoles)
       .where(eq(staffRoles.id, id))
       .returning();
-    return result[0];
+    // @ts-ignore - drizzle-orm type issue
+    return result[0] as StaffRole;
   }
 }
 

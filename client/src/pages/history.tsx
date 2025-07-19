@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { type Order } from "@shared/schema";
 import { format, startOfWeek, endOfWeek, isWithinInterval, parseISO } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Download, Search, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Download, Search, Trash2, Calendar } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
@@ -258,30 +258,38 @@ export default function History() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 sm:flex-row">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
-            <input
-              type="text"
-              placeholder={t('history.searchPlaceholder')}
-              className="w-full rounded-md border pl-9 pr-4 py-2"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
+              <input
+                type="text"
+                placeholder={t('history.searchPlaceholder')}
+                className="w-full rounded-md border border-input bg-background px-9 py-2.5 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
-          <div className="flex gap-2">
-            <input
-              type="date"
-              className="rounded-md border px-4 py-2"
-              value={startDate ? format(startDate, 'yyyy-MM-dd') : ''}
-              onChange={(e) => setStartDate(e.target.value ? parseISO(e.target.value) : null)}
-            />
-            <input
-              type="date"
-              className="rounded-md border px-4 py-2"
-              value={endDate ? format(endDate, 'yyyy-MM-dd') : ''}
-              onChange={(e) => setEndDate(e.target.value ? parseISO(e.target.value) : null)}
-            />
+          <div className="flex gap-3">
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              <input
+                type="date"
+                className="w-36 rounded-md border border-input bg-background pl-10 pr-3 py-2.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                value={startDate ? format(startDate, 'yyyy-MM-dd') : ''}
+                onChange={(e) => setStartDate(e.target.value ? parseISO(e.target.value) : null)}
+              />
+            </div>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              <input
+                type="date"
+                className="w-36 rounded-md border border-input bg-background pl-10 pr-3 py-2.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                value={endDate ? format(endDate, 'yyyy-MM-dd') : ''}
+                onChange={(e) => setEndDate(e.target.value ? parseISO(e.target.value) : null)}
+              />
+            </div>
           </div>
         </div>
       </div>
