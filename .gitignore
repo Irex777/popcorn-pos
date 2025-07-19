@@ -8,4 +8,11 @@ vite.config.ts.*
 # Playwright testing
 test-results/
 playwright-report/
-playwright/.cache/
+playwright/.cache/# Debug and temporary files
+debug-production-analytics.js
+diagnose-database-issue.js
+fix-production-database.js
+test-production-migration-status.js
+tmp_rovodev_test_analytics.js
+.port
+client/public/.server-port
