@@ -670,9 +670,9 @@ app.get("/api/shops", async (req, res) => {
         return res.status(500).json({ error: "Failed to complete payment" });
       }
 
-      // If the order has a table, mark it as available for cleaning
+      // If the order has a table, mark it as available immediately
       if (existingOrder.tableId) {
-        await storage.updateTable(existingOrder.tableId, { status: 'cleaning' });
+        await storage.updateTable(existingOrder.tableId, { status: 'available' });
       }
 
       res.json(updatedOrder);
