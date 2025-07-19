@@ -1,5 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UtensilsCrossed, Car, Bike } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface OrderTypeSelectorProps {
   value: "dine_in" | "takeout" | "delivery";
@@ -7,6 +8,8 @@ interface OrderTypeSelectorProps {
 }
 
 export default function OrderTypeSelector({ value, onValueChange }: OrderTypeSelectorProps) {
+  const { t } = useTranslation();
+  
   const getIcon = (type: string) => {
     switch (type) {
       case "dine_in":
@@ -23,13 +26,13 @@ export default function OrderTypeSelector({ value, onValueChange }: OrderTypeSel
   const getLabel = (type: string) => {
     switch (type) {
       case "dine_in":
-        return "Dine In";
+        return t('orderTypes.dineIn');
       case "takeout":
-        return "Takeout";
+        return t('orderTypes.takeout');
       case "delivery":
-        return "Delivery";
+        return t('orderTypes.delivery');
       default:
-        return "Dine In";
+        return t('orderTypes.dineIn');
     }
   };
 
@@ -45,19 +48,19 @@ export default function OrderTypeSelector({ value, onValueChange }: OrderTypeSel
         <SelectItem value="dine_in">
           <div className="flex items-center gap-2">
             <UtensilsCrossed className="h-4 w-4" />
-            Dine In
+            {t('orderTypes.dineIn')}
           </div>
         </SelectItem>
         <SelectItem value="takeout">
           <div className="flex items-center gap-2">
             <Car className="h-4 w-4" />
-            Takeout
+            {t('orderTypes.takeout')}
           </div>
         </SelectItem>
         <SelectItem value="delivery">
           <div className="flex items-center gap-2">
             <Bike className="h-4 w-4" />
-            Delivery
+            {t('orderTypes.delivery')}
           </div>
         </SelectItem>
       </SelectContent>

@@ -48,30 +48,30 @@ export default function Kitchen() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "urgent":
-        return "bg-red-100 text-red-800 border-red-200";
+        return "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 border-red-200 dark:border-red-800";
       case "high":
-        return "bg-orange-100 text-orange-800 border-orange-200";
+        return "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 border-orange-200 dark:border-orange-800";
       case "normal":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800";
       case "low":
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-800";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-800";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "new":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200";
       case "preparing":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200";
       case "ready":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200";
       case "served":
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-200";
     }
   };
 
@@ -104,7 +104,7 @@ export default function Kitchen() {
             <CardHeader>
               <CardTitle className="flex items-center justify-center gap-2 text-orange-800 dark:text-orange-200">
                 <ShoppingBag className="h-6 w-6" />
-                Shop Mode Active
+                {t('kitchen.shopModeActive')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -112,15 +112,15 @@ export default function Kitchen() {
                 <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                 <div className="text-left">
                   <p className="text-sm font-medium text-orange-800 dark:text-orange-200">
-                    Kitchen Display System Not Available
+                    {t('kitchen.kitchenNotAvailable')}
                   </p>
                   <p className="text-sm text-orange-600 dark:text-orange-300">
-                    The kitchen display system is designed for restaurant operations. In shop mode, orders are processed directly at the point of sale.
+                    {t('kitchen.kitchenNotAvailableDescription')}
                   </p>
                 </div>
               </div>
               <div className="mt-4 text-sm text-orange-600 dark:text-orange-300">
-                <p>Switch to Restaurant Mode in Settings to access the full kitchen display system.</p>
+                <p>{t('kitchen.switchToRestaurantMode')}</p>
               </div>
             </CardContent>
           </Card>
@@ -138,10 +138,10 @@ export default function Kitchen() {
       >
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
-            <ChefHat className="h-8 w-8 text-orange-600" />
-            Kitchen Display System
+            <ChefHat className="h-8 w-8 text-orange-600 dark:text-orange-400" />
+            {t('kitchen.kitchenDisplaySystem')}
           </h1>
-          <p className="text-muted-foreground">Manage order preparation and kitchen workflow</p>
+          <p className="text-muted-foreground">{t('kitchen.manageKitchenWorkflow')}</p>
         </div>
         <div className="flex items-center gap-4">
           <motion.div 
@@ -150,7 +150,7 @@ export default function Kitchen() {
             transition={{ duration: 0.5, repeat: tickets.length > 0 ? Infinity : 0, repeatDelay: 2 }}
           >
             <UtensilsCrossed className="h-5 w-5 text-primary" />
-            <span className="text-sm font-medium">{tickets.length} Active Orders</span>
+            <span className="text-sm font-medium">{tickets.length} {t('kitchen.activeOrders')}</span>
           </motion.div>
         </div>
       </motion.div>
@@ -158,20 +158,20 @@ export default function Kitchen() {
       {/* Priority Legend */}
       <div className="flex gap-4 mb-6">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-red-100 border border-red-200 rounded"></div>
-          <span className="text-sm">Urgent</span>
+          <div className="w-4 h-4 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded"></div>
+          <span className="text-sm">{t('kitchen.urgent')}</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-orange-100 border border-orange-200 rounded"></div>
-          <span className="text-sm">High</span>
+          <div className="w-4 h-4 bg-orange-100 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800 rounded"></div>
+          <span className="text-sm">{t('kitchen.high')}</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-blue-100 border border-blue-200 rounded"></div>
-          <span className="text-sm">Normal</span>
+          <div className="w-4 h-4 bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded"></div>
+          <span className="text-sm">{t('kitchen.normal')}</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-gray-100 border border-gray-200 rounded"></div>
-          <span className="text-sm">Low</span>
+          <div className="w-4 h-4 bg-gray-100 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-800 rounded"></div>
+          <span className="text-sm">{t('kitchen.low')}</span>
         </div>
       </div>
 
@@ -187,9 +187,9 @@ export default function Kitchen() {
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
               className="inline-block"
             >
-              <ChefHat className="h-12 w-12 text-orange-600" />
+              <ChefHat className="h-12 w-12 text-orange-600 dark:text-orange-400" />
             </motion.div>
-            <p className="mt-4 text-muted-foreground">Loading kitchen tickets...</p>
+            <p className="mt-4 text-muted-foreground">{t('kitchen.loadingTickets')}</p>
           </div>
         </motion.div>
       ) : tickets.length === 0 ? (
@@ -205,13 +205,13 @@ export default function Kitchen() {
               >
                 <UtensilsCrossed className="h-16 w-16 mx-auto text-muted-foreground mb-6" />
               </motion.div>
-              <h3 className="text-xl font-semibold mb-3">No Active Orders</h3>
+              <h3 className="text-xl font-semibold mb-3">{t('kitchen.noActiveOrders')}</h3>
               <p className="text-muted-foreground mb-4">
-                All orders have been completed
+                {t('kitchen.allOrdersCompleted')}
               </p>
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Waiting for new orders...</span>
+                <span>{t('kitchen.waitingForOrders')}</span>
               </div>
             </CardContent>
           </Card>
@@ -239,7 +239,7 @@ export default function Kitchen() {
                         <p className="text-sm text-muted-foreground">
                           {ticket.order?.orderType === "dine_in" && ticket.order?.tableId 
                             ? `Table ${ticket.order.tableId}` 
-                            : ticket.order?.orderType || "Takeout"}
+                            : ticket.order?.orderType || t('kitchen.takeout')}
                         </p>
                       </div>
                       <div className="text-right">
@@ -256,16 +256,16 @@ export default function Kitchen() {
                   <CardContent className="space-y-4">
                     {/* Order Items */}
                     <div className="space-y-2">
-                      <h4 className="text-sm font-semibold text-muted-foreground">Items to prepare:</h4>
+                      <h4 className="text-sm font-semibold text-muted-foreground">{t('kitchen.itemsToPrepare')}</h4>
                       {ticket.items && ticket.items.length > 0 ? (
                         <div className="space-y-1">
                           {ticket.items.map((item: any, index: number) => (
-                            <div key={index} className="flex justify-between items-center bg-muted/50 rounded p-2">
+                            <div key={index} className="flex justify-between items-center bg-muted/50 dark:bg-muted/20 rounded p-2">
                               <span className="text-sm font-medium">
-                                {item.quantity}x {item.product?.name || "Unknown Product"}
+                                {item.quantity}x {item.product?.name || t('kitchen.unknownProduct')}
                               </span>
                               {item.specialRequests && (
-                                <span className="text-xs text-orange-600 font-medium">
+                                <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">
                                   Special: {item.specialRequests}
                                 </span>
                               )}
@@ -273,7 +273,7 @@ export default function Kitchen() {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-muted-foreground">No items found</p>
+                        <p className="text-sm text-muted-foreground">{t('kitchen.noItemsFound')}</p>
                       )}
                     </div>
 
@@ -281,7 +281,7 @@ export default function Kitchen() {
                     {ticket.order?.specialInstructions && (
                       <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-2">
                         <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                          Special Instructions:
+                          {t('kitchen.specialInstructions')}
                         </p>
                         <p className="text-sm text-yellow-700 dark:text-yellow-300">
                           {ticket.order.specialInstructions}
@@ -291,7 +291,7 @@ export default function Kitchen() {
 
                     {/* Status and Actions */}
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Status:</span>
+                      <span className="text-sm font-medium">{t('kitchen.status')}</span>
                       <Badge className={getStatusColor(ticket.status)}>
                         {ticket.status}
                       </Badge>
@@ -305,7 +305,7 @@ export default function Kitchen() {
                           disabled={updateTicketMutation.isPending}
                           className="flex-1"
                         >
-                          Start Preparing
+                          {t('kitchen.startPreparing')}
                         </Button>
                       )}
                       {ticket.status === "preparing" && (
@@ -315,7 +315,7 @@ export default function Kitchen() {
                           disabled={updateTicketMutation.isPending}
                           className="flex-1"
                         >
-                          Mark Ready
+                          {t('kitchen.markReady')}
                         </Button>
                       )}
                       {ticket.status === "ready" && (
@@ -325,7 +325,7 @@ export default function Kitchen() {
                           disabled={updateTicketMutation.isPending}
                           className="flex-1"
                         >
-                          Complete
+                          {t('kitchen.complete')}
                         </Button>
                       )}
                     </div>
