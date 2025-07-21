@@ -62,16 +62,24 @@ export default function RestaurantCheckoutDialog({ isOpen, onOpenChange, preSele
 
   const sendToKitchenMutation = useMutation({
     mutationFn: async () => {
+      console.log('🚀 Starting order creation...');
+      console.log('Current shop:', currentShop);
+      console.log('Selected table:', selectedTable);
+      console.log('Order type:', orderType);
+      console.log('Cart:', cart);
+      
       if (!currentShop?.id) throw new Error(t('common.shop.noAssigned'));
       if (!selectedTable && orderType === "dine_in") {
         throw new Error(t('restaurant.selectTableRequired'));
       }
 
       // If we're editing an existing order, add items to it instead of creating new order
+      console.log('🔍 Checking if editing existing order:', editingOrder);
       if (editingOrder) {
         const response = await fetch(`/api/shops/${currentShop.id}/orders/${editingOrder.id}/items`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             items: cart.map(item => ({
               productId: item.product.id,
@@ -88,17 +96,24 @@ export default function RestaurantCheckoutDialog({ isOpen, onOpenChange, preSele
 
         return response.json();
       } else {
+        console.log('📝 Creating new order...');
         // Check if there's an existing pending order for this table
+        console.log('🔍 Checking for existing pending orders for table:', selectedTable?.id);
         if (selectedTable) {
-          const existingOrderResponse = await fetch(`/api/shops/${currentShop.id}/orders?tableId=${selectedTable.id}&status=pending`);
+          const existingOrderResponse = await fetch(`/api/shops/${currentShop.id}/orders?tableId=${selectedTable.id}&status=pending`, {
+            credentials: "include"
+          });
+          console.log('📥 Existing order check response:', existingOrderResponse.status);
           if (existingOrderResponse.ok) {
             const existingOrders = await existingOrderResponse.json();
+            console.log('🔍 Found existing orders:', existingOrders.length);
             if (existingOrders.length > 0) {
               // Add to existing order
               const existingOrder = existingOrders[0];
               const response = await fetch(`/api/shops/${currentShop.id}/orders/${existingOrder.id}/items`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify({
                   items: cart.map(item => ({
                     productId: item.product.id,
@@ -119,6 +134,7 @@ export default function RestaurantCheckoutDialog({ isOpen, onOpenChange, preSele
         }
 
         // Create new order if no existing order found
+        console.log('✨ Creating brand new order...');
         const orderData = {
           order: {
             total: total.toString(),
@@ -136,18 +152,27 @@ export default function RestaurantCheckoutDialog({ isOpen, onOpenChange, preSele
           }))
         };
 
-        const response = await fetch(`/api/shops/${currentShop.id}/orders`, {
+        console.log('📤 Sending order to:', `/api/shops/${currentShop.id}/orders/dine-in`);
+        console.log('📦 Order data:', orderData);
+        
+        const response = await fetch(`/api/shops/${currentShop.id}/orders/dine-in`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify(orderData),
         });
 
+        console.log('📥 Response status:', response.status);
+        
         if (!response.ok) {
           const error = await response.json();
+          console.error('❌ Order creation failed:', error);
           throw new Error(error.error || t('restaurant.orderSendFailed'));
         }
 
-        return response.json();
+        const result = await response.json();
+        console.log('✅ Order created successfully:', result);
+        return result;
       }
     },
     onSuccess: () => {
@@ -158,10 +183,10 @@ export default function RestaurantCheckoutDialog({ isOpen, onOpenChange, preSele
       setCart([]);
       onOpenChange(false);
       onOrderPlaced?.(); // Close parent dialog
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
-      queryClient.invalidateQueries({ queryKey: ["kitchen-tickets"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/shops/${currentShop.id}/orders`] });
+      queryClient.invalidateQueries({ queryKey: [`kitchen-tickets`, currentShop.id] });
       if (selectedTable) {
-        queryClient.invalidateQueries({ queryKey: ["tables"] });
+        queryClient.invalidateQueries({ queryKey: [`/api/shops/${currentShop.id}/tables`] });
       }
     },
     onError: (error: Error) => {
@@ -219,10 +244,10 @@ export default function RestaurantCheckoutDialog({ isOpen, onOpenChange, preSele
       setCart([]);
       onOpenChange(false);
       onOrderPlaced?.(); // Close parent dialog
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
-      queryClient.invalidateQueries({ queryKey: ["kitchen-tickets"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/shops/${currentShop.id}/orders`] });
+      queryClient.invalidateQueries({ queryKey: [`kitchen-tickets`, currentShop.id] });
       if (selectedTable) {
-        queryClient.invalidateQueries({ queryKey: ["tables"] });
+        queryClient.invalidateQueries({ queryKey: [`/api/shops/${currentShop.id}/tables`] });
       }
     },
     onError: (error: Error) => {

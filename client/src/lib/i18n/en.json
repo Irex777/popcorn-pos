@@ -185,7 +185,22 @@
     "businessMode": "Business Mode",
     "selectBusinessMode": "Select business mode",
     "shopMode": "Shop Mode",
-    "restaurantMode": "Restaurant Mode"
+    "restaurantMode": "Restaurant Mode",
+    "createDemoShop": "Create Demo Shop",
+    "createDemoShopDescription": "Create a pre-populated shop or restaurant with sample data for testing and demonstration",
+    "demoShopType": "Demo Type",
+    "selectDemoType": "Select demo type",
+    "demoShop": "Demo Shop",
+    "demoRestaurant": "Demo Restaurant",
+    "demoShopNamePlaceholder": "e.g., Demo Coffee Shop",
+    "demoShopAddressPlaceholder": "e.g., 123 Demo Street",
+    "includeHistoricalData": "Include historical order data",
+    "historicalDataDays": "Days of historical data",
+    "day": "day",
+    "days": "days",
+    "demoShopCreated": "Demo Shop Created",
+    "demoShopCreateSuccess": "Demo {{type}} created with {{categories}} categories, {{products}} products, and {{orders}} historical orders",
+    "demoShopCreateError": "Failed to create demo shop"
   },
   "checkout": {
     "title": "Checkout",

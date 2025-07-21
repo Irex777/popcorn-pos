@@ -6,6 +6,8 @@ import { z } from "zod";
 
 import paymentsRouter from './routes/payments';
 import { categories, products, orders, stripeSettings, type Order, type Product, type Category, type StripeSettings } from "@shared/schema";
+import { DemoDataService } from './services/demo-data-service';
+import { broadcastAnalyticsUpdate } from './websocket';
 
 // Middleware to check if user is admin
 const requireAdmin = (req: any, res: any, next: any) => {
@@ -24,8 +26,13 @@ const requireAdmin = (req: any, res: any, next: any) => {
 const requireShopAccess = async (req: any, res: any, next: any) => {
   // Demo mode bypass for testing
   if (process.env.DEMO_MODE === 'true') {
+    console.log('Demo mode enabled, bypassing authentication');
     return next();
   }
+  
+  console.log('Demo mode not enabled, checking authentication...');
+  console.log('Request URL:', req.url);
+  console.log('User session:', req.user ? 'authenticated' : 'not authenticated');
   
   const shopId = parseInt(req.params.shopId || req.body.shopId);
   if (!shopId) {
@@ -145,6 +152,64 @@ export function registerRoutes(app: Express): Server {
       res.status(400).json({ 
         error: error instanceof Error ? error.message : "Invalid shop data" 
       });
+    }
+  });
+
+  // Demo shop creation route
+  app.post("/api/shops/demo", requireAdmin, async (req, res) => {
+    try {
+      
+      const { type, name, address, includeHistory, historyDays } = req.body;
+      
+      // Validate input
+      if (!type || !['shop', 'restaurant'].includes(type)) {
+        return res.status(400).json({ error: 'Invalid shop type. Must be "shop" or "restaurant"' });
+      }
+      
+      if (!name || name.trim().length === 0) {
+        return res.status(400).json({ error: 'Shop name is required' });
+      }
+
+      // Validate user permission
+      await DemoDataService.validateDemoShopCreation(req.user.id);
+
+      const config = {
+        type,
+        name: name.trim(),
+        address: address?.trim(),
+        includeHistory: !!includeHistory,
+        historyDays: Math.max(1, Math.min(30, parseInt(historyDays) || 7)) // 1-30 days, default 7
+      };
+
+      const result = await DemoDataService.createDemoShop(config, req.user.id);
+
+      res.status(201).json({
+        message: `Demo ${type} created successfully`,
+        shop: result.shop,
+        stats: {
+          categories: result.categoriesCount,
+          products: result.productsCount,
+          tables: result.tablesCount,
+          orders: result.ordersCount
+        }
+      });
+
+    } catch (error) {
+      console.error('Demo shop creation error:', error);
+      res.status(400).json({ 
+        error: error instanceof Error ? error.message : "Failed to create demo shop" 
+      });
+    }
+  });
+
+  // Get demo shop templates
+  app.get("/api/shops/demo/templates", requireAdmin, async (req, res) => {
+    try {
+      const templates = DemoDataService.getDemoTemplates();
+      res.json(templates);
+    } catch (error) {
+      console.error('Error fetching demo templates:', error);
+      res.status(500).json({ error: 'Failed to fetch demo templates' });
     }
   });
 
@@ -516,6 +581,7 @@ app.get("/api/shops", async (req, res) => {
       }
 
       console.log(`Fetching orders for shop ${shopId}`);
+      console.log(`Query params:`, req.query);
       
       // Add timeout to database query
       const orders = await Promise.race([
@@ -525,11 +591,28 @@ app.get("/api/shops", async (req, res) => {
         )
       ]) as Order[];
 
-      console.log(`Retrieved ${orders.length} orders`);
+      // Filter orders based on query parameters
+      let filteredOrders = orders;
+      
+      if (req.query.tableId) {
+        const tableId = parseInt(req.query.tableId as string);
+        if (!isNaN(tableId)) {
+          filteredOrders = filteredOrders.filter(order => order.tableId === tableId);
+          console.log(`Filtered by tableId ${tableId}: ${filteredOrders.length} orders`);
+        }
+      }
+      
+      if (req.query.status) {
+        const status = req.query.status as string;
+        filteredOrders = filteredOrders.filter(order => order.status === status);
+        console.log(`Filtered by status ${status}: ${filteredOrders.length} orders`);
+      }
+
+      console.log(`Retrieved ${orders.length} total orders, returning ${filteredOrders.length} filtered orders`);
 
       // Process orders with items, with error handling for each order
       const ordersWithItems = await Promise.all(
-        orders.map(async (order: Order) => {
+        filteredOrders.map(async (order: Order) => {
           try {
             const items = await storage.getOrderItems(order.id);
             return { ...order, items };
@@ -575,7 +658,31 @@ app.get("/api/shops", async (req, res) => {
         return res.status(500).json({ error: "Failed to create order" });
       }
 
+      // If order is for a table, mark table as occupied
+      if (orderData.tableId) {
+        try {
+          await storage.updateTable(orderData.tableId, { status: 'occupied' });
+          console.log(`Table ${orderData.tableId} marked as occupied for order ${order.id}`);
+        } catch (error) {
+          console.error('Failed to update table status:', error);
+          // Don't fail the order creation if table update fails
+        }
+      }
+
       const items = await storage.getOrderItems(order.id);
+      
+      // Broadcast new order event for real-time updates
+      try {
+        broadcastAnalyticsUpdate('NEW_ORDER', { 
+          order: { ...order, items },
+          shopId: orderData.shopId,
+          tableId: orderData.tableId 
+        });
+        console.log(`Broadcasted NEW_ORDER event for order ${order.id}`);
+      } catch (error) {
+        console.error('Failed to broadcast order update:', error);
+      }
+      
       res.status(201).json({ ...order, items });
     } catch (error) {
       console.error('Order creation error:', error);
@@ -670,9 +777,23 @@ app.get("/api/shops", async (req, res) => {
         return res.status(500).json({ error: "Failed to complete payment" });
       }
 
-      // If the order has a table, mark it as available immediately
+      // If the order has a table, check if there are other pending orders for this table
       if (existingOrder.tableId) {
-        await storage.updateTable(existingOrder.tableId, { status: 'available' });
+        // Get all orders for this table
+        const tableOrders = await storage.getOrders(shopId);
+        const pendingOrdersForTable = tableOrders.filter(order => 
+          order.tableId === existingOrder.tableId && 
+          order.status === 'pending' && 
+          order.id !== orderId // Exclude the current order being completed
+        );
+        
+        // Only mark table as available if no other pending orders exist
+        if (pendingOrdersForTable.length === 0) {
+          await storage.updateTable(existingOrder.tableId, { status: 'available' });
+          console.log(`🪑 Table ${existingOrder.tableId} marked as available - no pending orders remaining`);
+        } else {
+          console.log(`🪑 Table ${existingOrder.tableId} kept occupied - ${pendingOrdersForTable.length} pending orders remaining`);
+        }
       }
 
       res.json(updatedOrder);
@@ -987,6 +1108,9 @@ app.get("/api/shops", async (req, res) => {
   // Enhanced orders routes for restaurant workflow
   app.post("/api/shops/:shopId/orders/dine-in", requireShopAccess, async (req, res) => {
     try {
+      console.log(`📝 Dine-in order creation request for shop ${req.params.shopId}`);
+      console.log(`📦 Request body:`, JSON.stringify(req.body, null, 2));
+      
       const orderData = insertOrderSchema.parse({
         ...req.body.order,
         shopId: parseInt(req.params.shopId),
@@ -1006,12 +1130,16 @@ app.get("/api/shops", async (req, res) => {
       const order = await storage.createOrder(orderData, itemsData);
 
       if (!order) {
+        console.error(`❌ Failed to create order for shop ${req.params.shopId}`);
         return res.status(500).json({ error: "Failed to create order" });
       }
+      
+      console.log(`✅ Created order ${order.id} for table ${orderData.tableId}`);
 
       // If order is for a table, mark table as occupied
       if (orderData.tableId) {
         await storage.updateTable(orderData.tableId, { status: 'occupied' });
+        console.log(`🪑 Table ${orderData.tableId} marked as occupied`);
       }
 
       // Process items based on whether they require kitchen preparation
@@ -1046,6 +1174,20 @@ app.get("/api/shops", async (req, res) => {
       }
 
       const items = await storage.getOrderItems(order.id);
+      
+      // Broadcast new order event for real-time updates
+      try {
+        broadcastAnalyticsUpdate('NEW_ORDER', { 
+          order: { ...order, items },
+          shopId: orderData.shopId,
+          tableId: orderData.tableId,
+          kitchenItems: kitchenItems.length > 0 
+        });
+        console.log(`Broadcasted NEW_ORDER event for dine-in order ${order.id}`);
+      } catch (error) {
+        console.error('Failed to broadcast dine-in order update:', error);
+      }
+      
       res.status(201).json({ ...order, items });
     } catch (error) {
       console.error('Dine-in order creation error:', error);

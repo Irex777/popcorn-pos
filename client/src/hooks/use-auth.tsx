@@ -28,6 +28,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logPortInfo();
   }, []);
 
+  // Auto-login for development
+  useEffect(() => {
+    const autoLogin = async () => {
+      try {
+        // Check if we're already authenticated
+        const userRes = await fetch(getApiUrl("api/user"), {
+          method: "GET",
+          credentials: "include",
+        });
+        
+        if (userRes.ok) {
+          console.log("Already authenticated");
+          return;
+        }
+        
+        // Try to auto-login
+        console.log("Attempting auto-login...");
+        const loginRes = await fetch(getApiUrl("api/login"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ username: "admin", password: "admin" })
+        });
+        
+        if (loginRes.ok) {
+          console.log("✅ Auto-login successful, refreshing user data");
+          queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+          // Also refresh shops and other data
+          queryClient.invalidateQueries({ queryKey: ["/api/shops"] });
+        } else {
+          console.warn("❌ Auto-login failed with status:", loginRes.status);
+        }
+      } catch (error) {
+        console.warn("Auto-login error:", error);
+      }
+    };
+    
+    // Run auto-login after a short delay to ensure the app is ready
+    const timer = setTimeout(autoLogin, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const {
     data: user,
     error,

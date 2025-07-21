@@ -99,6 +99,53 @@ export default function Settings() {
     },
   });
 
+  const createDemoShopMutation = useMutation({
+    mutationFn: async (data: { type: string; name: string; address?: string; includeHistory: boolean; historyDays: number }) => {
+      const response = await fetch('/api/shops/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: data.type,
+          name: data.name.trim(),
+          address: data.address?.trim() || null,
+          includeHistory: data.includeHistory,
+          historyDays: data.historyDays
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || t('settings.demoShopCreateError'));
+      }
+
+      return response.json();
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/shops'] });
+      setCurrentShop(result.shop);
+      toast({
+        title: t('settings.demoShopCreated'),
+        description: t('settings.demoShopCreateSuccess', { 
+          type: result.shop.businessMode,
+          categories: result.stats.categories,
+          products: result.stats.products,
+          orders: result.stats.orders
+        }),
+      });
+      // Reset form
+      const form = document.getElementById('createDemoShopForm') as HTMLFormElement;
+      if (form) form.reset();
+    },
+    onError: (error: Error) => {
+      console.error('Demo shop creation error:', error);
+      toast({
+        title: t('common.error'),
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const editShopMutation = useMutation({
     mutationFn: async (data: { id: number; name: string; address?: string | null; businessMode?: string }) => {
       const response = await fetch(`/api/shops/${data.id}`, {
@@ -582,6 +629,110 @@ export default function Settings() {
                         <Plus className="h-4 w-4 mr-2" />
                       )}
                       {t('common.shop.create')}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {/* Demo Shop Creation */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('settings.createDemoShop')}</CardTitle>
+                  <CardDescription>{t('settings.createDemoShopDescription')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form
+                    id="createDemoShopForm"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      const type = formData.get('type') as string;
+                      const name = formData.get('name') as string;
+                      const address = formData.get('address') as string;
+                      const includeHistory = formData.get('includeHistory') === 'on';
+                      const historyDays = parseInt(formData.get('historyDays') as string) || 7;
+
+                      if (!name.trim()) {
+                        toast({
+                          title: t('settings.validationError'),
+                          description: t('common.shop.nameRequired'),
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+
+                      createDemoShopMutation.mutate({ type, name, address, includeHistory, historyDays });
+                    }}
+                    className="space-y-4"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="demo-type">{t('settings.demoShopType')}</Label>
+                        <Select name="type" defaultValue="shop">
+                          <SelectTrigger>
+                            <SelectValue placeholder={t('settings.selectDemoType')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="shop">{t('settings.demoShop')}</SelectItem>
+                            <SelectItem value="restaurant">{t('settings.demoRestaurant')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="demo-name">{t('common.shop.name')}</Label>
+                        <Input
+                          id="demo-name"
+                          name="name"
+                          placeholder={t('settings.demoShopNamePlaceholder')}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="demo-address">{t('common.shop.address')}</Label>
+                      <Input
+                        id="demo-address"
+                        name="address"
+                        placeholder={t('settings.demoShopAddressPlaceholder')}
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="includeHistory"
+                        name="includeHistory"
+                        defaultChecked
+                        className="rounded"
+                      />
+                      <Label htmlFor="includeHistory">{t('settings.includeHistoricalData')}</Label>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="historyDays">{t('settings.historicalDataDays')}</Label>
+                      <Select name="historyDays" defaultValue="7">
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1 {t('settings.day')}</SelectItem>
+                          <SelectItem value="3">3 {t('settings.days')}</SelectItem>
+                          <SelectItem value="7">7 {t('settings.days')}</SelectItem>
+                          <SelectItem value="14">14 {t('settings.days')}</SelectItem>
+                          <SelectItem value="30">30 {t('settings.days')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      type="submit"
+                      disabled={createDemoShopMutation.isPending}
+                      className="w-full"
+                      variant="outline"
+                    >
+                      {createDemoShopMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Plus className="h-4 w-4 mr-2" />
+                      )}
+                      {t('settings.createDemoShop')}
                     </Button>
                   </form>
                 </CardContent>
